@@ -1,1 +1,2 @@
 Hello jack, welcome to Git world
+this is a merge test.
