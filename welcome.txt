@@ -1,9 +1,0 @@
-Hello jack, welcome to Git world
-
-Nice to meet you.
-
-
-this is a merge test.
-
-BB.
-
