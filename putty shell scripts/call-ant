@@ -1,0 +1,45 @@
+#!/usr/bin/bash
+# This script is used for calling ANT by Shell
+function callANT()
+{
+# -----------------------------------------------
+# defining the configuration required to run Ant
+
+# set java.home and ant.home
+JAVA_HOME="/opt/ibm/javawrt3"
+export JAVA_HOME
+ANT_HOME="/usr/share/ant"
+
+# classpath used to start Ant
+CLASSPATH="$JAVA_HOME\lib\tools.jar"
+CLASSPATH="$CLASSPATH:$ANT_HOME\lib\ant.jar"
+CLASSPATH="$CLASSPATH:$ANT_HOME\lib\ant-launcher.jar"
+export CLASSPATH
+
+# PATH="$ANT_HOME/bin:$PATH"
+# export PATH
+# echo $JAVA_HOME
+# echo $ANT_HOME
+# echo $CLASSPATH
+# -----------------------------------------------
+
+"$JAVA_HOME"/bin/java \
+     -Dant.home="$ANT_HOME" \
+     org.apache.tools.ant.Main \
+	 -verbose \
+     -buildfile "$buildfile" \
+	 -logfile "$logfile"
+echo "exit code is [$?]"
+}
+
+case $1 in
+  "sync-mail")
+			buildfile=""
+			logfile=""
+			callANT $1
+			;;
+	*)
+			echo "No such kind of ant scirpt .."
+			exit 1
+			;;
+esac

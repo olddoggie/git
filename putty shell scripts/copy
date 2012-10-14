@@ -1,0 +1,65 @@
+# scp file to remote server lib dir
+echo "first param is path(ioas-oas server;ibu-ito-build server;istg-stg lib dir;iconf-stg config dir)"
+echo "second param is the file you need copy (or: the dir of stg lib folder(eg. afcollagent/BLEUM_RT_07262012_1) on ito-build server)"
+path=$1
+file=$2
+
+if [ $path = "ioas" ]
+  then
+echo "35\$Ticket! --- copying $file to ito oas lib..."
+scp $file oracle@ditoapv1.1fb.net:/1fb/home/oracle/oas/j2ee/home/onefblib
+fi
+
+if [ $path = "ibu" ]
+  then
+echo "build --- copying $file to ito build lib..."
+scp $file build@itobuild.1fb.net:/1fb/home/build/onefblib
+fi
+
+if [ $path = "istg" ]
+  then
+echo "build --- copying jars to ito build stage lib dir: $file ..."
+scp *.jar build@itobuild.1fb.net:/1fb/home/build/stage/$file/ito/libs/onefblibs
+fi
+
+if [ $path = "iconf" ]
+  then
+echo "build --- copying configuration files to ito build stage config dir: $file ..."
+scp application.ito.xml build@itobuild.1fb.net:/1fb/home/build/stage/$file/ito/config
+scp data-sources.ito.xml build@itobuild.1fb.net:/1fb/home/build/stage/$file/ito/config
+fi
+
+if [ $path = "filelist" ]
+  then
+echo "copying file lists to back-up dir: $file ..."
+cp -r *filelist.txt ./file/$file/
+echo "Cleaning the useless dirs/files ..."
+rm -r -f bleumModule*
+rm -r -f itoModule*
+rm -r -f itoPreviousTagModule*
+rm -r -f bleumModule*.txt
+rm -r -f *filelist.txt
+fi
+
+if [ $path = "mac" ]
+  then
+echo "aaaaa --- copying $file to Mac Public folder..."
+echo "cd Public"
+echo "sudo mv -f $2 jk"
+echo "cd jk"
+scp -r -q $file bleum@192.168.2.122:/Users/bleum/Public
+fi
+
+if [ $path = "to" ]
+  then
+echo "directly copy from BS-PC-152 to BS-PC-197"
+echo "please cd to the target folder of the file at first"
+cp -r -f $file ~/bs-pc-197/cron/$file
+fi
+
+if [ $path = "from" ]
+  then
+echo "directly copy from BS-PC-197 to BS-PC-152"
+echo "please cd to the target folder of the file at first"
+cp -r -f ~/bs-pc-197/cron/$file /cygdrive/d/cron/$file
+fi

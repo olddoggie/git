@@ -1,0 +1,11 @@
+# manage oas instance
+echo "Log into OAS, Restart instance ---- the param is instance name"
+f1=$1
+echo "command-list:"
+echo "path: /1fb/oracle/oas/opmn/bin"
+echo "cd oas/j2ee/home/onefblib"
+echo "cd oas/j2ee/$1/applications/$1/$1/WEB-INF/classes"
+echo "opmnctl status"
+echo "opmnctl restartproc process-type=$f1"
+echo "35\$Ticket!"
+ssh oracle@ditoapv1.1fb.net

@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+# This script is used for codes updated in ito-CVS daily
+echo "Rationale is cvs co/up project folder"
+echo ""
+itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
+temp="/cygdrive/d/LatestitoCVS"
+
+if [ ! -d $temp ]
+  then
+	mkdir $temp
+	source ~/bin/go $temp
+	cvs -d $itocvsroot co -P cs afcollagent afcsragent afshared fsagent fscm fsshared services afservice \
+	outputXmlFiles DatabaseXMLfiles fssplashcontent \
+	ccms afautopay adjustments autopayservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
+else
+	source ~/bin/go $temp
+	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services afservice \
+	outputXmlFiles DatabaseXMLfiles fssplashcontent \
+	ccms afautopay adjustments autopayservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
+fi

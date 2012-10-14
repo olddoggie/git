@@ -1,0 +1,164 @@
+# This script is used for simple check whether any codes updated in CVS when generating file list or count baseline CIs
+echo "Rationale is cvs rdiff -r -s tagname -r HEAD project/baseline folder"
+echo ""
+echo "first param is cvs module/project baseline folder(cs/af/fs750/fs/services or baseline ...)"
+echo "second param is the previous tag name(e.g. BLEUM_CS_RC_08212012_1/BL_RELEASE1_08172012_1)"
+echo "third param is the target tag name you want to update to ( usually Head )"
+echo "fourth param is the baseline folder location, Don't forget to use double qoute mark "
+echo "If this is a first time baseline situation, please input like this:basleline new <foleder name>"
+echo ""
+module=$1
+previoustag=$2
+currenttag=$3
+baselinefolder=$4
+# read -p "input module/project baseline folder(cs/af/fs750/fs/services or baseline ...): " module
+# read -p "input the previous tag name(e.g. BLEUM_CS_RC_08212012_1/BL_RELEASE1_08172012_1): " previoustag
+# read -p "input the target tag name you want to update to ( usually Head ): " currenttag
+# read -p "input the baseline folder location;If first time,input like this:basleline new <foleder name>: " baselinefolder
+file=~/update_filelist.txt
+bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
+
+if [ $module = "baseline" ]
+  then
+  if [ $2 != "new" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag "$baselinefolder" | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}'|tee $file
+echo "Finsh diff with $3 ..."
+echo "Start generating New CIs which should be added into CM plan..."
+cat $file | grep --color "new" |gawk 'BEGIN{ "date" | getline d; print "++++New CIs:",d}{{for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}' \
+|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is' '{print $1}'| tee -a $file | wc -l|awk '{print $0-1}'
+echo "Start generating Deleted CIs which should be removed from CM plan..."
+cat $file | grep --color "removed" |gawk 'BEGIN{ "date" | getline d; print "----Deleted CIs:",d}{{for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}' \
+|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is' '{print $1}'| tee -a $file | wc -l|awk '{print $0-1}'
+  else
+source ~/bin/go /cygdrive/d
+echo "$3 module is now being updated ..."
+cvs -d $bleumcvsroot update -A -P -d "BleumCVS/$3"
+echo "$3 first baseline CIs counting ..."
+cvs -d $bleumcvsroot status -Rq "BleumCVS/$3" | grep --color File | tee $file | wc -l
+echo "Finsh counting all the CIs ..."
+echo "Start generating CI list..."
+cat $file | grep --color File | awk 'BEGIN{ "date" | getline d; print "======= CI list:",d," ======="} { {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}' \
+| awk -F ' Status' '{print $1}' | tee -a $file | wc -l |awk '{print $0-1}'
+  fi
+fi
+
+if [ $module = "cs" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+csmaintenance/3.50/SourceCodeUBS/src csmaintenance/3.50/SourceCodeUBS/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--CS src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l|awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '{if (NR!=1) {print "M    "$0}else {print $0}} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-1}'
+fi
+
+if [ $module = "af" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+affinity/sourcecode/afcollagent/src affinity/sourcecode/afcollagent/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--AFcoll src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+affinity/sourcecode/afcsragent/src affinity/sourcecode/afcsragent/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--AFcsr src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+affinity/sourcecode/afshared/src affinity/sourcecode/afshared/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--AFShared src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-3}'
+fi
+
+if [ $module = "services" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+services/Sourcecode/src services/Sourcecode/mapping | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Services src/mapping--",d,"----------"}{{for(k = 4; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l|awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '{if (NR!=1) {print "M    "$0}else {print $0}} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-1}'
+fi
+
+if [ $module = "fs750" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Fscm src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fsshared/src | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Fsshared src--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Fssplashcontent src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+services/Sourcecode/src services/Sourcecode/mapping | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--services src/war--",d,"----------"}{{for(k = 4; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-4}'
+fi
+
+if [ $module = "fs" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fsagent/src fs/Sourcecode/fsagent/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Fsagent src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Fscm src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fsshared/src | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Fsshared src--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l|awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-3}'
+fi

@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+# This script is used as "cd" in shell scripts by using source ~/bin/go $1 under cyg env
+function gotopath()
+{
+echo "go to folder $1"
+cd $1
+}
+gotopath $1

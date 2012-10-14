@@ -1,0 +1,11 @@
+# Look up dictionaty
+echo "Searching in dictionary ---- never too old to learn!"
+echo "<===Translating ...====> "
+translate en cn $1
+echo "<===Match Result ...===> "
+#grep --color -h -w ^"$1" ~/dictionary/*-dict.txt
+grep --color -i -h -w ^$1 ~/dictionary/*-dict.txt|awk '{printf "\033[35;33m%-15s\033[0m %-15s %-15s\n",$1,$2,$3}'
+echo "<===Saving new word ...===> "
+echo "Searching word has been added into Word-Memo.txt !"
+echo $1 >> ~/Word-Memo.txt 
+echo "------------------------------------------------------------------------------------------">>~/Word-Memo.txt

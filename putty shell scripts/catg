@@ -1,0 +1,5 @@
+# cat $file | grep $name
+echo "cat file | grep "name" ---- the first param is file name and the second param is serch name"
+echo "matching result..."
+echo ""
+cat $1 | grep --color "$2"
