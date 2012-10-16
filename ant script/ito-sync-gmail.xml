@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This is a Ant build file for sending mail about sync log on 7:10 AM every morning.
+	
+	@author Jack.Wang
+	@version 1.0 Create
+	@mailhost: 126.com smtp.126.com; qq.com smtp.qq.com; hotmail.com smtp.live.com(not working); bleum.com mail.bleum.com(192.168.0.232)
+-->
+<project name="mail" default="cron" basedir="./">
+
+<!-- Important: Define the file/dir location -->
+	<property name="log.dir" value="/home/jack/back-up/1fb"/>
+	<property name="log.name" value="ito-sync-detail.txt"/>
+
+<!-- Changable: Define the mail information -->
+	<property name="to" value="jack.wang@bleum.com"/>
+<!--<property name="cc" value="edison.ma@bleum.com"/> -->
+
+<!-- Fetch the current time -->	
+	<tstamp>
+		<format property="log.day" pattern="MM/dd/yyyy" />
+	</tstamp>
+
+	<property name="log.date" value="${log.day} 00:01 AM" />
+
+<!-- Locate the latest back up file of which the size should be more than 40 GB -->
+	<path id="log.file">
+		<fileset dir="${log.dir}">
+			<include name="${log.name}"/>
+		<and>
+			<date datetime="${log.date}" when="after"/>
+		</and>
+		</fileset>
+	</path>
+
+<!-- Check whether log updated, if exists, set ${log.exist} to true -->
+	<target name="check">
+		<condition property="log.exist">
+			<available file="${log.name}">
+				<filepath refid="log.file"/>
+			</available>
+		</condition>
+	</target>
+
+<!-- log exists then copy and set mail content -->	
+	<target name="report-if-success" depends="check" if="log.exist">
+		<property name="mail.subject" value="ito CVS Daily SYNC Notifier [@ito-as1.1fb.net] -- Succeed"/>	
+		<property name="mail.content" value="${log.dir}/${log.name}"/>
+	</target>
+
+<!-- log NOT exists sert mail content -->
+	<target name="report-if-fail" depends="check" unless="file.exist">
+		<property name="mail.subject" value="ito CVS Daily SYNC Notifier [@ito-as1.1fb.net] -- Fail"/>	
+		<property name="mail.content" value="${log.dir}/fail-mail.txt"/>
+	</target>
+
+<!-- send ito-sync-detail mail -->
+	<target name="mail" depends="report-if-success, report-if-fail">
+		<mail from="sw7249@gmail.com" tolist="${to}" subject="${mail.subject}" messagefile="${mail.content}" mailhost="smtp.gmail.com" mailport="465" ssl="true" user="sw7249" password="jackwangrx7249"/>
+	</target>
+
+<!-- clean the log after mail sent, so that script works like a loop every day -->
+	<target name="clean">
+		<delete file="${log.dir}/${log.name}" quiet="true" />	
+	</target>
+	
+<!-- cron job -->
+	<target name="cron" depends="mail, clean"/>
+</project>
