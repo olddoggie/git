@@ -72,6 +72,7 @@ fi
 if [ $module = "services" ]
   then
 echo "Start diff from $2 ..."
+echo "ignore com/onefbusa/services/common/external/biz/channel/textbanking/ThruDatable.java"
 cvs -d $itocvsroot \
 rdiff -s -r $previoustag -r $currenttag \
 services/src services/mapping | grep File \
