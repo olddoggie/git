@@ -6,10 +6,12 @@ echo "Currently the main source code are checked on 6 P.M.;Other config/service 
 file=~/itosync-daily-check-log.txt
 result=~/itosync-daily-check.txt
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
+CS770=CS_7_70 						# update often
 AF350=AFF_3_50_Porting 				# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-AF350Pretag=BLEUM_AFFINITY_ST_09192012_1 				# update often
+CS770Pretag=BLEUM_CS770_SYNC_10122012_1 				# update often
+AF350Pretag=BLEUM_AFFINITY_SYNC_10162012_1 				# update often
 FS750Pretag=BLEUM_FS_CAT1_09272012_1 					# update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
 # In putty cvs -D 11:00 equals to cvs -D 18:00 CCT and cvs -D 10:00 UTC
@@ -52,9 +54,19 @@ do
 cvs-rdiff-by-tag $FS750Pretag $FS750 $module3
 done
 
-for module4 in services/src services/mapping afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
+for module4 in services/src services/mapping
 do
 cvs-rdiff-by-tag $AF350Pretag $AF350 $module4
+done
+
+for module5 in cs/src cs/war
+do
+cvs-rdiff-by-tag $CS770Pretag $CS770 $module5
+done
+
+for module6 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
+do
+cvs-rdiff-by-tag "BLEUM_AFFINITY_ST_09192012_1" $AF350 $module6
 done
 
 # Generate simple result, alias as "synmc"

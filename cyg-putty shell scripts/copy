@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 # scp file to remote server lib dir
 echo "first param is path(ioas-oas server;ibu-ito-build server;istg-stg lib dir;iconf-stg config dir)"
 echo "second param is the file you need copy (or: the dir of stg lib folder(eg. afcollagent/BLEUM_RT_07262012_1) on ito-build server)"
@@ -48,6 +49,12 @@ echo "cd Public"
 echo "sudo mv -f $2 jk"
 echo "cd jk"
 scp -r -q $file bleum@192.168.2.122:/Users/bleum/Public
+fi
+
+if [ $path = "zark" ]
+  then
+echo "welcome to zark's world..."
+scp "$file" "jack@205.185.126.116:/home/jack/back-up/1fb"
 fi
 
 if [ $path = "to" ]
