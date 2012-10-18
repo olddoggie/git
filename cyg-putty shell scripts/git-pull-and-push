@@ -5,6 +5,7 @@ echo "second param is the range of modified time usually 1 day"
 
 path=$1
 range=$2
+git_dir="/home/jack.wang/git"
 
 function git-pull-push ()
 { 
@@ -13,8 +14,8 @@ git pull && git add -A && git commit -m 'update from 152' && git push
 
 case $1 in
   "bin")
-		find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "/home/jack.wang/git/cyg-putty shell scripts"
-		source go /home/jack.wang/git
+		find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
+		source go "${git_dir}"
 		git-pull-push
 			;;
 	*)
