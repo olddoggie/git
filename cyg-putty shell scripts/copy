@@ -48,7 +48,7 @@ echo "aaaaa --- copying $file to Mac Public folder..."
 echo "cd Public"
 echo "sudo mv -f $2 jk"
 echo "cd jk"
-scp -r -q $file bleum@192.168.2.122:/Users/bleum/Public
+scp -r -q $file bleum@192.168.2.123:/Users/bleum/Public
 fi
 
 if [ $path = "zark" ]
