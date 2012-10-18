@@ -56,7 +56,7 @@
 
 <!-- send ito-sync-detail mail -->
 	<target name="mail" depends="report-if-success, report-if-fail">
-		<mail from="sw7249@gmail.com" tolist="${to}" subject="${mail.subject}" messagefile="${mail.content}" mailhost="smtp.gmail.com" mailport="465" ssl="true" user="sw7249" password="jackwangrx7249"/>
+		<mail from="@gmail.com" tolist="${to}" subject="${mail.subject}" messagefile="${mail.content}" mailhost="smtp.gmail.com" mailport="465" ssl="true" user="" password=""/>
 	</target>
 
 <!-- clean the log after mail sent, so that script works like a loop every day -->
