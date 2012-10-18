@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+# pull and push files from cygwin.home to github
+echo "first param is path you wanna sync with github (cygwin.home/bin..)"
+echo "second param is the range of modified time usually 1 day"
+
+path=$1
+range=$2
+
+function git-pull-push ()
+{ 
+git pull && git add -A && git commit -m 'update from 152' && git push 
+}
+
+case $1 in
+  "bin")
+		find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "/home/jack.wang/git/cyg-putty shell scripts"
+		source go /home/jack.wang/git
+		git-pull-push
+			;;
+	*)
+			echo "No such kind of ant scirpt .."
+			exit 1
+			;;
+esac
