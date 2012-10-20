@@ -15,10 +15,12 @@ git pull && git add -A && git commit -m 'update from 152' && git push
 
 case $1 in
   "bin")
-		find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
+		cp -u /home/jack.wang/.bashrc /home/jack.wang/bin
+	  	find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
 		source /home/jack.wang/bin/go "${git_dir}"
 		git-pull-push
 		find "${git_dir}/cyg-putty shell scripts" -type f -mtime -$2 | xargs -i cp {} /home/jack.wang/bin
+		cp -u /home/jack.wang/bin/.bashrc /home/jack.wang
 			;;
 	*)
 			echo "No such kind of ant scirpt .."
