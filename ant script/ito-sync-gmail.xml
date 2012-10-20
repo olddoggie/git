@@ -9,12 +9,12 @@
 <project name="mail" default="cron" basedir="./">
 
 <!-- Important: Define the file/dir location -->
-	<property name="log.dir" value="/home/jack/back-up/1fb"/>
+	<property name="log.dir" value=""/>
 	<property name="log.name" value="ito-sync-detail.txt"/>
 
 <!-- Changable: Define the mail information -->
-	<property name="to" value="jack.wang@bleum.com"/>
-<!--<property name="cc" value="edison.ma@bleum.com"/> -->
+	<property name="to" value=""/>
+    <property name="cc" value=""/>
 
 <!-- Fetch the current time -->	
 	<tstamp>
@@ -56,7 +56,7 @@
 
 <!-- send ito-sync-detail mail -->
 	<target name="mail" depends="report-if-success, report-if-fail">
-		<mail from="@gmail.com" tolist="${to}" subject="${mail.subject}" messagefile="${mail.content}" mailhost="smtp.gmail.com" mailport="465" ssl="true" user="" password=""/>
+		<mail from="cm.jack.wang@gmail.com" tolist="${to}" cclist="${cc}" subject="${mail.subject}" messagefile="${mail.content}" mailhost="smtp.gmail.com" mailport="465" ssl="true" user="cm.jack.wang" password="-hint: first company passwd **** -"/>
 	</target>
 
 <!-- clean the log after mail sent, so that script works like a loop every day -->
