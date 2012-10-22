@@ -20,7 +20,7 @@ if [ ! $1 = "cron" ]
 time1="yesterday 18:00 CCT"
 time2="yesterday CCT"
 else
-time1="yesterday 11:00"
+time1="yesterday 10:00 UTC"
 time2="yesterday"
 fi
 
