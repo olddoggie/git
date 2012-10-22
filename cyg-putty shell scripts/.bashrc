@@ -33,7 +33,7 @@ alias lg="ls -l |grep -i"
 alias h="history"
 
 # Log-in by SSH
-alias mac="echo 'aaaaa';echo 'cd /Users/bleum/Public/jk';ssh bleum@192.168.2.122"
+alias mac="echo 'aaaaa';echo 'cd /Users/bleum/Public/jk';ssh bleum@192.168.2.123"
 alias lcl="echo 'admin,1234';ssh oracle@192.168.2.100"
 alias ibu="echo 'build';ssh build@itobuild.1fb.net"
 alias ioas="oas"
@@ -61,6 +61,7 @@ alias cd-lrn="cdk;cd learn"
 alias cd-cm="cdk;cd CM"
 alias cd-ci="cdk;cd CI"
 alias domain="cdk;cd DOMAIN"
+alias cdgit="cd;cd git"
 
 # file list
 alias v1="vi bleumModule1.txt"
@@ -82,8 +83,11 @@ alias c7="cat bleumModule7.txt"
 alias cvsd="cvs -d :sspi:jack.wang@192.168.2.200:/1fb"
 alias cvsdi="cvs -d :ext:bbu@ito-as1.1fb.net:/vb/cvs"
 alias cvsup-all="cvsd update -A -P -d"
-alias cvsfile-list="cvs-check-update"
-alias cvsfile-list-ito="itocvs-check-update"
+alias cvsfile-list="cvs-local-check-update"
+alias cvsfile-list-ito="cvs-ito-check-update"
+
+# git command option
+alias gitsync="echo 'enter path and range';~/bin/git-pull-and-push"
 
 # check deploy note
 alias dn="catg  /home/jack.wang/deploy-file.txt"
