@@ -62,6 +62,7 @@ alias cd-cm="cdk;cd CM"
 alias cd-ci="cdk;cd CI"
 alias domain="cdk;cd DOMAIN"
 alias cdgit="cd;cd git"
+alias cdsvn="cdd;cd SVN\ Repository"
 
 # file list
 alias v1="vi bleumModule1.txt"
@@ -85,6 +86,9 @@ alias cvsdi="cvs -d :ext:bbu@ito-as1.1fb.net:/vb/cvs"
 alias cvsup-all="cvsd update -A -P -d"
 alias cvsfile-list="cvs-local-check-update"
 alias cvsfile-list-ito="cvs-ito-check-update"
+
+# svn command option
+alias svnjk="echo 'svn://192.168.2.110'"
 
 # git command option
 alias gitsync="echo 'enter path and range';~/bin/git-pull-and-push"
