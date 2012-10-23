@@ -10,7 +10,7 @@ git_remote="git@github.com:olddoggie/git.git"
 
 function git-pull-push ()
 { 
-git pull && git add -A && git commit -m 'update from 152' && git push 
+git pull && git add -A && git commit -m 'update from 197/152' && git push 
 }
 
 case $1 in
