@@ -94,7 +94,7 @@ alias svnjk="echo 'svn://192.168.2.110'"
 alias gitsync="echo 'enter path and range';~/bin/git-pull-and-push"
 
 # check deploy note
-alias dn="catg  /home/jack.wang/deploy-file.txt"
+alias dn="build-deploy-ito"
 alias dl="catg  /home/jack.wang/instance-list.txt"
 
 # substitute a certain char in vi
