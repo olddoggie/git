@@ -24,7 +24,7 @@ rdiff -s -r $2 -r $3 \
 $1 | grep -v " is removed" | grep -v " is new"| grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
 |awk -F ' changed' '{print $1}' | tee $file | wc -l|awk '{print $0}'
 echo "initialize roll-back check folder..."
-rm -rf $prefolder $nowfolder && mkdir $prefolder $nowfolder
+rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
 source go $prefolder
 echo "checking out "$previoustag" ..."
 cat $file | xargs cvs -d $bleumcvsroot co -r $previoustag
