@@ -85,14 +85,15 @@ case $module in
 			# done
 				generate-command
 			;;
-  "fs750") # instance name is fscm_mobile
+  "fs750") # instance name is fscm_mobile, app module is fscm
+				app=fscm
 				name=fscm_mobile
 				ins2=fscm_mobile2.war
 				build-ito $name $currenttag
 				predeploy-ito $name
-				copy-libs $name $currenttag $previoustag
+				copy-libs $app $currenttag $previoustag
 				deployall-ito $name
-				copy-war $name $currenttag $ins2 # used for mannually deploy fscm_mobile2
+				copy-war $app $currenttag $ins2 # used for mannually deploy fscm_mobile2
 				generate-command
 			;;
   "services")
