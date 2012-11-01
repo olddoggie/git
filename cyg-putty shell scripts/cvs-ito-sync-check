@@ -12,7 +12,7 @@ FS750=FS_7_50 						# update often
 # Define the previous tag on branch
 CS770Pretag=BLEUM_CS770_SYNC_11012012_1 				# update often
 AF350Pretag=BLEUM_AFFINITY_SYNC_10162012_1 				# update often
-FS750Pretag=BLEUM_FS_ST_10302012_1 						# update often
+FS750Pretag=BLEUM_FS_RT_11012012_1 						# update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
 # In putty cvs -D 11:00 equals to cvs -D 18:00 CCT and cvs -D 10:00 UTC
 # On ito-cvs,there is a zone gap between the moment of real check in, whihc will trigger notification mail and the timestamp recorded in ito-cvs repositoy, the gap is almost 2 hours and a quarter.
