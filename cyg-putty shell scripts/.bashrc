@@ -86,6 +86,9 @@ alias cvsdi="cvs -d :ext:bbu@ito-as1.1fb.net:/vb/cvs"
 alias cvsup-all="cvsd update -A -P -d"
 alias cvsfile-list="cvs-local-check-update"
 alias cvsfile-list-ito="cvs-ito-check-update"
+alias cvsroll-back="cvs-local-rollback-check"
+alias cvscmp-filelist="cvs-local-filelist-compare"
+alias cmp="cat compare-result-filelist.txt"
 
 # svn command option
 alias svnjk="echo 'svn://192.168.2.110'"

@@ -33,6 +33,7 @@ fi
 if [ $path = "filelist" ]
   then
 echo "copying file lists to back-up dir: $file ..."
+ls ./file/$file || echo "Now trying to create this folder '$file'..." && mkdir -p ./file/$file
 cp -r *filelist.txt ./file/$file/
 echo "Cleaning the useless dirs/files ..."
 rm -r -f bleumModule*
