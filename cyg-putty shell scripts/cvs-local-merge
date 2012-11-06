@@ -1,9 +1,11 @@
-# This script is used for helping CM to confirm merge list and complete merge action from a branch to destination
-echo "Rationale is cat <filelist> |grep -v '\[.*files\]' | sort -u | awk '/^[A-Za-z]/ {print $0}' > <output file>"
-echo ""
+# This script is used for assisting CM Rep to confirm merge list/roll-back files thus completing merge from a branch to destination
+echo "Rationale is cvs update -P -d -j<merge_startpoint> -j<merge_endpoint>"
+echo "cvs status -Rq | grep Locally | xargs -i find -type f -newer <start file> -name {} | xargs cvs commit -m <comments>"
 echo "first param is  ...)"
 echo "second param is the previous tag name(e.g. BLEUM_CS_RC_08212012_1/BL_RELEASE1_08172012_1)"
 echo "third param is the target tag name you want to update to ( usually Head )"
 echo "fourth param is the baseline folder location, Don't forget to use double qoute mark "
 echo "If this is a first time baseline situation, please input like this:basleline new <foleder name>"
 echo ""
+cvs st -Rq | grep "Locally" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer start.txt -name {} > temp.txt
+cat temp.txt | xargs cvs ci -m "test"
