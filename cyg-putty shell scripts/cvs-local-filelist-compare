@@ -8,11 +8,11 @@ echo "!! In order to fetch the correct file list, make sure to run ~/bin/cvs-loc
 echo ""
 echo "By default, there no need to input any param,it will auto diff the ruby file list and cvs update file list before check in for this build"
 echo ""
-echo "Optional Param suffix:1.f--diff with final file list,2.n--diff normal and regular files,3.r--diff SYA and SYM of ruby-file-list and roughly generate the common part."
+echo "Optional Param suffix:1.f--diff with final file list,2.n--diff normal and regular files and roughly generate the common part,3.ram/rad/rmd)--diff SYA[B]/SYM/SYD of ruby-file-list and roughly generate the common part,4.clean--clean the workspace."
 echo ""
-echo "Make sure you do this one module by another, because e.g. once combine afcoll,afcsr,afshared file list together, there maybe duplicate files both in SYM or SYA, since afcoll and afcsr have many files with same name, so in order to keep the result more accurate, please do 'cvs-local-filelist-compare <f/r>' one module one time."
+echo "Attention to ''sort -u(unique)'.Make sure you do this one module by another, because e.g. once combine afcoll,afcsr,afshared file list together, there maybe duplicate files both in SYM or SYA, since afcoll and afcsr have many files with same name, so in order to keep the result more accurate, please do 'cvs-local-filelist-compare <f/r>' one module one time."
 echo ""
-read -p "Are you ready,if compare *final filelist*, please add suffix Param 'f/n/r' and create 'temp.txt' first.."
+read -p "Are you ready,if compare *final filelist*, please add suffix Param 'f/r' and create 'temp.txt' first.."
 file0=~/update_filelist.txt
 file1=temp-ruby-filelist.txt
 file2=temp-cvs-filelist.txt
@@ -58,8 +58,10 @@ echo ""
 
 function sort-normal-file()
 {
+echo "--Starting transfering from win/dos to unix format--"
+dos2UNIX -k -n $1 "temp-"$1 # Oblige to change the format of target files into unix style
 echo "--Starting sorting regular files--"
-cat $1 | sort -u > $2
+cat "temp-"$1 | sort -u > $2
 echo ""
 }
 
@@ -77,6 +79,8 @@ echo "--Start generating the common part by using bash/shell:join--"
 join -t "$4" $1 $2 | tee $3
 echo ""
 echo "--Finish generating common part,see the '$3' for reference. Not 100% accurate, take care!"
+echo ""
+echo "If you wanna specify a field to analysis, do like this: join -t '$4' -1 <field1> $1 -2 <field2> $2"
 }
 
 case $1 in
@@ -91,22 +95,30 @@ case $1 in
   "n")
 			read -p "first target file:" file1
 			read -p "second target file:" file2
-			compare1=compare-1.txt
-			compare2=compare-2.txt
+			compare1=general-1.txt
+			compare2=general-2.txt
 			output=compare-result.txt
+			common=common-part.txt
 			check-target $file1 $file2
 			sort-normal-file $file1 $compare1
 			sort-normal-file $file2 $compare2
 			compare-files $compare1 $compare2 $output
+			echo "different lines number:"
+			cat $output | wc -l
+			echo ""
+			read -p "please decide the separate char,default is '':" char0
+			find-common $compare1 $compare2 $common "$char0"  # '' is the separate character used by join
+			echo "same lines number:"
+			cat $common | wc -l
 			;;
-  "r")
+  "ram")
 			file0=temp.txt
-			file1=SYA.txt
-			file2=SYM.txt
-			compare1=compare-SYA.txt
-			compare2=compare-SYM.txt
-			output=compare-result.txt
-			common=common-part.txt
+			file1=temp-SYA.txt
+			file2=temp-SYM.txt
+			compare1=general-SYA.txt
+			compare2=general-SYM.txt
+			output=compare-result-AM.txt
+			common=common-part-AM.txt
 			cat $file0 | awk '/^A[^B]/ {print $0}'> $file1 # only list SYA
 			cat $file0 | awk '/^M/ {print $0}' > $file2 # list SYM
 			check-target $file0			
@@ -116,10 +128,68 @@ case $1 in
 			compare-files $compare1 $compare2 $output
 			echo "total SYA and SYM files number:"
 			cat $file0 | grep -v "D    " | grep -v "AB   " | wc -l
-			echo "different files number(duplicate number should use the num above minus the num below):"
+			echo "different files number(duplicate number should use the num above minus the num below, keep SYA, remove duplicate SYM!):"
 			cat $output |wc -l
 			echo ""
 			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			;;
+  "rad")
+			file0=temp.txt
+			file1=temp-SYA.txt
+			file2=temp-SYD.txt
+			compare1=general-SYA.txt
+			compare2=general-SYD.txt
+			output=compare-result-AD.txt
+			common=common-part-AD.txt
+			cat $file0 | awk '/^A/ {print $0}'> $file1 # list SYA/SYAB
+			cat $file0 | awk '/^D/ {print $0}' > $file2 # list SYD
+			check-target $file0			
+			check-target $file1 $file2
+			sort-ruby-filelist $file1 $compare1
+			sort-ruby-filelist $file2 $compare2
+			compare-files $compare1 $compare2 $output
+			echo "total SYA/SYAB and SYD files number:"
+			cat $file0 | grep -v "M    " | wc -l
+			echo "different files number(duplicate number should use the num above minus the num below):"
+			cat $output |wc -l
+			echo "These files below were added by us at first but somehow deleted at last, they shall NOT be included in final file list!"
+			echo ""
+			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			;;
+  "rmd")
+			file0=temp.txt
+			file1=temp-SYM.txt
+			file2=temp-SYD.txt
+			compare1=general-SYM.txt
+			compare2=general-SYD.txt
+			output=compare-result-MD.txt
+			common=common-part-MD.txt
+			cat $file0 | awk '/^M/ {print $0}'> $file1 # list SYM
+			cat $file0 | awk '/^D/ {print $0}' > $file2 # list SYD
+			check-target $file0			
+			check-target $file1 $file2
+			sort-ruby-filelist $file1 $compare1
+			sort-ruby-filelist $file2 $compare2
+			compare-files $compare1 $compare2 $output
+			echo "total SYM and SYD files number:"
+			cat $file0 | grep -v "A    " | grep -v "AB   " | wc -l
+			echo "different files number(duplicate number should use the num above minus the num below):"
+			cat $output |wc -l
+			echo "These files below were modified by us then deleted at last, keep SYD, remove SYM!"
+			echo ""
+			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			;;
+	"clean")
+			echo "--Starting cleaning the workspace--"
+			read -p "Are you ready,gonna remove all the intermediate files in this compare.."
+			rm temp-*.txt
+			rm general-*.txt			
+			read -p "Are you ready,gonna remove all the compare results in this compare.."
+			rm compare-*.txt
+			rm common-*.txt
+			read -p "Are you ready,gonna empty the content of 'temp.txt'.."
+			rm 	temp.txt && touch temp.txt
+			echo "--Finish, what a clean world it is!--"
 			;;
 	*)
 			cat bleumModule*.txt >>  $file1
