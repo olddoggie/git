@@ -1,0 +1,140 @@
+#!/usr/bin/bash
+# This script is used for assisting CM Rep to strictly follow 1fb odc branch form when creating a branch
+echo "Rationale is cvs rtag -r <tagroot> -<command> <tagname> project module"
+echo "Branch Root tag convention should be: BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> e.g.BLEUM_CS_BRCHROOT_11112012_1 "
+echo "optional: Branch Name convention usually be: <MODULE>_<Version>_<version> e.g. FS_7_50"
+echo "!! After tag operation finishes, Do double check whether the tag operation is really and truely done correctly !!"
+echo "first param is cvs module/project baseline folder(cs/af/fs750/fs/services ...)"
+echo "second param is the target branch name you want to create"
+echo "third param is the *Root tag (previous tag) name"
+echo "Strictly follow the branch creation process, branch form can be found under: 1fbodc/Form/Project"
+echo "Do NOT forget to record this branch in CM Log."
+echo ""
+module=$1
+branchname=$2
+previoustag=$3
+bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
+
+read -p "Reason for branch creation usually be: accommodate multiple development paths,research on new features, or a production hot-fix..Press Enter"
+
+function create-BRCHROOTtag ()
+{
+echo ""
+echo "Start creating branch root tag ..."
+echo ""
+~/bin/cvs-local-tag-branch c "$1" $2 $3
+echo ""
+}
+function create-branch ()
+{
+echo ""
+~/bin/cvs-local-tag-branch cb "$1" $2 $3
+echo ""
+}
+function variable-declaration ()
+{
+read -p "confirm the module(s) are to be branched is '$module'. Press Enter" 
+read -p "* Confirm the branch name is '$branchname'. Press Enter" 
+read -p "* Confirm the Root tag (previous tag) of the branch is based on '$previoustag'. Press Enter" 
+read -p "Identify a second BRCHROOT tag on branch as the start point: " brchroot
+read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on branch? n.No y.Yes :" key 
+}
+function input-command ()
+{
+while [ "$key" != "y" -a "$key" != "Y" -a "$key" != "n" -a "$key" != "N" ] 
+# Because there may be an empty input or input with space, so it shuold be like "$key", if using $key, maybe bash/shell will throw error '[: too many arguments'
+ do
+echo "I don't know what your choice is, please do answer again, confirm yes or no!"
+read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on branch? n.No y.Yes :" key
+done
+if [ $key == "y" -o $key == "Y" ]
+ then
+echo "1.Now you have to manually update files to the specific versions which will be initially kept on '$branchname'.."
+echo "2.After then, please manually tag '$brchroot' on the specific files versions as a branch starting point.."
+read -p "Confirm you've done the 2 steps above by pressing Enter, Not until then shall you go on branch creation...."
+echo ""
+echo "The ROOT tag '$brchroot' is NOT same as past previous tag:'$previoustag',please based on '$brchroot' to create branch '$branchname'"
+fi
+if [ $key == "n" -o $key == "N" ]
+ then
+create-BRCHROOTtag "$target_module" $previoustag $brchroot
+echo "The ROOT tag '$brchroot' is same as past previous tag:'$previoustag'"
+echo ""
+fi
+read -p "Now we're going to create branch '$branchname' based on '$brchroot'..Press Enter"
+create-branch "$target_module" $previoustag $branchname
+echo "The ROOT tag on branch which used to be tracked as a starting point is: '$brchroot'"
+echo ""
+echo "Thanks for your cooperation, now the branch '$branchname' is created successfully!"
+read -p "But you'd rather do a check first, right? y.Yes n.No :" chk
+while [ "$chk" != "y" -a "$chk" != "Y" -a "$chk" != "n" -a "$chk" != "N" ] 
+ do
+echo "I don't know what your choice is, please do answer again, confirm yes or no!"
+read -p "Wanna do a check for the branch creation, right? y.Yes n.No :" chk
+done
+if [ $chk == "y" -o $chk == "Y" ]
+ then
+echo "Checking ..."
+~/bin/cvs-local-check-update "$target_module" $brchroot $branchname
+echo ""
+echo "Finish Checking,you can send out mail and update the CM Log now."
+fi
+if [ $chk == "n" -o $chk == "N" ]
+ then
+echo ""
+echo "Sure,you can do mannual check later, then send out mail and update the CM Log."
+fi
+}
+
+case $module in
+  "af")
+			module="afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
+			variable-declaration
+			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
+			do
+			input-command
+			echo ""
+			done
+			;;
+  "cs")
+  			module="cs/src,cs/war"
+			variable-declaration
+			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
+			do
+			input-command
+			echo ""
+			done
+			;;
+  "services")
+  			module="services/src,services/mapping"
+			variable-declaration  
+			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do
+			input-command
+			echo ""
+			done
+			;;
+  "fs750")
+  			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
+			variable-declaration  			
+			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do
+			input-command
+			echo ""
+			done
+			;;
+  "fs")
+   			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
+			variable-declaration   
+			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" 
+			do
+			input-command
+			echo ""
+			done
+			;;			
+	*)
+			variable-declaration
+			target_module="$module"
+			input-command
+			;;
+esac

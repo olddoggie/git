@@ -10,7 +10,7 @@ CS770=CS_7_70 						# update often
 AF350=AFF_3_50_Porting 				# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS770Pretag=BLEUM_CS770_SYNC_11092012_1 				# update often
+CS770Pretag=BLEUM_CS770_SYNC_11122012_1 				# update often
 AF350Pretag=BLEUM_AFFINITY_SYNC_10162012_1 				# update often
 FS750Pretag=BLEUM_FS_CAT2_11062012_1 					# update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
