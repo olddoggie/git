@@ -23,13 +23,13 @@ function create-BRCHROOTtag ()
 echo ""
 echo "Start creating branch root tag ..."
 echo ""
-~/bin/cvs-ito-tag-branch c "$1" $2 $3
+source ~/bin/cvs-ito-tag-branch c "$1" $2 $3
 echo ""
 }
 function create-branch ()
 {
 echo ""
-~/bin/cvs-ito-tag-branch cb "$1" $2 $3
+source ~/bin/cvs-ito-tag-branch cb "$1" $2 $3
 echo ""
 }
 function variable-declaration ()

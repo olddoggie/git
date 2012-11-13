@@ -32,6 +32,7 @@ function tag-create ()
 echo "Start creating tag ..."
 echo ""
 cvs -d $bleumcvsroot rtag -r $2 $3 "$1"
+STAT=$?
 echo ""
 echo "Finish creating tag '$3' on '$1' module"
 }
@@ -41,6 +42,7 @@ function tag-delete ()
 echo "Start deleting tag ..."
 echo ""
 cvs -d $bleumcvsroot rtag -r $2 -d $2 "$1"
+STAT=$?
 echo ""
 echo "Finish deleting tag '$2' on '$1' module"
 }
@@ -50,6 +52,7 @@ function tag-create-force ()
 echo "Start creating tag on force..."
 echo ""
 cvs -d $bleumcvsroot rtag -F -r $2 $3 "$1"
+STAT=$?
 echo ""
 echo "Finish creating new tag '$3' on '$1' module"
 }
@@ -60,6 +63,7 @@ echo "Start renaming tag ..."
 echo ""
 cvs -d $bleumcvsroot rtag -r $2 $3 "$1"
 cvs -d $bleumcvsroot rtag -r $2 -d $2 "$1"
+STAT=$?
 echo ""
 echo "Finish renaming tag '$2' as '$3' on '$1' module"
 }
@@ -69,6 +73,7 @@ function branch-create ()
 echo "Start creating branch ..."
 echo ""
 cvs -d $bleumcvsroot rtag -r $2 -b $3 "$1"
+STAT=$?
 echo ""
 echo "Finish creating branch '$3' on '$1' module"
 }
@@ -139,5 +144,11 @@ case $module in
 	*)
 			target_module="$module"
 			input-command
+			if [ $STAT -eq 1 ]
+				then
+				echo "Ooops...."
+				echo "Command aborted, find the error msg above and do it again!"
+				exit 1
+			fi
 			;;
 esac
