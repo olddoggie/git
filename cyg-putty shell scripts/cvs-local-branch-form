@@ -2,7 +2,7 @@
 # This script is used for assisting CM Rep to strictly follow 1fb odc branch form when creating a branch
 echo "Rationale is cvs rtag -r <tagroot> -<command> <tagname> project module"
 echo "Branch Root tag convention should be: BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> e.g.BLEUM_CS_BRCHROOT_11112012_1 "
-echo "optional: Branch Name convention usually be: <MODULE>_<Version>_<version> e.g. FS_7_50"
+echo "Branch Name convention usually be: <MODULE>_<Version>_<version>_<special suffix> e.g. AFF_3_50_Porting/FS_7_50"
 echo "!! After tag operation finishes, Do double check whether the tag operation is really and truely done correctly !!"
 echo "first param is cvs module/project baseline folder(cs/af/fs750/fs/services ...)"
 echo "second param is the target branch name you want to create"
