@@ -1,0 +1,23 @@
+#!/usr/bin/bash
+# This script is used for converting the input string from windows style back slash '\' to unix like forward slash '/'
+echo "Converting ..."
+echo "cat $file | awk -F '\' '{{printf "\"%s/",$1} {for(k = 2; k<NF; k++) printf "%s/",$k} printf "%s\"\n",$k}"
+echo "first param is the switcher: 1. b2f <default> ('\'-->'/'); 2.f2b ('/'-->'\') "
+echo "second param is the input string, do NOT forget double quote mark \"\" "
+echo ""
+file=~/temp-convert-slash.txt
+echo $2 > $file
+echo "Result is ---->"
+case $1 in
+  "b2f")
+		cat $file | awk -F '\' '{ {printf "\"%s/",$1}{for(k = 2; k<NF; k++) printf "%s/",$k} printf "%s\"\n",$k } '
+			;;
+  "f2b")
+		cat $file | awk -F '/' '{ {printf "\"%s\\",$1}{for(k = 2; k<NF; k++) printf "%s\\",$k} printf "%s\"\n",$k } '
+			;;	
+	*)
+			echo "input the switcher first 1. b2f ('\'-->'/'); 2.f2b ('/'-->'\') ..."
+			exit 1
+			;;
+esac
+rm -f $file

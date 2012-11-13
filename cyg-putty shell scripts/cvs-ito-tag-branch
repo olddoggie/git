@@ -97,7 +97,7 @@ case $command in
   "cb")
 			read -p "You are gonna create a BRCH '$tagname' on module '$target_module', please confirm your branchroot tag: '$tagroot' FIRST!"
 			branch-create $target_module $tagroot $tagname
-			;;			
+			;;
 	*)
 			echo "No such kind of ant scirpt .."
 			echo "Special command should be one of: 1.f--force overwrite an existing tag, 2.r--rename a tag then delete the old one, 3.d--delete a tag, 4.c--create a new tag!"
@@ -105,13 +105,22 @@ case $command in
 			;;
 esac
 }
-
+function check_status
+{
+			if [ $STAT -eq 1 ]
+				then
+				echo "Ooops...."
+				echo "Command aborted, find the error msg above and do it again!"
+				exit 1
+			fi
+}
 case $module in
   "af")
 			for target_module in "afcollagent/src" "afcollagent/war" "afcsragent/src" "afcsragent/war" "afshared/src" "afshared/war"
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "cs")
@@ -119,6 +128,7 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "services")
@@ -133,6 +143,7 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "fs")
@@ -140,16 +151,13 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;			
 	*)
 			target_module=$module
 			input-command
-			if [ $STAT -eq 1 ]
-				then
-				echo "Ooops...."
-				echo "Command aborted, find the error msg above and do it again!"
-				exit 1
-			fi
+			echo ""
+			check_status
 			;;
 esac

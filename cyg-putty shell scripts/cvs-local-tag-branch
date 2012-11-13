@@ -104,13 +104,22 @@ case $command in
 			;;
 esac
 }
-
+function check_status
+{
+			if [ $STAT -eq 1 ]
+				then
+				echo "Ooops...."
+				echo "Command aborted, find the error msg above and do it again!"
+				exit 1
+			fi
+}
 case $module in
   "af")
 			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "cs")
@@ -118,6 +127,7 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "services")
@@ -125,6 +135,7 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "fs750")
@@ -132,6 +143,7 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "fs")
@@ -139,16 +151,13 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
-			;;			
+			;;
 	*)
 			target_module="$module"
 			input-command
-			if [ $STAT -eq 1 ]
-				then
-				echo "Ooops...."
-				echo "Command aborted, find the error msg above and do it again!"
-				exit 1
-			fi
+			echo ""
+			check_status
 			;;
 esac

@@ -106,8 +106,11 @@ alias dl="catg  /home/jack.wang/instance-list.txt"
 # substitute a certain char in vi
 alias s="substitute"
 
+# covert back slash to forward slash
+alias c="convert-slash b2f"
+
 # WordNet check
-alias c="ruby ~/bin/Check.rb"
+alias ck="ruby ~/bin/Check.rb"
 
 # Look up dictionary
 alias d="dictionary" 
