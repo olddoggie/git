@@ -13,6 +13,7 @@ echo ""
 module=$1
 branchname=$2
 previoustag=$3
+brchroot=$branchname\_root
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
 
 read -p "Make sure you've already created the branch on local, and VPN connected now.. Press Enter"
@@ -34,10 +35,14 @@ echo ""
 }
 function variable-declaration ()
 {
-read -p "confirm the ito module(s) are to be branched is '$module'. Press Enter" 
+read -p "* Confirm the ito module(s) are to be branched is '$module'. Press Enter" 
 read -p "* Confirm the ito branch name is '$branchname'. Press Enter" 
 read -p "* Confirm the ito Root tag (previous tag) of the branch is based on '$previoustag'. Press Enter" 
-read -p "Identify a second ito BRCHROOT tag on branch as the start point: " brchroot
+read -p "* Confirm the second ito BRCHROOT tag on branch as the start is '$brchroot'. Press Enter/Input 'n' to rename the tag: " rn
+if [ "$rn" == "n" -o "$rn" == "N" ]
+ then
+read -p "Identify a second ito BRCHROOT tag on branch as the start: " brchroot
+fi
 read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on ito branch? n.No y.Yes :" key 
 }
 function input-command ()

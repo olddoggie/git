@@ -33,10 +33,10 @@ echo ""
 }
 function variable-declaration ()
 {
-read -p "confirm the module(s) are to be branched is '$module'. Press Enter" 
+read -p "* Confirm the module(s) are to be branched is '$module'. Press Enter" 
 read -p "* Confirm the branch name is '$branchname'. Press Enter" 
 read -p "* Confirm the Root tag (previous tag) of the branch is based on '$previoustag'. Press Enter" 
-read -p "Identify a second BRCHROOT tag on branch as the start point: " brchroot
+read -p "Identify a second BRCHROOT tag e.g. BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> on branch as the start point: " brchroot
 read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on branch? n.No y.Yes :" key 
 }
 function input-command ()
