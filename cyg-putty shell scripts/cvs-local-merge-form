@@ -2,9 +2,9 @@
 # This script is used for assisting CM Rep to strictly follow 1fb merge form when merging codes from a branch to destination
 echo "Rationale is cvs update -P -d -j<merge_startpoint> -j<merge_endpoint>"
 echo "cvs status -Rq | grep Locally | xargs -i find -type f -newer <start file> -name {} | xargs cvs commit -m <comments>"
-echo "first param is cvs module name (cs/af/fs750/fs/services ...)"
+echo "first param is 1. cvs module name (cs/af/fs750/fs/services ...) Or 2. 'clean' (to clean the merge dir)"
 echo "second param is the merge source tag, usually a branch name because always merge the latest codes from a branch(e.g. BLEUM_FS_CAT1_09272012_1/FS_7_50)"
-echo "third param is the target destination tag, usually HEAD because we always wanna merge to trunk".
+echo "third param is the target destination tag, maybe HEAD because we always wanna merge to trunk".
 echo "! Warning: Merge is done module by module,so please copy/record the intermediate temp-XXX.txt into Merge List (excel form) by each module in case of Overwritten. !"
 echo "Strictly follow the branch merge process, merge form can be found under: 1fbodc/Form/Project"
 echo "Do NOT forget to record the final merge list and info of this merge into CM Log."
@@ -18,14 +18,37 @@ update_file=~/update_filelist.txt
 total_changes=$mergedir/temp-merge-list.txt
 temp_start=$mergedir/temp-merge-start.txt
 temp_lcl=$mergedir/temp-locally-changes.txt
+temp_rm=$mergedir/temp-locally-removes.txt
 temp_conflict=$mergedir/temp-conflicts.txt
 
+echo "======================================================================"
+echo "initial the valuable tags:"
+echo ""
+read -p "Module Name,e.g.AFFINITY: " mn
+echo ""
+read -p "Date,e.g.11012012: " dt
+echo "MERGE_SRC: BLEUM_"$mn"_BRCHMERGE_SRC_"$dt"_1"
+echo "before MERGE_DEST: BLEUM_"$mn"_BRCHMERGE_before_DEST_"$dt"_1"
+echo "MERGE_DEST: BLEUM_"$mn"_BRCHMERGE_DEST_"$dt"_1"
+echo "======================================================================"
+echo ""
+echo "Set the reference file '$temp_start' to Record the Merge Start Time. 1.if this is the First time you're running this script to start merge, Do NOT skip! 2.if you have already started merge before(this is not the first time you run this script), skip this step ..PRESS Enter"
+read -p "input n to Skip...................... " sk
+if [ "$sk" = "n" -o "$sk" = "N" ]
+ then
+echo "Skip."
+else
+touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
+fi
+echo ""
 read -p "! Before merge, consider about the expected impacts on merge destination/other application ..Press Enter"
 read -p "! Confirm with 1fb before perform code merge, especially for those sharing modules, e.g. services ..Press Enter"
 read -p "Now you can send a mail to project team to announce !Code Freeze! on both source and destination branch/head.. Press Enter"
 read -p "! Confirm all codes are checked in both source and destination branch/head.. Press Enter"
-mkdir $mergedir
-
+if [ ! -d $mergedir ]
+  then
+	mkdir $mergedir
+fi
 function create-tag ()
 {
 read -p "input n to Skip...................... " sk
@@ -57,13 +80,13 @@ case "$2" in
   *)
 			cvs -d $bleumcvsroot update -A -P -d -r $2
 			;;
-		STAT=$?
-		if [ $STAT -eq 1 ]
-			then
-			echo "Ooops...."
-			echo "Command aborted, find the error msg above and do it again!"
-			exit 1
-		fi
+esac
+			if [ $? -eq 1 ]
+				then
+				echo "Ooops...."
+				echo "Command aborted, find the error msg above and do it again!"
+				exit 1
+			fi
 fi
 }
 function generate-total-changes ()
@@ -77,8 +100,8 @@ echo "Now start gererating the total file change list by rdiff the merge_root an
 ~/bin/cvs-local-check-update "$1" $2 $3
 cp $update_file $total_changes
 echo "All the file changes between '$2' and '$3' has been written to '$total_changes'..."
-cat $total_changes | wc -l | awk '{print "<----------------Total: $0-1------------------->"}'| tee -a $total_changes
 read -p "please record the total file list number: " total_changes_numbers
+cat $total_changes | wc -l | awk '{print "<----------------Total: $total_changes_numbers------------------->"}'| tee -a $total_changes
 read -p "!Warning: Make sure you copy the content of '$total_changes' into Merge List(excel form) for each module! Because module by module the previous '$total_changes' will be overwritten!.... PRESS Enter if done"
 fi
 }
@@ -92,7 +115,6 @@ else
 echo ""
 echo "Start code merging ...."
 echo ""
-touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
 rn0=n
 while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
 do
@@ -117,7 +139,7 @@ echo "Start analyzing the lcoally changes during merge ..."
 echo ""
 cvs st -Rq | grep "Locally" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_lcl
 echo "Now Check the result in file '$temp_lcl', please record the local_changes_numbers ... "
-cat $temp_lcl | wc -l | awk '{print "<----------------Total: $0------------------->"}'| tee -a $temp_lcl
+cat $temp_lcl | wc -l | awk '{print "<----------------Total: '$0'------------------->"}'| tee -a $temp_lcl
 read -p "please record total local changs: " local_changes_numbers
 read -p "!Warning: Make sure you copy the content of '$temp_lcl' into Merge List(excel form) for each module! Because module by module the previous '$temp_lcl' will be overwritten!.... PRESS Enter if done"
 fi
@@ -280,7 +302,7 @@ echo "Now Merge starts ..."
 read -p "* Confirm the module(s) of this merged is '$module'. Press Enter" 
 read -p "* Confirm the merge source tag (usually branch name) is '$src_name'. Press Enter"
 read -p "* Confirm the merge destination tag (maybe HEAD) is '$dest_name'. Press Enter" 
-read -p "According to the merge process, there still have some variable you need define, see below: "
+read -p "According to the merge process, there still have some variable you need define, see below -----> "
 echo ""
 read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN>/BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> of last time on SOURCE branch. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
 read -p "Identify a second Merge_SRC tag e.g. BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> on SOURCE branch as the merge start point: " src
@@ -314,14 +336,27 @@ read -p "Identify a before Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_before_D
 fi
 create-tag "$target_module" $dest_name $bf_dest
 echo ""
-echo "Updating to DESTINATION (maybe head).."
+echo "Updating to DESTINATION (maybe head)-- Mandatory! .."
 update-code "$target_module" $dest_name
+echo ""
+echo "Merge ING .."
 code-merge "$target_module" $root $src_name
+echo ""
+echo "Checking all local changes (added,removed,modified) .."
 check-local-changes
+echo ""
+echo "Checking all conflicts (need manually check in later) .."
 check-conflicts
+echo ""
+echo "Comparing the file numbers between step 5 and step 10 .."
 check-sum
+echo ""
+echo "Checking any No changes file (direcly modify '$temp_lcl', No need check in) ...."
 check-rollbacks "$target_module" $src_name $bf_dest
+echo ""
+echo "Check ING .."
 code-chkin "$target_module"
+echo ""
 read -p "* Confirm now you should have checked in all the necessary files into '$dest_name'.. Press Enter"
 read -p "* If NOT yet, please wait until totally checked in, then tag MERGE_DEST on '$dest_name'.. Press Enter"
 echo ""
@@ -338,7 +373,11 @@ echo ""
 }
 function manual-chkin ()
 {
+echo ""
+echo "Dealing with conflicts .."
 deal-conflicts
+echo ""
+echo "Dealing with special files if exist (step 10.).."
 deal-special-file
 }
 function announce-finish ()
@@ -420,7 +459,14 @@ case $module in
 			manual-chkin
 			echo ""
 			announce-finish
-			;;			
+			;;
+  "clean")
+			read -p "Are you sure you want to remove the '$mergedir' generated by script Today.."
+			read -p "Make sure Today's Merge is totally done.."
+			read -p "Make sure you've recorded all the merge info into Merge List/Merge Form/CM Log.."
+			echo "Removing...."
+			rm -rf $mergedir
+			;;
 	*)
 			variable-declaration
 			target_module="$module"

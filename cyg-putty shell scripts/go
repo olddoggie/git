@@ -3,6 +3,6 @@
 function gotopath()
 {
 echo "go to folder $1"
-cd $1
+cd "$1"
 }
-gotopath $1
+gotopath "$1"
