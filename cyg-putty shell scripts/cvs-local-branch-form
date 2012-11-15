@@ -19,9 +19,11 @@ read -p "Reason for branch creation usually be: accommodate multiple development
 
 function create-BRCHROOTtag ()
 {
-read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+read -p "input n to Skip...................... " sk
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Start creating branch root tag ..."
 echo ""
@@ -31,9 +33,11 @@ fi
 }
 function create-branch ()
 {
-read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+read -p "input n to Skip...................... " sk
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 source ~/bin/cvs-local-tag-branch cb "$1" $2 $3
 echo ""

@@ -92,6 +92,9 @@ alias cvscmp-filelist="cvs-local-filelist-compare"
 alias cmp="cat compare-result-filelist.txt"
 alias cvstag="cvs-local-tag-branch"
 alias cvstag-ito="cvs-ito-tag-branch"
+alias cvsbrch-form="cvs-local-branch-form"
+alias cvsbrch-form-ito="cvs-ito-branch-form"
+alias cvsmerge-form="cvs-local-merge-form"
 
 # svn command option
 alias svnjk="echo 'svn://192.168.2.110'"

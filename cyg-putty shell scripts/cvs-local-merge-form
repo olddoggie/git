@@ -29,8 +29,10 @@ mkdir $mergedir
 function create-tag ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 source ~/bin/cvs-local-tag-branch c "$1" $2 $3
 fi
@@ -38,8 +40,10 @@ fi
 function update-code ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 source ~/bin/go /cygdrive/d/BleumCVS/"$1" # go to the parent folder of the module you want to operate
 pwd
 echo "'$1' module is now being updated to '$2' .."
@@ -65,8 +69,10 @@ fi
 function generate-total-changes ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo "Now start gererating the total file change list by rdiff the merge_root and merge_src"
 ~/bin/cvs-local-check-update "$1" $2 $3
 cp $update_file $total_changes
@@ -79,8 +85,10 @@ fi
 function code-merge ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Start code merging ...."
 echo ""
@@ -100,8 +108,10 @@ fi
 function check-local-changes ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Start analyzing the lcoally changes during merge ..."
 echo ""
@@ -115,8 +125,10 @@ fi
 function check-conflicts ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Start analyzing the conflicts during merge,these part should be handled manaully by dev/tech leaders ..."
 echo ""
@@ -130,8 +142,10 @@ fi
 function check-sum ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 declare -i sum=$local_changes_numbers+$conflicts_numbers
 echo "The lcoal change + conflicts list generated on step 10. should be totally same as the file list generated on step 5!"
@@ -158,8 +172,10 @@ fi
 function check-rollbacks ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Start checking any roll back files exist, which means there's no difference between merge_src(tagged on step 6.) and merge_before_dest(tagged on step 8.)..."
 echo ""
@@ -171,8 +187,10 @@ fi
 function code-chkin ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Start checking in locally changes into cvs repository.."
 echo ""
@@ -195,8 +213,10 @@ fi
 function deal-conflicts ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "Time for handle conflicts, if any conflicts exist, please work with dev/Tech leaders ..."
 echo ""
@@ -225,8 +245,10 @@ fi
 function deal-special-file ()
 {
 read -p "input n to Skip......................" sk
-if [ "$sk" != "n" -o "$sk" != "N" ]
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Skip."
+else
 echo ""
 echo "If any Special Files (Record in step 10.), deal with them NOW ..."
 echo ""
