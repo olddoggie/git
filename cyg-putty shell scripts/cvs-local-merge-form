@@ -5,6 +5,7 @@ echo "cvs status -Rq | grep Locally | xargs -i find -type f -newer <start file> 
 echo "first param is cvs module name (cs/af/fs750/fs/services ...)"
 echo "second param is the merge source tag, usually a branch name because always merge the latest codes from a branch(e.g. BLEUM_FS_CAT1_09272012_1/FS_7_50)"
 echo "third param is the target destination tag, usually HEAD because we always wanna merge to trunk".
+echo "! Warning: Merge is done module by module,so please copy/record the intermediate temp-XXX.txt into Merge List (excel form) by each module in case of Overwritten. !"
 echo "Strictly follow the branch merge process, merge form can be found under: 1fbodc/Form/Project"
 echo "Do NOT forget to record the final merge list and info of this merge into CM Log."
 echo ""
@@ -61,6 +62,7 @@ cp $update_file $total_changes
 echo "All the file changes between '$2' and '$3' has been written to '$total_changes'..."
 cat $total_changes | wc -l | awk '{print "<----------------Total: $0-1------------------->"}'| tee -a $total_changes
 read -p "please record the total file list number: " total_changes_numbers
+read -p "!Warning: Make sure you copy the content of '$total_changes' into Merge List(excel form) for each module! Because module by module the previous '$total_changes' will be overwritten!.... PRESS Enter if done"
 }
 function code-merge ()
 {
@@ -88,6 +90,7 @@ cvs st -Rq | grep "Locally" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf 
 echo "Now Check the result in file '$temp_lcl', please record the local_changes_numbers ... "
 cat $temp_lcl | wc -l | awk '{print "<----------------Total: $0------------------->"}'| tee -a $temp_lcl
 read -p "please record total local changs: " local_changes_numbers
+read -p "!Warning: Make sure you copy the content of '$temp_lcl' into Merge List(excel form) for each module! Because module by module the previous '$temp_lcl' will be overwritten!.... PRESS Enter if done"
 }
 function check-conflicts ()
 {
@@ -96,8 +99,9 @@ echo "Start analyzing the conflicts during merge,these part should be handled ma
 echo ""
 cvs st -Rq | grep "File had conflicts on merge" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_conflict
 echo "Now Check the result in file '$temp_conflict', please record the conflicts_numbers ... "
-cat $temp_conflict | wc -l | awk '{print "<----------------Total: $0------------------->"}'| tee -a $temp_lcl
+cat $temp_conflict | wc -l | awk '{print "<----------------Total: $0------------------->"}'| tee -a $temp_conflict
 read -p "please record total conflicts number: " conflicts_numbers
+read -p "!Warning: Make sure you copy the content of '$temp_conflict' into Merge List(excel form) for each module! Because module by module the previous '$temp_conflict' will be overwritten!.... PRESS Enter if done"
 }
 function check-sum ()
 {
@@ -121,6 +125,7 @@ echo "input 1.file_s5.txt---> step5, 2.file_s10.txt---> step10 "
 echo "Check the detail differences in '$mergedir/$output'"
 read -p "Now you should have found the difference between 2 list, before we move on, make sure Record all the detailed info into merge list (excel form)/mereg form/CM Log.. PRESS Enter, and if there is any Special Action to take (attention to contents in bracket of step 10.), Remember to do it!"
 fi
+read -p "!Warning: Make sure you record the valuable info into Merge List(excel form) for each module! Because module by module the previous all the temp-XXX.txt will be overwritten!.... PRESS Enter if done"
 }
 function check-rollbacks ()
 {
@@ -128,8 +133,8 @@ echo ""
 echo "Start checking any roll back files exist, which means there's no difference between merge_src(tagged on step 6.) and merge_before_dest(tagged on step 8.)..."
 echo ""
 ~/bin/cvs-local-rollback-check "$1" $2 $3
-read -p "If there're any codes totally same, they need NOT to be merged since merge src and dest are already the same,and after merge, you can just get clean copy, do NOT forget to mark these codes as NO Need merge in the merge list!"
-read -p "Any codes NO need merge, please remove them from '$temp_lcl' BEFORE script check in codes..PRESS Enter when done"
+read -p "If there're any codes totally same, they need NOT to be merged since merge src and dest are already the same,and after merge, you can just get clean copy, do NOT forget to mark these codes as NO Need merge in the Merge List!"
+read -p "!If any codes NO need merge, *directly* Remove them from '$temp_lcl' BEFORE script check in codes..PRESS Enter if done"
 }
 function code-chkin ()
 {
@@ -149,6 +154,7 @@ echo "Now check in codes according to '$temp_lcl' >>>"
 cat $temp_lcl | awk '/^\./ {print $1}' | xargs cvs commit -m "$comment"
 # awk '/^\./ {print $1}' is for the sake of filtering out line "<----------------Total: <file num>------------------->"
 echo "Finished check in $local_changes_numbers codes according to '$temp_lcl'."
+read -p "!Warning: After Directly modify '$temp_lcl' and code check in, Make sure you record the valuable info ('$temp_lcl') into Merge List(excel form) for each module! Because module by module the previous all the temp-XXX.txt will be overwritten!.... PRESS Enter if done"
 }
 function deal-conflicts ()
 {
@@ -176,6 +182,32 @@ read -p "Confirm there're no conflicts during this merge.. PRESS Enter"
 echo "No conflicts in this merge!"
 fi
 }
+function deal-special-file ()
+{
+echo ""
+echo "If any Special Files (Record in step 10.), deal with them NOW ..."
+echo ""
+read -p "Is there any Special Files (Record in step 10.) during merge? y. yes, n. no: " yn1
+while [ "$yn1" != "y" -a "$yn1" != "Y" -a "$yn1" != "n" -a "$yn1" != "N" ]
+ do
+echo "I don't know what your choice is, please do answer again, confirm yes or no!"
+read -p "Is there any conflicts during merge? y. yes, n. no: " yn
+done
+if [ $yn1 == "y" -o $yn1 == "Y" ]
+ then
+read -p "Confirm you've dealt with all the Special Files manually, Record these files as well as the way how deal with them (manually merged or keep same as before merge) in Mege List(excel form).. PRESS Enter"
+echo ""
+read -p "Special Files Modified and Recorded, check them into repository manually in winCVS AFTER script auto check in local changes.. PRESS Enter"
+read -p "Now start checking in modified files manually >>>"
+echo ""
+echo "After deal with Special Files, all of the modified file have been checked in!"
+fi
+if [ $yn1 == "n" -o $yn1 == "N" ]
+ then
+read -p "Confirm there're no Special Files during this merge.. PRESS Enter"
+echo "No Special Files in this merge!"
+fi
+}
 function variable-declaration ()
 {
 echo "Now Merge starts ..."
@@ -187,10 +219,10 @@ echo ""
 read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN>/BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> of last time on SOURCE branch. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
 read -p "Identify a second Merge_SRC tag e.g. BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> on SOURCE branch as the merge start point: " src
 read -p "Identify a before Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_before_DEST_<DATE>_<SN> on destination BEFORE merge: " bf_dest
-read -p "Identify a second Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_DEST_<DATE>_<SN> on destination AFTER merge: " dest
+read -p "Identify an after Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_DEST_<DATE>_<SN> on destination AFTER merge: " dest
 echo "variable declaration finished ..."
 }
-function input-command ()
+function main-merge ()
 {
 read -p "Confirm the root tag of Merge_SRC is '$root'. Press Enter/Input 'n' to rename this tag: " rn
 if [ "$rn" == "n" -o "$rn" == "N" ]
@@ -222,9 +254,116 @@ code-merge "$target_module" $root $src_name
 check-local-changes
 check-conflicts
 check-sum
-check-rollbacks
-code-chkin
-deal-conflicts
+check-rollbacks "$target_module" $src_name $bf_dest
+code-chkin "$target_module"
+read -p "* Confirm now you should have checked in all the necessary files into '$dest_name'.. Press Enter"
+read -p "* If NOT yet, please wait until totally checked in, then tag MERGE_DEST on '$dest_name'.. Press Enter"
 echo ""
-
+echo "Start creating the before_Merge_DEST tag .."
+read -p "Confirm the after Merge_DEST tag is '$dest'. Press Enter/Input 'n' to rename this tag: " rn3
+if [ "$rn3" == "n" -o "$rn3" == "N" ]
+ then
+read -p "Identify an after Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_DEST_<DATE>_<SN> on destination AFTER merge: " dest
+fi
+create-tag "$target_module" $dest_name $dest
+echo ""
+read -p "* After tag MERGE_DEST, finish recording the Merge List(excel form)/Merge Form/CM Log for this merge.. Press Enter"
+echo ""
 }
+function manual-chkin ()
+{
+deal-conflicts
+deal-special-file
+}
+function announce-finish ()
+{
+echo "That's it! Let's finish it thoroughly.."
+read -p "Now you can send a mail to project team to announce !Code Merged! on '$module' from '$src_name' to '$dest_name' successful.. Press Enter"
+read -p "!If the codes should be merged NOT ONLY in BLeun side, It's highly recommanded to DO a build for '$module'(check in latest codes to itoCVS) after Merge codes!"
+read -p "Almost close, now provide Tech leaders with the Merge detail.. Press Enter"
+read -p "Last but not least, update the 1fb CVS Branch Document.doc --> check into VSS --> notify sf team (wliu@1fbusa.com).. Press Enter"
+echo "Merge finished! Check in CM Log into CVS:/1fbodc/cm.."
+}
+case $module in
+  "af")
+			module="afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
+			variable-declaration
+			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
+			do
+			main-merge
+			done
+			echo ""
+			echo "Auto check in has been finished for those file changes.."
+			echo "Now start manual checking in modified conflicts/special files.."
+			manual-chkin
+			echo ""
+			announce-finish
+			;;
+  "cs")
+  			module="cs/src,cs/war"
+			variable-declaration
+			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
+			do
+			main-merge
+			done
+			echo ""
+			echo "Auto check in has been finished for those file changes.."
+			echo "Now start manual checking in modified conflicts/special files.."
+			manual-chkin
+			echo ""
+			announce-finish
+			;;
+  "services")
+  			module="services/src,services/mapping"
+			variable-declaration  
+			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do
+			main-merge
+			done
+			echo ""
+			echo "Auto check in has been finished for those file changes.."
+			echo "Now start manual checking in modified conflicts/special files.."
+			manual-chkin
+			echo ""
+			announce-finish
+			;;
+  "fs750")
+  			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
+			variable-declaration  			
+			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do
+			main-merge
+			done
+			echo ""
+			echo "Auto check in has been finished for those file changes.."
+			echo "Now start manual checking in modified conflicts/special files.."
+			manual-chkin
+			echo ""
+			announce-finish
+			;;
+  "fs")
+   			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
+			variable-declaration   
+			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" 
+			do
+			main-merge
+			done
+			echo ""
+			echo "Auto check in has been finished for those file changes.."
+			echo "Now start manual checking in modified conflicts/special files.."
+			manual-chkin
+			echo ""
+			announce-finish
+			;;			
+	*)
+			variable-declaration
+			target_module="$module"
+			main-merge
+			echo ""
+			echo "Auto check in has been finished for those file changes.."
+			echo "Now start manual checking in modified conflicts/special files.."
+			manual-chkin
+			echo ""
+			announce-finish
+			;;
+esac
