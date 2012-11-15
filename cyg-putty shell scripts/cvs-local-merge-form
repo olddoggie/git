@@ -28,7 +28,7 @@ mkdir $mergedir
 
 function create-tag ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -39,7 +39,7 @@ fi
 }
 function update-code ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -68,7 +68,7 @@ fi
 }
 function generate-total-changes ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -84,7 +84,7 @@ fi
 }
 function code-merge ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -107,7 +107,7 @@ fi
 }
 function check-local-changes ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -124,7 +124,7 @@ fi
 }
 function check-conflicts ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -141,7 +141,7 @@ fi
 }
 function check-sum ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -171,7 +171,7 @@ fi
 }
 function check-rollbacks ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -186,7 +186,7 @@ fi
 }
 function code-chkin ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -212,7 +212,7 @@ fi
 }
 function deal-conflicts ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -244,7 +244,7 @@ fi
 }
 function deal-special-file ()
 {
-read -p "input n to Skip......................" sk
+read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
