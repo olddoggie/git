@@ -21,17 +21,25 @@ read -p "Reason for branch creation usually be: accommodate multiple development
 
 function create-BRCHROOTtag ()
 {
+read -p "input n to Skip......................" sk
+if [ "$sk" != "n" -o "$sk" != "N" ]
+ then
 echo ""
 echo "Start creating branch root tag ..."
 echo ""
 source ~/bin/cvs-ito-tag-branch c $1 $2 $3
 echo ""
+fi
 }
 function create-branch ()
 {
+read -p "input n to Skip......................" sk
+if [ "$sk" != "n" -o "$sk" != "N" ]
+ then
 echo ""
 source ~/bin/cvs-ito-tag-branch cb $1 $2 $3
 echo ""
+fi
 }
 function variable-declaration ()
 {
@@ -59,7 +67,7 @@ echo "1.Now you have to manually update files to the specific versions which wil
 echo "2.After then, please manually tag '$brchroot' on the specific files versions as an ito branch starting point.."
 read -p "Confirm you've done the 2 steps above by pressing Enter, Not until then shall you go on ito branch creation...."
 echo ""
-echo "The ito ROOT tag '$brchroot' is NOT same as ito past previous tag:'$previoustag',please based on '$brchroot' to create ito branch '$branchname'"
+read -p "The ito ROOT tag '$brchroot' is NOT same as ito past previous tag:'$previoustag',please based on '$brchroot' to create ito branch '$branchname'..PRESS Enter if done"
 fi
 if [ $key == "n" -o $key == "N" ]
  then
