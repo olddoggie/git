@@ -50,11 +50,18 @@ function variable-declaration ()
 read -p "* Confirm the ito module(s) are to be branched is '$module'. Press Enter" 
 read -p "* Confirm the ito branch name is '$branchname'. Press Enter" 
 read -p "* Confirm the ito Root tag (previous tag) of the branch is based on '$previoustag'. Press Enter" 
-read -p "* Confirm the second ito BRCHROOT tag on branch as the start is '$brchroot'. Press Enter/Input 'n' to rename the tag: " rn
-if [ "$rn" == "n" -o "$rn" == "N" ]
- then
-read -p "Identify a second ito BRCHROOT tag on branch as the start: " brchroot
-fi
+rn1=n
+while [ "$rn1" == "n" -o "$rn1" == "N"  ] 
+do
+read -p "* Confirm the second ito BRCHROOT tag on branch as the start is '$brchroot'. Press Enter/Input 'n' to rename the tag: " rn1
+	if [ "$rn1" == "n" -o "$rn1" == "N" ]
+	 then
+	read -p "Identify a second ito BRCHROOT tag on branch as the start: " brchroot
+	 else
+	echo "BRCHROOT Correct."
+	fi
+done
+echo ""
 read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on ito branch? n.No y.Yes :" key 
 }
 function input-command ()

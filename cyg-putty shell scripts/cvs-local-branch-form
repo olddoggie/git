@@ -21,9 +21,9 @@ echo "======================================================================"
 echo "initial the valuable tags:"
 echo ""
 read -p "Module Name,e.g.AFFINITY: " mn
-echo ""
 read -p "Date,e.g.11012012: " dt
-echo "BRCHROOT: BLEUM_"$mn"_BRCHROOT_"$dt"_1"
+brchroot="BLEUM_"$mn"_BRCHROOT_"$dt"_1"
+echo "BRCHROOT: $brchroot"
 echo "======================================================================"
 echo ""
 function create-BRCHROOTtag ()
@@ -57,7 +57,18 @@ function variable-declaration ()
 read -p "* Confirm the module(s) are to be branched is '$module'. Press Enter" 
 read -p "* Confirm the branch name is '$branchname'. Press Enter" 
 read -p "* Confirm the Root tag (previous tag) of the branch is based on '$previoustag'. Press Enter" 
-read -p "Identify a second BRCHROOT tag e.g. BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> on branch as the start point: " brchroot
+rn1=n
+while [ "$rn1" == "n" -o "$rn1" == "N"  ] 
+do
+read -p "* Confirm the second BRCHROOT tag e.g. BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> on branch as the start point is '$brchroot'. Press Enter/Input 'n' to rename this tag: " rn1
+	if [ "$rn1" == "n" -o "$rn1" == "N" ]
+	 then
+	read -p "Identify a second BRCHROOT tag e.g. BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> on branch as the start point: " brchroot
+	 else
+	echo "BRCHROOT Correct."
+	fi
+done
+echo ""
 read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on branch? n.No y.Yes :" key 
 }
 function input-command ()

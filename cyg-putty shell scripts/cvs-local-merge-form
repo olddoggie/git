@@ -438,25 +438,25 @@ else
 echo ""
 echo "Time for handle conflicts, if any conflicts exist, please work with dev/Tech leaders ..."
 echo ""
-read -p "Is there any conflicts during merge? y. yes, n. no: " yn
+read -p "Is there any conflicts during merge on '$module'? y. yes, n. no: " yn
 while [ "$yn" != "y" -a "$yn" != "Y" -a "$yn" != "n" -a "$yn" != "N" ]
  do
 echo "I don't know what your choice is, please do answer again, confirm yes or no!"
-read -p "Is there any conflicts during merge? y. yes, n. no: " yn
+read -p "Is there any conflicts during merge on '$module'? y. yes, n. no: " yn
 done
 	if [ $yn == "y" -o $yn == "Y" ]
 	 then
-	read -p "Confirm you've dealt with all the conflicts manually, Mark these files as conflict and the way how deal with them (manually merged or keep same as before merge) in Mege List.. PRESS Enter"
+	read -p "Confirm you've dealt with all the conflicts manually on '$module', Mark these files as conflict and the way how deal with them (manually merged or keep same as before merge) in Mege List.. PRESS Enter"
 	echo ""
 	read -p "Conflicts done, check them into repository manually in winCVS AFTER script auto check in local changes.. PRESS Enter"
 	echo ""
-	read -p "Now start checking in modified files manually >>>"
+	read -p "Now start Checking in modified files manually on '$module' >>>"
 	echo ""
-	echo "After deal with conflicts, all of the modified file have been checked in!"
+	echo "After deal with conflicts on '$module', all of the modified file have been checked in!"
 	fi
 	if [ $yn == "n" -o $yn == "N" ]
 	 then
-	read -p "Confirm there're no conflicts during this merge.. PRESS Enter"
+	read -p "Confirm there're no conflicts during this merge on '$module'.. PRESS Enter"
 	echo "No conflicts in this merge!"
 	fi
 fi
@@ -469,27 +469,27 @@ if [ "$sk" = "n" -o "$sk" = "N" ]
 echo "Skip."
 else
 echo ""
-echo "If any Special Files (Record in step 10.), deal with them NOW ..."
+echo "If any Special Files (Record in step 10.) on '$module', deal with them NOW ..."
 echo ""
-read -p "Is there any Special Files (Record in step 10.) during merge? y. yes, n. no: " yn1
+read -p "Is there any Special Files (Record in step 10.) during merge on '$module'? y. yes, n. no: " yn1
 while [ "$yn1" != "y" -a "$yn1" != "Y" -a "$yn1" != "n" -a "$yn1" != "N" ]
  do
 echo "I don't know what your choice is, please do answer again, confirm yes or no!"
-read -p "Is there any conflicts during merge? y. yes, n. no: " yn
+read -p "Is there any conflicts during merge on '$module'? y. yes, n. no: " yn
 done
 	if [ $yn1 == "y" -o $yn1 == "Y" ]
 	 then
-	read -p "Confirm you've dealt with all the Special Files manually, Record these files as well as the way how deal with them (manually merged or keep same as before merge) in Mege List(excel form).. PRESS Enter"
+	read -p "Confirm you've dealt with all the Special Files manually on '$module', Record these files as well as the way how deal with them (manually merged or keep same as before merge) in Mege List(excel form).. PRESS Enter"
 	echo ""
 	read -p "Special Files Modified and Recorded, check them into repository manually in winCVS AFTER script auto check in local changes.. PRESS Enter"
 	echo ""
-	read -p "Now start checking in modified files manually >>>"
+	read -p "Now start Checking in modified files manually on '$module' >>>"
 	echo ""
-	echo "After deal with Special Files, all of the modified file have been checked in!"
+	echo "After deal with Special Files on '$module', all of the modified file have been checked in!"
 	fi
 	if [ $yn1 == "n" -o $yn1 == "N" ]
 	 then
-	read -p "Confirm there're no Special Files during this merge.. PRESS Enter"
+	read -p "Confirm there're no Special Files during this merge on '$module'.. PRESS Enter"
 	echo "No Special Files in this merge!"
 	fi
 fi
@@ -596,13 +596,11 @@ read -p "Confirm the after Merge_DEST tag is '$dest'. Press Enter/Input 'n' to r
 	echo "Merge_DEST Correct."
 fi
 done
-create-tag "$target_module" $dest_name $dest
-echo ""
-read -p "* After tag MERGE_DEST, finish recording the Merge List(excel form)/Merge Form/CM Log for this merge.. Press Enter"
-echo ""
 }
 function announce-finish ()
 {
+read -p "* After tag MERGE_DEST, finish recording the Merge List(excel form)/Merge Form/CM Log for this merge.. Press Enter"
+echo ""
 echo "That's it! Let's finish it thoroughly.."
 read -p "Now you can send a mail to project team to announce !Code Merged! on '$module' from '$src_name' to '$dest_name' successful.. Press Enter"
 read -p "!If the codes should be merged NOT ONLY in BLeun side, It's highly recommanded to DO a build for '$module'(check in latest codes to itoCVS) after Merge codes!"
@@ -621,8 +619,12 @@ case $module in
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
+			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
 			manual-chkin
+			echo ""
+			target_module="af"
+			create-tag "$target_module" $dest_name $dest
 			echo ""
 			announce-finish
 			;;
@@ -636,8 +638,12 @@ case $module in
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
+			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
 			manual-chkin
+			echo ""
+			target_module="cs"
+			create-tag "$target_module" $dest_name $dest
 			echo ""
 			announce-finish
 			;;
@@ -651,8 +657,12 @@ case $module in
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
+			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
 			manual-chkin
+			echo ""
+			target_module="services"
+			create-tag "$target_module" $dest_name $dest
 			echo ""
 			announce-finish
 			;;
@@ -666,8 +676,12 @@ case $module in
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
+			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
 			manual-chkin
+			echo ""
+			target_module="fs750"
+			create-tag "$target_module" $dest_name $dest
 			echo ""
 			announce-finish
 			;;
@@ -681,8 +695,12 @@ case $module in
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
+			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
 			manual-chkin
+			echo ""
+			target_module="fs"
+			create-tag "$target_module" $dest_name $dest
 			echo ""
 			announce-finish
 			;;
@@ -692,6 +710,7 @@ case $module in
 			read -p "Make sure you've recorded all the merge info into Merge List/Merge Form/CM Log.."
 			echo "Removing...."
 			rm -rf $mergedir
+			echo "I'll see you in an other life, brother! "
 			;;
 	*)
 			variable-declaration
@@ -700,8 +719,11 @@ case $module in
 			copy-intermediate "$target_module"
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
+			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
 			manual-chkin
+			echo ""
+			create-tag "$target_module" $dest_name $dest
 			echo ""
 			announce-finish
 			;;
