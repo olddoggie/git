@@ -169,8 +169,8 @@ if [ "$module" != "baseline" -a "$module" != "cs" -a "$module" != "af" -a "$modu
 echo "Start diff from $2 ..."
 cvs -d $bleumcvsroot \
 rdiff -s -r $previoustag -r $currenttag "$module" | grep File \
-|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
-'BEGIN{ "date" | getline d; print "--"$module"-",d,"----------"}{{for(k = 2; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F "$module"'/' \
+'BEGIN{ "date" | getline d; print "--"$module"-",d,"----------"}{printf "%s\n",$2}' \
 | tee $file | wc -l | awk '{print $0-1}'
 echo "Finsh diff with $3 ..."
 echo "Start generating $file"

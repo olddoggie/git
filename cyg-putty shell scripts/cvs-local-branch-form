@@ -16,7 +16,16 @@ previoustag=$3
 bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
 
 read -p "Reason for branch creation usually be: accommodate multiple development paths,research on new features, or a production hot-fix..Press Enter"
-
+echo ""
+echo "======================================================================"
+echo "initial the valuable tags:"
+echo ""
+read -p "Module Name,e.g.AFFINITY: " mn
+echo ""
+read -p "Date,e.g.11012012: " dt
+echo "BRCHROOT: BLEUM_"$mn"_BRCHROOT_"$dt"_1"
+echo "======================================================================"
+echo ""
 function create-BRCHROOTtag ()
 {
 read -p "input n to Skip...................... " sk

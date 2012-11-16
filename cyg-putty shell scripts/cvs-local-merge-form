@@ -5,7 +5,8 @@ echo "cvs status -Rq | grep Locally | xargs -i find -type f -newer <start file> 
 echo "first param is 1. cvs module name (cs/af/fs750/fs/services ...) Or 2. 'clean' (to clean the merge dir)"
 echo "second param is the merge source tag, usually a branch name because always merge the latest codes from a branch(e.g. BLEUM_FS_CAT1_09272012_1/FS_7_50)"
 echo "third param is the target destination tag, maybe HEAD because we always wanna merge to trunk".
-echo "! Warning: Merge is done module by module,so please copy/record the intermediate temp-XXX.txt into Merge List (excel form) by each module in case of Overwritten. !"
+echo "! Warning: Merge is done module by module,so please copy/record the intermediate temp-XXX.txt into Merge List (excel form) by each module in case of being Overwritten. !"
+echo "BEFORE code CHKIN, If you wanna discharge the merge result,and do a clean merge again: update -P -A -d -C the module to Get a clean copy."
 echo "Strictly follow the branch merge process, merge form can be found under: 1fbodc/Form/Project"
 echo "Do NOT forget to record the final merge list and info of this merge into CM Log."
 echo ""
@@ -15,40 +16,77 @@ dest_name=$3
 bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
 mergedir=~/merge_`date +%Y-%m-%d`
 update_file=~/update_filelist.txt
-total_changes=$mergedir/temp-merge-list.txt
 temp_start=$mergedir/temp-merge-start.txt
+total_changes=$mergedir/temp-merge-list.txt
 temp_lcl=$mergedir/temp-locally-changes.txt
-temp_rm=$mergedir/temp-locally-removes.txt
+temp_mod=$mergedir/temp-locally-modifies.txt
+temp_add=$mergedir/temp-locally-adds.txt # because added files' time stamp is that file's modified time, so cannot use $temp_start as comparison
+temp_rm=$mergedir/temp-locally-removes.txt # because removed files are not existed in dest until finish merge, so cannot find them directly
 temp_conflict=$mergedir/temp-conflicts.txt
 
-echo "======================================================================"
 echo "initial the valuable tags:"
 echo ""
-read -p "Module Name,e.g.AFFINITY: " mn
+read -p "input n to Skip (Only when you just wanna 'clean' '$mergedir')...................... " sk
+if [ "$sk" = "n" -o "$sk" = "N" ]
+ then
+echo "Skip."
+else
 echo ""
-read -p "Date,e.g.11012012: " dt
-echo "MERGE_SRC: BLEUM_"$mn"_BRCHMERGE_SRC_"$dt"_1"
-echo "before MERGE_DEST: BLEUM_"$mn"_BRCHMERGE_before_DEST_"$dt"_1"
-echo "MERGE_DEST: BLEUM_"$mn"_BRCHMERGE_DEST_"$dt"_1"
 echo "======================================================================"
+read -p "Module Name,e.g.AFFINITY: " mn
+read -p "Date,e.g.11012012: " dt
+src="BLEUM_"$mn"_BRCHMERGE_SRC_"$dt"_1"
+bf_dest="BLEUM_"$mn"_BRCHMERGE_before_DEST_"$dt"_1"
+dest="BLEUM_"$mn"_BRCHMERGE_DEST_"$dt"_1"
+echo "MERGE_SRC: $src "
+echo "before MERGE_DEST: $bf_dest "
+echo "MERGE_DEST: $dest "
+echo "======================================================================"
+fi
 echo ""
-echo "Set the reference file '$temp_start' to Record the Merge Start Time. 1.if this is the First time you're running this script to start merge, Do NOT skip! 2.if you have already started merge before(this is not the first time you run this script), skip this step ..PRESS Enter"
+if [ ! -d $mergedir ]
+  then
+	mkdir $mergedir
+fi
+echo "* Set the reference file '$temp_start' to Record the Merge Start Time. 1.if this is the First time you're running this script to start merge, Do NOT skip! 2.if you have already started merge before(this is not the first time you run this script), skip this step ..PRESS Enter"
+sk=y
+while [ "$sk" == "y" -o "$sk" == "Y"  ] 
+do
 read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
 else
-touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
+read -p "Confirm whether you really wanna re-New '$temp_start'. Press Enter/Input 'y' to approve re-New : " sk
+	if [ "$sk" = "y" -o "$sk" = "Y" ]
+	 then
+	echo "re-Newing '$temp_start'.. "
+	touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
+	sk=n # stop loop.
+	fi
+	if [ "$sk" = "n" -o "$sk" = "N" ]
+	 then
+	echo "Skip."
+	else
+	sk=y # stop loop.
+	fi
 fi
+done
 echo ""
 read -p "! Before merge, consider about the expected impacts on merge destination/other application ..Press Enter"
 read -p "! Confirm with 1fb before perform code merge, especially for those sharing modules, e.g. services ..Press Enter"
 read -p "Now you can send a mail to project team to announce !Code Freeze! on both source and destination branch/head.. Press Enter"
 read -p "! Confirm all codes are checked in both source and destination branch/head.. Press Enter"
-if [ ! -d $mergedir ]
-  then
-	mkdir $mergedir
-fi
+echo ""
+function copy-intermediate ()
+{
+echo ""
+echo "Copy intermediate files for this '$1' merge (auto CHKIN info) .."
+echo "$1" | awk -F '/' '{{for (i=1;i<NF;i++) printf "%s-",$i}{printf "%s\n",$i}}'| xargs -i mkdir $mergedir/{}_`date +%H-%M`
+cp -f *.txt "$1"*
+echo ""
+echo "Ok, go to next target_module.."
+}
 function create-tag ()
 {
 read -p "input n to Skip...................... " sk
@@ -65,11 +103,30 @@ function update-code ()
 read -p "input n to Skip...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
+echo "Just go to Working Folder "$1".."
+source ~/bin/go /cygdrive/d/BleumCVS/"$1"
 echo "Skip."
 else
 source ~/bin/go /cygdrive/d/BleumCVS/"$1" # go to the parent folder of the module you want to operate
+rn0=n
+nv="$1"
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+echo ""
+echo "----------------- current dir -----------------"
 pwd
-echo "'$1' module is now being updated to '$2' .."
+echo "----------------- current dir -----------------"
+echo ""
+read -p "* Comfirm dir of module ('$nv') is specified correctly as above.. Press Enter/Input 'n' to re-navigate: " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	read -p "Please identify the Working Space you wanna navigate to: " nv
+	source ~/bin/go /cygdrive/d/BleumCVS/"$nv"
+	 else
+	echo "Working Folder Correct."
+	fi
+done
+echo "'$nv' module is now being updated to '$2' .."
 case "$2" in
   "head")
 			cvs -d $bleumcvsroot update -A -P -d
@@ -91,7 +148,7 @@ fi
 }
 function generate-total-changes ()
 {
-read -p "input n to Skip...................... " sk
+read -p "input n to Skip (Recommand Not to Skip, because you need input total_changes_numbers here)...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
@@ -99,9 +156,24 @@ else
 echo "Now start gererating the total file change list by rdiff the merge_root and merge_src"
 ~/bin/cvs-local-check-update "$1" $2 $3
 cp $update_file $total_changes
-echo "All the file changes between '$2' and '$3' has been written to '$total_changes'..."
+echo "All the file changes between '$2' and '$3' has been written to '$total_changes', please record the total_changes_numbers..."
+cat $total_changes | wc -l | awk '{print "<----------------Total: "$0-1" ------------------->"}'| tee -a $total_changes
+rn0=n
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+cat $total_changes | wc -l | awk '{print "Finally,the total_changes_numbers is:  "$0-2" "}'
 read -p "please record the total file list number: " total_changes_numbers
-cat $total_changes | wc -l | awk '{print "<----------------Total: $total_changes_numbers------------------->"}'| tee -a $total_changes
+echo ""
+read -p "Confirm the total_changes_numbers you recorded '$total_changes_numbers' is correct. Press Enter/Input 'n' to modify '$total_changes'and re-Count : " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	 read -p "Now Finalize the update file list (between '$2' and '$3'), if still got any changes, according to Merge List(excel form) Directly but Carefully Change '$total_changes', then re-Input the total_changes_numbers.. PRESS Enter"
+	 echo ""
+	 else
+	echo "Number is Correct."
+	fi
+done
+echo ""
 read -p "!Warning: Make sure you copy the content of '$total_changes' into Merge List(excel form) for each module! Because module by module the previous '$total_changes' will be overwritten!.... PRESS Enter if done"
 fi
 }
@@ -116,15 +188,28 @@ echo ""
 echo "Start code merging ...."
 echo ""
 rn0=n
+nv1="$1"
 while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
 do
+echo ""
+echo "----------------- current dir -----------------"
 pwd
-read -p "* Comfirm current dir of module ('$1') is specified correctly.. Press Enter/Input 'n' to re-navigate: " rn0
-source ~/bin/go /cygdrive/d/BleumCVS
-source ~/bin/go "$1"
+echo "----------------- current dir -----------------"
+echo ""
+read -p "* Comfirm dir of module ('$nv1') is specified correctly as above.. Press Enter/Input 'n' to re-navigate: " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	read -p "Please identify the Working Space you wanna navigate to: " nv1
+	source ~/bin/go /cygdrive/d/BleumCVS/"$nv1"
+	 else
+	echo "Working Folder Correct."
+	fi
 done
+echo ""
+echo "Start Code Merging...... "
 cvs update -P -d -j $2 -j $3
-echo "Finish code merging, carefully deal with rollback,conflict,etc."
+echo ""
+echo "Finish Code Merging, carefully deal with rollback,conflict,etc."
 fi
 }
 function check-local-changes ()
@@ -135,12 +220,43 @@ if [ "$sk" = "n" -o "$sk" = "N" ]
 echo "Skip."
 else
 echo ""
-echo "Start analyzing the lcoally changes during merge ..."
+echo "Start analyzing the lcoally modified files during merge ..."
 echo ""
-cvs st -Rq | grep "Locally" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_lcl
-echo "Now Check the result in file '$temp_lcl', please record the local_changes_numbers ... "
-cat $temp_lcl | wc -l | awk '{print "<----------------Total: '$0'------------------->"}'| tee -a $temp_lcl
-read -p "please record total local changs: " local_changes_numbers
+cvs st -Rq | grep "Locally Modified" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_mod
+echo "Now Check the result in file '$temp_mod' ... "
+cat $temp_mod | wc -l
+echo ""
+echo "Start analyzing the lcoally added files during merge ..."
+echo ""
+cvs st -Rq | grep "Locally Added" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -name {} > $temp_add
+echo "Now Check the result in file '$temp_add' ... "
+cat $temp_add | wc -l 
+echo ""
+echo "Start analyzing the lcoally removed files during merge ..."
+echo ""
+cvs st -Rq | grep "Locally Removed" | grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|awk -F 'no file ' '{print $2}' > $temp_rm
+echo "Now Check the result in file '$temp_rm' ... "
+cat $temp_rm | wc -l 
+echo ""
+echo "Now Check the whole result in file '$temp_lcl', please record the local_changes_numbers ... "
+cat $temp_mod > $temp_lcl && cat $temp_add >> $temp_lcl && cat $temp_rm >> $temp_lcl
+cat $temp_lcl | wc -l | awk '{print "<----------------Total: "$0" ------------------->"}'| tee -a $temp_lcl
+rn0=n
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+cat $temp_lcl | wc -l | awk '{print "Finally,the local_changes_numbers is:  "$0-1" "}'
+read -p "please record total local changes: " local_changes_numbers
+echo ""
+read -p "Confirm the local_changes_numbers you recorded '$local_changes_numbers' is correct. Press Enter/Input 'n' to modify '$temp_lcl'and re-Count : " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	 read -p "Now Finalize the local changed(added,removed,modified) file list , if still got any changes, according to Merge List(excel form) Directly but Carefully Change '$temp_lcl', then re-Input the local_changes_numbers.. PRESS Enter"
+	 echo ""
+	 else
+	echo "Number is Correct."
+	fi
+done
+echo ""
 read -p "!Warning: Make sure you copy the content of '$temp_lcl' into Merge List(excel form) for each module! Because module by module the previous '$temp_lcl' will be overwritten!.... PRESS Enter if done"
 fi
 }
@@ -156,8 +272,23 @@ echo "Start analyzing the conflicts during merge,these part should be handled ma
 echo ""
 cvs st -Rq | grep "File had conflicts on merge" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_conflict
 echo "Now Check the result in file '$temp_conflict', please record the conflicts_numbers ... "
-cat $temp_conflict | wc -l | awk '{print "<----------------Total: $0------------------->"}'| tee -a $temp_conflict
+cat $temp_conflict | wc -l | awk '{print "<----------------Total: "$0" ------------------->"}'| tee -a $temp_conflict
+rn0=n
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+cat $temp_conflict | wc -l | awk '{print "Finally,the conflicts_numbers is:  "$0-1" "}'
 read -p "please record total conflicts number: " conflicts_numbers
+echo ""
+read -p "Confirm the conflicts_numbers you recorded '$conflicts_numbers' is correct. Press Enter/Input 'n' to modify '$temp_conflict'and re-Count : " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	 read -p "Now Finalize the conflict file list , if still got any changes, according to Merge List(excel form) Directly but Carefully Change '$temp_conflict', then re-Input the conflicts_numbers.. PRESS Enter"
+	 echo ""
+	 else
+	echo "Number is Correct."
+	fi
+done
+echo ""
 read -p "!Warning: Make sure you copy the content of '$temp_conflict' into Merge List(excel form) for each module! Because module by module the previous '$temp_conflict' will be overwritten!.... PRESS Enter if done"
 fi
 }
@@ -176,18 +307,23 @@ echo "The lcoal change + conflicts list generated on step 10. should be totally 
 	read -p "So far so good! The file numbers is equal for this merge: '$sum', let's move on .."
 	 else
 	read -p "Ooops! The file list in step 5 is: $total_changes_numbers , but the file list generated by cvs is: $sum , including local changes: $local_changes_numbers, plus conflicts: $conflicts_numbers . You've gotta check $total_changes,$temp_lcl and $temp_conflict for detail."
+	echo ""
 	echo "Now compare to see the detail ...."
 	source ~/bin/go $mergedir
 	file1=$mergedir/file_s5.txt
 	file2=$mergedir/file_s10.txt
 	output=compare-result.txt
-	cat $total_changes | awk '/^[A-Za-z0-9]/ {{for(i = 1; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is' '{print $1}'> $file1
-	cat $temp_lcl > $file2 && cat $temp_conflict >> $file2 && cat $file2 | gawk -F '/' '{a=NF; print $a}' | awk '/^[A-Za-z0-9]/ {print $1}' > $file2
-	echo "input 1.file_s5.txt---> step5, 2.file_s10.txt---> step10 "
+	cat $total_changes | awk '/^[A-Za-z0-9]/ {print $0}'|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is' '{print $1}'|gawk -F ' changed' '{print $1}'> $file1
+	cat $temp_lcl > $file2 && cat $temp_conflict >> $file2 && cat $file2 | awk '/^[A-Za-z0-9.]/ {print $0}' | gawk -F '/' '{a=NF; print $a}' > $file2
+	echo ""
+	echo "input 1.<file_s5.txt> --->step5, 2.<file_s10.txt> --->step10 "
 	~/bin/cvs-local-filelist-compare n
+	echo ""
 	echo "Check the detail differences in '$mergedir/$output'"
+	echo ""
 	read -p "Now you should have found the difference between 2 list, before we move on, make sure Record all the detailed info into merge list (excel form)/mereg form/CM Log.. PRESS Enter, and if there is any Special Action to take (attention to contents in bracket of step 10.), Remember to do it!"
 	fi
+echo ""
 read -p "!Warning: Make sure you record the valuable info into Merge List(excel form) for each module! Because module by module the previous all the temp-XXX.txt will be overwritten!.... PRESS Enter if done"
 fi
 }
@@ -202,7 +338,9 @@ echo ""
 echo "Start checking any roll back files exist, which means there's no difference between merge_src(tagged on step 6.) and merge_before_dest(tagged on step 8.)..."
 echo ""
 ~/bin/cvs-local-rollback-check "$1" $2 $3
+echo ""
 read -p "If there're any codes totally same, they need NOT to be merged since merge src and dest are already the same,and after merge, you can just get clean copy, do NOT forget to mark these codes as NO Need merge in the Merge List!"
+echo ""
 read -p "!If any codes NO need merge, *directly* Remove them from '$temp_lcl' BEFORE script check in codes..PRESS Enter if done"
 fi
 }
@@ -217,18 +355,76 @@ echo ""
 echo "Start checking in locally changes into cvs repository.."
 echo ""
 source ~/bin/go /cygdrive/d/BleumCVS/"$1"
-read -p "!Carefully review the chkin list: '$temp_lcl' before you check in any codes..PRESS Enter"
+rn0=n
+nv2="$1"
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+echo ""
+echo "----------------- current dir -----------------"
+pwd
+echo "----------------- current dir -----------------"
+echo ""
+read -p "* Comfirm dir of module ('$nv2') is specified correctly as above.. Press Enter/Input 'n' to re-navigate: " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	read -p "Please identify the Working Space you wanna navigate to: " nv2
+	source ~/bin/go /cygdrive/d/BleumCVS/"$nv2"
+	 else
+	echo "Working Folder Correct."
+	fi
+done
+echo ""
+read -p "!Carefully review the CHKIN List: '$temp_lcl' BEFORE you Check in any codes..PRESS Enter"
 read -p "!Draft the commit comments, e.g. 'AF3.50 CAT2: code merge from AFF_3_50_Porting branch': " comment
-read -p "Confirm the comments. Press Enter/Input 'n' to rename merge comments: " cm
+cm=n
+while [ "$cm" == "n" -o "$cm" == "N"  ] 
+do
+read -p "Confirm the comments: '$comment'. Press Enter/Input 'n' to rename merge comments: " cm
 	if [ "$cm" == "n" -o "$cm" == "N" ]
 	 then
 	read -p "!Draft the commit comments, e.g. 'AF3.50 CAT2: code merge from AFF_3_50_Porting branch': " comment
+	echo ""
+	 else
+	echo "Comment is Correct."
 	fi
-read -p "!You sure no problems? For the worst, still can roll back to '$bf_dest'..PRESS Enter to check in codes >>>"
-echo "Now check in codes according to '$temp_lcl' >>>"
-cat $temp_lcl | awk '/^\./ {print $1}' | xargs cvs commit -m "$comment"
-# awk '/^\./ {print $1}' is for the sake of filtering out line "<----------------Total: <file num>------------------->"
-echo "Finished check in $local_changes_numbers codes according to '$temp_lcl'."
+done
+read -p "! BEFORE code CHKIN, If you wanna discharge the merge result,and do a clean merge again: update -P -A -d -C the module to Get a clean copy."
+read -p "! For the worst, after code CHKIN, still can roll back to '$bf_dest'..PRESS Enter to prepare check in list >>>"
+echo ""
+echo "Now CHKIN list '$temp_lcl' preparing...... "
+cat $temp_lcl | awk '/^[^a-zA-Z0-9<-]/ {print $0}' > $temp_lcl # /^[^a-zA-Z0-9<-]/ is used for excluding any other lines except for "./XX/XX lines"
+echo "Copy Removed files from '$temp_lcl' to '$total_changes'.."
+cat $total_changes | grep "removed" | awk '{printf "./%s\n",$0}' | awk -F ' is' '{print $1}'| tee -a $temp_lcl
+echo "CHKIN list '$temp_lcl' preparing Finished...... "
+echo ""
+read -p "!Again,Carefully review the CHKIN List: '$temp_lcl' BEFORE you Check in any codes..PRESS Enter"
+echo ""
+rn0=n
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+echo ""
+cat $temp_lcl | wc -l | awk '{print "Finally,the Total local changes which should be Auto CHKIN by script is:  "$0" "}'
+echo "Previously the local_changes_numbers in '$temp_lcl' you recorded is: '$local_changes_numbers'.. Compare with the above Num."
+echo ""
+read -p "! Confirm the CHKIN list Num as above. Press Enter/Input 'n' to modify '$temp_lcl'and re-Count : " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	 echo ""
+	 read -p "Now Finalize the CHKIN list , if still got any changes before CHKIN, according to Merge List(excel form) Directly but Carefully Change '$temp_lcl'.. PRESS Enter"
+	 echo ""
+	 else
+	echo "Number is Correct."
+	fi
+done
+read -p "Confirm Files and Numbers are All correct? .. Input the auto CHKIN num: " auto_chkin_numbers
+read -p "! Last Step. You sure no problems? .. PRESS Enter to CHKIN >>>"
+echo "======================================================================"
+echo "Now check in codes according to '$temp_lcl'.. "
+cat $temp_lcl | awk '/^\./ {print $0}' | xargs cvs commit -m "$comment"
+# awk '/^\./ {print $0}' is for the sake of filtering out line "<----------------Total: <file num>------------------->"
+echo "Finished CHKIN $auto_chkin_numbers codes according to finalized '$temp_lcl'."
+echo "======================================================================"
+echo ""
 read -p "!Warning: After Directly modify '$temp_lcl' and code check in, Make sure you record the valuable info ('$temp_lcl') into Merge List(excel form) for each module! Because module by module the previous all the temp-XXX.txt will be overwritten!.... PRESS Enter if done"
 fi
 }
@@ -253,6 +449,7 @@ done
 	read -p "Confirm you've dealt with all the conflicts manually, Mark these files as conflict and the way how deal with them (manually merged or keep same as before merge) in Mege List.. PRESS Enter"
 	echo ""
 	read -p "Conflicts done, check them into repository manually in winCVS AFTER script auto check in local changes.. PRESS Enter"
+	echo ""
 	read -p "Now start checking in modified files manually >>>"
 	echo ""
 	echo "After deal with conflicts, all of the modified file have been checked in!"
@@ -285,6 +482,7 @@ done
 	read -p "Confirm you've dealt with all the Special Files manually, Record these files as well as the way how deal with them (manually merged or keep same as before merge) in Mege List(excel form).. PRESS Enter"
 	echo ""
 	read -p "Special Files Modified and Recorded, check them into repository manually in winCVS AFTER script auto check in local changes.. PRESS Enter"
+	echo ""
 	read -p "Now start checking in modified files manually >>>"
 	echo ""
 	echo "After deal with Special Files, all of the modified file have been checked in!"
@@ -305,35 +503,50 @@ read -p "* Confirm the merge destination tag (maybe HEAD) is '$dest_name'. Press
 read -p "According to the merge process, there still have some variable you need define, see below -----> "
 echo ""
 read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN>/BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> of last time on SOURCE branch. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
-read -p "Identify a second Merge_SRC tag e.g. BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> on SOURCE branch as the merge start point: " src
-read -p "Identify a before Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_before_DEST_<DATE>_<SN> on destination BEFORE merge: " bf_dest
-read -p "Identify an after Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_DEST_<DATE>_<SN> on destination AFTER merge: " dest
 echo "variable declaration finished ..."
 }
 function main-merge ()
 {
-read -p "Confirm the root tag of Merge_SRC is '$root'. Press Enter/Input 'n' to rename this tag: " rn
-if [ "$rn" == "n" -o "$rn" == "N" ]
- then
-read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN>/BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> of last time on SOURCE branch. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
-fi
+rn0=n
+while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
+do
+read -p "Confirm the root tag of Merge_SRC is '$root'. Press Enter/Input 'n' to rename this tag: " rn0
+	if [ "$rn0" = "n" -o "$rn0" = "N" ]
+	 then
+	 read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN>/BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> of last time on SOURCE branch. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
+	 else
+	echo "ROOT Correct."
+	fi
+done
 echo "!(step 5.)!Start generating the total file changes (initial merge list) on SOURCE branch.."
 generate-total-changes "$target_module" $root $src_name
 echo ""
 echo "Start creating the second Merge_SRC tag .."
+rn1=n
+while [ "$rn1" == "n" -o "$rn1" == "N"  ] 
+do
 read -p "Confirm the second Merge_SRC tag is '$src'. Press Enter/Input 'n' to rename this tag: " rn1
-if [ "$rn1" == "n" -o "$rn1" == "N" ]
- then
-read -p "Identify a second Merge_SRC tag, e.g. BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> : " src
-fi
+	if [ "$rn1" == "n" -o "$rn1" == "N" ]
+	 then
+	read -p "Identify a second Merge_SRC tag, e.g. BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> : " src
+	 else
+	echo "BRCHMERGE_SRC Correct."
+	fi
+done
 create-tag "$target_module" $src_name $src
 echo ""
 echo "Start creating the before_Merge_DEST tag .."
+rn2=n
+while [ "$rn2" == "n" -o "$rn2" == "N"  ] 
+do
 read -p "Confirm the before Merge_DEST tag is '$bf_dest'. Press Enter/Input 'n' to rename this tag: " rn2
-if [ "$rn2" == "n" -o "$rn2" == "N" ]
- then
-read -p "Identify a before Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_before_DEST_<DATE>_<SN> on destination BEFORE merge: " bf_dest
-fi
+	if [ "$rn2" == "n" -o "$rn2" == "N" ]
+	 then
+	read -p "Identify a before Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_before_DEST_<DATE>_<SN> on destination BEFORE merge: " bf_dest
+	 else
+	echo "before Merge_DEST Correct."
+	fi
+done
 create-tag "$target_module" $dest_name $bf_dest
 echo ""
 echo "Updating to DESTINATION (maybe head)-- Mandatory! .."
@@ -351,24 +564,11 @@ echo ""
 echo "Comparing the file numbers between step 5 and step 10 .."
 check-sum
 echo ""
-echo "Checking any No changes file (direcly modify '$temp_lcl', No need check in) ...."
+echo "Checking any Roll back/No changes file (direcly modify '$temp_lcl', No need check in) ...."
 check-rollbacks "$target_module" $src_name $bf_dest
 echo ""
 echo "Check ING .."
 code-chkin "$target_module"
-echo ""
-read -p "* Confirm now you should have checked in all the necessary files into '$dest_name'.. Press Enter"
-read -p "* If NOT yet, please wait until totally checked in, then tag MERGE_DEST on '$dest_name'.. Press Enter"
-echo ""
-echo "Start creating the before_Merge_DEST tag .."
-read -p "Confirm the after Merge_DEST tag is '$dest'. Press Enter/Input 'n' to rename this tag: " rn3
-if [ "$rn3" == "n" -o "$rn3" == "N" ]
- then
-read -p "Identify an after Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_DEST_<DATE>_<SN> on destination AFTER merge: " dest
-fi
-create-tag "$target_module" $dest_name $dest
-echo ""
-read -p "* After tag MERGE_DEST, finish recording the Merge List(excel form)/Merge Form/CM Log for this merge.. Press Enter"
 echo ""
 }
 function manual-chkin ()
@@ -379,6 +579,27 @@ deal-conflicts
 echo ""
 echo "Dealing with special files if exist (step 10.).."
 deal-special-file
+echo ""
+read -p "* Confirm now you should have checked in all the necessary files into '$dest_name'.. Press Enter"
+read -p "* If NOT yet, please wait until totally checked in, then tag MERGE_DEST on '$dest_name'.. Press Enter"
+echo ""
+echo "Start creating the Merge_DEST tag .."
+echo ""
+rn3=n
+while [ "$rn3" == "n" -o "$rn3" == "N"  ] 
+do
+read -p "Confirm the after Merge_DEST tag is '$dest'. Press Enter/Input 'n' to rename this tag: " rn3
+	if [ "$rn3" == "n" -o "$rn3" == "N" ]
+	 then
+	read -p "Identify an after Merge_DEST tag e.g. BLEUM_<MODULE>_BRCHMERGE_DEST_<DATE>_<SN> on destination AFTER merge: " dest
+	 else
+	echo "Merge_DEST Correct."
+fi
+done
+create-tag "$target_module" $dest_name $dest
+echo ""
+read -p "* After tag MERGE_DEST, finish recording the Merge List(excel form)/Merge Form/CM Log for this merge.. Press Enter"
+echo ""
 }
 function announce-finish ()
 {
@@ -396,6 +617,7 @@ case $module in
 			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
 			do
 			main-merge
+			copy-intermediate "$target_module"
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -410,6 +632,7 @@ case $module in
 			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
 			do
 			main-merge
+			copy-intermediate "$target_module"
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -424,6 +647,7 @@ case $module in
 			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
 			main-merge
+			copy-intermediate "$target_module"
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -438,6 +662,7 @@ case $module in
 			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
 			main-merge
+			copy-intermediate "$target_module"
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -452,6 +677,7 @@ case $module in
 			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" 
 			do
 			main-merge
+			copy-intermediate "$target_module"
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -471,6 +697,7 @@ case $module in
 			variable-declaration
 			target_module="$module"
 			main-merge
+			copy-intermediate "$target_module"
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
 			echo "Now start manual checking in modified conflicts/special files.."
