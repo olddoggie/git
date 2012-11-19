@@ -614,8 +614,15 @@ case $module in
 			variable-declaration
 			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
 			do
+			read -p "input n to Skip '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Loop to next module."
+			else
+			echo ""
 			main-merge
 			copy-intermediate "$target_module"
+			fi
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -633,8 +640,15 @@ case $module in
 			variable-declaration
 			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
 			do
+			read -p "input n to Skip '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Loop to next module."
+			else
+			echo ""
 			main-merge
 			copy-intermediate "$target_module"
+			fi
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -652,8 +666,15 @@ case $module in
 			variable-declaration  
 			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
+			read -p "input n to Skip '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Loop to next module."
+			else
+			echo ""
 			main-merge
 			copy-intermediate "$target_module"
+			fi
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -671,8 +692,15 @@ case $module in
 			variable-declaration  			
 			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
+			read -p "input n to Skip '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Loop to next module."
+			else
+			echo ""
 			main-merge
 			copy-intermediate "$target_module"
+			fi
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -690,8 +718,15 @@ case $module in
 			variable-declaration   
 			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" 
 			do
+			read -p "input n to Skip '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Loop to next module."
+			else
+			echo ""
 			main-merge
 			copy-intermediate "$target_module"
+			fi
 			done
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
@@ -715,8 +750,15 @@ case $module in
 	*)
 			variable-declaration
 			target_module="$module"
+			read -p "input n to Skip '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Skip."
+			else
+			echo ""
 			main-merge
 			copy-intermediate "$target_module"
+			fi
 			echo ""
 			echo "Auto check in has been finished for those file changes.."
 			echo ""
