@@ -68,7 +68,7 @@ read -p "Confirm whether you really wanna re-New '$temp_start'. Press Enter/Inpu
 	 then
 	echo "Skip."
 	else
-	sk=y # stop loop.
+	sk=y # continue loop.
 	fi
 fi
 done
