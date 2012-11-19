@@ -52,17 +52,23 @@ echo "* Set the reference file '$temp_start' to Record the Merge Start Time. 1.i
 sk=y
 while [ "$sk" == "y" -o "$sk" == "Y"  ] 
 do
-read -p "input n to Skip...................... " sk
+read -p "input n to Skip / input y to do it...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 echo "Skip."
+break
+fi
+if [ "$sk" = "y" -o "$sk" = "Y" ]
+ then
+echo "Re-new."
+break
 else
 read -p "Confirm whether you really wanna re-New '$temp_start'. Press Enter/Input 'y' to approve re-New : " sk
 	if [ "$sk" = "y" -o "$sk" = "Y" ]
 	 then
 	echo "re-Newing '$temp_start'.. "
 	touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
-	sk=n # stop loop.
+	break
 	fi
 	if [ "$sk" = "n" -o "$sk" = "N" ]
 	 then
@@ -82,8 +88,9 @@ function copy-intermediate ()
 {
 echo ""
 echo "Copy intermediate files for this '$1' merge (auto CHKIN info) .."
-echo "$1" | awk -F '/' '{{for (i=1;i<NF;i++) printf "%s-",$i}{printf "%s\n",$i}}'| xargs -i mkdir $mergedir/{}_`date +%H-%M`
-cp -f *.txt "$1"*
+temp_moment=`date +%H-%M-%S`
+echo "$1" | awk -F '/' '{{for (i=1;i<NF;i++) printf "%s-",$i}{printf "%s\n",$i}}'| xargs -i mkdir $mergedir/"$temp_moment"_{}
+cp -f $mergedir/*.txt $mergedir/"$temp_moment"*
 echo ""
 echo "Ok, go to next target_module.."
 }
@@ -606,15 +613,17 @@ read -p "Now you can send a mail to project team to announce !Code Merged! on '$
 read -p "!If the codes should be merged NOT ONLY in BLeun side, It's highly recommanded to DO a build for '$module'(check in latest codes to itoCVS) after Merge codes!"
 read -p "Almost close, now provide Tech leaders with the Merge detail.. Press Enter"
 read -p "Last but not least, update the 1fb CVS Branch Document.doc --> check into VSS --> notify sf team (wliu@1fbusa.com).. Press Enter"
-echo "Merge finished! Check in CM Log into CVS:/1fbodc/cm.."
+echo ""
+echo "Merge finished! Check in CM Log into CVS:/1fbodc/CM.."
 }
 case $module in
   "af")
 			module="afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
 			variable-declaration
+			echo ""
 			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
 			do
-			read -p "input n to Skip '$target_module'...................... " sk
+			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
 			if [ "$sk" = "n" -o "$sk" = "N" ]
 			 then
 			echo "Loop to next module."
@@ -638,9 +647,10 @@ case $module in
   "cs")
   			module="cs/src,cs/war"
 			variable-declaration
+			echo ""
 			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
 			do
-			read -p "input n to Skip '$target_module'...................... " sk
+			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
 			if [ "$sk" = "n" -o "$sk" = "N" ]
 			 then
 			echo "Loop to next module."
@@ -663,10 +673,11 @@ case $module in
 			;;
   "services")
   			module="services/src,services/mapping"
-			variable-declaration  
+			variable-declaration
+			echo ""
 			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
-			read -p "input n to Skip '$target_module'...................... " sk
+			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
 			if [ "$sk" = "n" -o "$sk" = "N" ]
 			 then
 			echo "Loop to next module."
@@ -689,10 +700,11 @@ case $module in
 			;;
   "fs750")
   			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
-			variable-declaration  			
+			variable-declaration
+			echo ""
 			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
-			read -p "input n to Skip '$target_module'...................... " sk
+			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
 			if [ "$sk" = "n" -o "$sk" = "N" ]
 			 then
 			echo "Loop to next module."
@@ -715,10 +727,11 @@ case $module in
 			;;
   "fs")
    			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
-			variable-declaration   
+			variable-declaration
+			echo ""
 			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" 
 			do
-			read -p "input n to Skip '$target_module'...................... " sk
+			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
 			if [ "$sk" = "n" -o "$sk" = "N" ]
 			 then
 			echo "Loop to next module."
@@ -749,8 +762,9 @@ case $module in
 			;;
 	*)
 			variable-declaration
+			echo ""
 			target_module="$module"
-			read -p "input n to Skip '$target_module'...................... " sk
+			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
 			if [ "$sk" = "n" -o "$sk" = "N" ]
 			 then
 			echo "Skip."
