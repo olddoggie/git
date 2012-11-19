@@ -60,14 +60,15 @@ break
 fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
-echo "Re-new."
+echo "re-Newing '$temp_start'.. "
+touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
 break
 else
 read -p "Confirm whether you really wanna re-New '$temp_start'. Press Enter/Input 'y' to approve re-New : " sk
 	if [ "$sk" = "y" -o "$sk" = "Y" ]
 	 then
 	echo "re-Newing '$temp_start'.. "
-	touch $temp_start # used for a reference of the beggining of merge, than any files locally changed later should be the result of merge
+	touch $temp_start
 	break
 	fi
 	if [ "$sk" = "n" -o "$sk" = "N" ]
