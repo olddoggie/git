@@ -1,8 +1,0 @@
-Exception: STATUS_ACCESS_VIOLATION at eip=6102FFC9
-eax=00000000 ebx=0022CE64 ecx=00000000 edx=00000000 esi=61272B40 edi=0000000A
-ebp=0151AB68 esp=0151A840 program=E:\cygwin\bin\bash.exe, pid 10740, thread sig
-cs=001B ds=0023 es=0023 fs=003B gs=0000 ss=0023
-Stack trace:
-Frame     Function  Args
-0151AB68  6102FFC9  (0022CE64, 00000002, 66190041, FFFFFFFE)
-0151ABC8  61030CD4 
