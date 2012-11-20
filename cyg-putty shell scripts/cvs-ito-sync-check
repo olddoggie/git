@@ -12,17 +12,22 @@ FS750=FS_7_50 						# update often
 # Define the previous tag on branch
 CS770Pretag=BLEUM_CS770_SYNC_11122012_1 				# update often
 AF350Pretag=BLEUM_AFFINITY_SYNC_10162012_1 				# update often
-FS750Pretag=BLEUM_FS_CAT2_11062012_1 					# update often
+FS750Pretag=BLEUM_FS_SYNC_11202012_1 					# update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
-# In putty cvs -D 11:00 equals to cvs -D 18:00 CCT and cvs -D 10:00 UTC
+# In putty cvs -D 18:00 CCT equals to cvs -D 10:00 UTC and cvs -D 11:00  (while in win/dos, cvs -D 18:00 CCT == cvs -D 18:00)
 # On ito-cvs,there is a zone gap between the moment of real check in, whihc will trigger notification mail and the timestamp recorded in ito-cvs repositoy, the gap is almost 2 hours and a quarter.
-if [ ! $1 = "cron" ]
+if [ "$1" = "cron" ] # executed by system as crontab job
   then
-time1="yesterday 20:30 CCT"
-time2="yesterday CCT"
-else
 time1="yesterday 12:30 UTC"
 time2="yesterday"
+else # for mannual check on Monday or any time you loke
+echo ""
+echo "Set the Reference time(usually set last Sat. Morning 7 A.M because that's the time cron suspened till now), default is yesterday 20:30 CCT and yesterday CCT as crontab job routine..."
+echo "----------> Do NOT forget add 'CCT'!"
+read -p "----------> time1 (e.g. 2012-11-17 7:00 CCT / 2 day ago 7:00 CCT)=" -t 30 time1
+time1="${time1:-yesterday 20:30 CCT}"
+time2="${time1:-yesterday CCT}"
+read -p "the previous CCT time you wanna fetch as a refernce ----------> $time1.. PRESS Enter to start compare"
 fi
 
 function cvs-rdiff-by-date ()

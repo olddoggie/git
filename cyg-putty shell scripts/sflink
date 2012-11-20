@@ -5,6 +5,6 @@ f2=$2
 echo "command-step:"
 echo "cd /1fb/home/oracle/oas/j2ee/home/onefblib"
 echo "rm $f1.jar"
-echo "ln ¨Cs $f2 $f1.jar"
+echo "ln -s $f2 $f1.jar"
 echo "35\$Ticket!"
 ssh oracle@ditoapv1.1fb.net
