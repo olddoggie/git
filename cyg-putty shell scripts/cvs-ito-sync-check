@@ -6,11 +6,11 @@ echo "Currently the main source code are checked on 6 P.M.;Other config/service 
 file=~/itosync-daily-check-log.txt
 result=~/itosync-daily-check.txt
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
-CS770=CS_7_70 						# update often
+CS790=CS_7_90 						# update often
 AF350=AFF_3_50_Porting 				# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS770Pretag=BLEUM_CS770_SYNC_11122012_1 				# update often
+CS790Pretag=BLEUM_CS_SYNC_11212012_1 					# update often
 AF350Pretag=BLEUM_AFFINITY_SYNC_10162012_1 				# update often
 FS750Pretag=BLEUM_FS_SYNC_11202012_1 					# update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
@@ -67,7 +67,7 @@ done
 
 for module5 in cs/src cs/war
 do
-cvs-rdiff-by-tag $CS770Pretag $CS770 $module5
+cvs-rdiff-by-tag $CS790Pretag $CS790 $module5
 done
 
 for module6 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
