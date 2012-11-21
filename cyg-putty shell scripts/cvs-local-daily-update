@@ -20,11 +20,13 @@ if [ ! -d $jkcvs ]
   then
 	mkdir $jkcvs
 	source ~/bin/go $jkcvs
+	cvs -d $cvsroot co -P -r CS_7_90 csmaintenance/3.50/SourceCodeUBS
 	cvs -d $cvsroot co -P -r AFF_3_50_Porting affinity/sourcecode/afcollagent affinity/sourcecode/afcsragent affinity/sourcecode/afshared services/Sourcecode 
 	cvs -d $cvsroot co -P -r FS_7_50 fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war fs/Sourcecode/fsshared/src fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war
 	cvs -d $cvsroot co -P -r FS_7_50 services $jkcvs/fs_services
 	else
 	source ~/bin/go $jkcvs
+	cvs -d $cvsroot up -d -P -r CS_7_90 csmaintenance/3.50/SourceCodeUBS
 	cvs -d $cvsroot up -d -P -r AFF_3_50_Porting affinity/sourcecode/afcollagent affinity/sourcecode/afcsragent affinity/sourcecode/afshared services/Sourcecode
     cvs -d $cvsroot up -d -P -r FS_7_50 fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war fs/Sourcecode/fsshared/src fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war
 	source ~/bin/go fs_services && cvs -d $cvsroot up -d -P -r FS_7_50 services && source ~/bin/go $jkcvs
