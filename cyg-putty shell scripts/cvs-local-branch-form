@@ -69,10 +69,11 @@ read -p "* Confirm the second BRCHROOT tag e.g. BLEUM_<MODULE>_BRCHROOT_<DATE>_<
 	fi
 done
 echo ""
-read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on branch? n.No y.Yes :" key 
 }
-function input-command ()
+function input-command-tag ()
 {
+read -p "!(step 7.)!Is there any changes between the Root tag and the latest version that shall be initially kept on branch? n.No y.Yes :" key
+echo ""
 while [ "$key" != "y" -a "$key" != "Y" -a "$key" != "n" -a "$key" != "N" ] 
 # Because there may be an empty input or input with space, so it shuold be like "$key", if using $key, maybe bash/shell will throw error '[: too many arguments'
  do
@@ -94,11 +95,17 @@ create-BRCHROOTtag "$target_module" $previoustag $brchroot
 echo "The ROOT tag '$brchroot' is same as past previous tag:'$previoustag'"
 echo ""
 fi
+}
+function input-command-brch ()
+{
 read -p "Now we're going to create branch '$branchname' based on '$brchroot'..Press Enter"
 create-branch "$target_module" $previoustag $branchname
 echo "The ROOT tag on branch which used to be tracked as a starting point is: '$brchroot'"
 echo ""
 echo "Thanks for your cooperation, now the branch '$branchname' is created successfully!"
+}
+function input-command-chk ()
+{
 read -p "But you'd rather do a check first, right? y.Yes n.No :" chk
 while [ "$chk" != "y" -a "$chk" != "Y" -a "$chk" != "n" -a "$chk" != "N" ] 
  do
@@ -131,7 +138,9 @@ case $module in
 			echo "Loop to next module."
 			else
 			echo ""			
-			input-command
+			input-command-tag
+			input-command-brch
+			input-command-chk
 			echo ""
 			fi
 			done
@@ -147,7 +156,9 @@ case $module in
 			echo "Loop to next module."
 			else
 			echo ""				
-			input-command
+			input-command-tag
+			input-command-brch
+			input-command-chk
 			echo ""
 			fi
 			done
@@ -163,7 +174,9 @@ case $module in
 			echo "Loop to next module."
 			else
 			echo ""				
-			input-command
+			input-command-tag
+			input-command-brch
+			input-command-chk
 			echo ""
 			fi
 			done
@@ -179,7 +192,9 @@ case $module in
 			echo "Loop to next module."
 			else
 			echo ""				
-			input-command
+			input-command-tag
+			input-command-brch
+			input-command-chk
 			echo ""
 			fi
 			done
@@ -195,7 +210,9 @@ case $module in
 			echo "Loop to next module."
 			else
 			echo ""				
-			input-command
+			input-command-tag
+			input-command-brch
+			input-command-chk
 			echo ""
 			fi
 			done
@@ -209,7 +226,9 @@ case $module in
 			echo "Skip."
 			else
 			echo ""				
-			input-command
+			input-command-tag
+			input-command-brch
+			input-command-chk
 			echo ""
 			fi
 			;;
