@@ -12,8 +12,8 @@ module=$1
 previoustag=$2
 currenttag=$3
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
-prefolder=~/roll-back/Pre-ito
-nowfolder=~/roll-back/Now-ito
+prefolder=~/roll-back/Pre-ito-"$2"
+nowfolder=~/roll-back/Now-ito-"$3"
 file=~/roll-back-check_filelist-ito.txt
 
 function rollback-check ()
@@ -24,7 +24,6 @@ rdiff -s -r $2 -r $3 \
 "$1" | grep -v " is removed" | grep -v " is new"| grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
 |awk -F ' changed' '{print $1}' | tee $file | wc -l|awk '{print $0}'
 echo "initialize roll-back check folder..."
-rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
 source go $prefolder
 echo "checking out "$previoustag" ..."
 cat $file | xargs -i cvs -d $itocvsroot co -r $previoustag "{}"
@@ -40,22 +39,42 @@ echo "roll back files shall NOT be included in final file list"
 
 case $module in
   "af")
-			rollback-check "afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war" \
-			$previoustag $currenttag
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "afcollagent/src" "afcollagent/war" "afcsragent/src" "afcsragent/war" "afshared/src" "afshared/war"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
 			;;
   "cs")
-			rollback-check "cs/src cs/war" \
-			$previoustag $currenttag
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "cs/src" "cs/war"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
 			;;
   "services")
-			rollback-check "services/src services/mapping" \
-			$previoustag $currenttag
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "services/src" "services/mapping"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done  
 			;;
   "fs750")
-			rollback-check "fscm/src fscm/war fsshared/src fssplashcontent/src fssplashcontent/war services/src services/mapping" \
-			$previoustag $currenttag
-			;;			
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "fscm/src" "fscm/war" "fsshared/src" "fssplashcontent/src" "fssplashcontent/war" "services/src" "services/mapping"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
+			;;
+  "fs")
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "fsagent/src" "fsagent/war" "fscm/src" "fscm/war" "fsshared/src"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
+			;;
 	*)
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
 			rollback-check "$module" $previoustag $currenttag
 			;;
 esac

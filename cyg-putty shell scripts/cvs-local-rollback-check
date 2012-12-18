@@ -12,8 +12,8 @@ module=$1
 previoustag=$2
 currenttag=$3
 bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
-prefolder=~/roll-back/Pre
-nowfolder=~/roll-back/Now
+prefolder=~/roll-back/Pre-"$2"
+nowfolder=~/roll-back/Now-"$3"
 file=~/roll-back-check_filelist.txt
 
 function rollback-check ()
@@ -24,7 +24,6 @@ rdiff -s -r $2 -r $3 \
 "$1" | grep -v " is removed" | grep -v " is new"| grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
 |awk -F ' changed' '{print $1}' | tee $file | wc -l|awk '{print $0}'
 echo "initialize roll-back check folder..."
-rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
 source go $prefolder
 echo "checking out "$previoustag" ..."
 cat $file | xargs -i cvs -d $bleumcvsroot co -r $previoustag "{}"
@@ -40,22 +39,42 @@ echo "roll back files shall NOT be included in final file list"
 
 case $module in
   "af")
-			rollback-check "affinity/sourcecode/afcollagent/src affinity/sourcecode/afcollagent/war affinity/sourcecode/afcsragent/src affinity/sourcecode/afcsragent/war affinity/sourcecode/afshared/src affinity/sourcecode/afshared/war" \
-			$previoustag $currenttag
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
 			;;
   "cs")
-			rollback-check "csmaintenance/3.50/SourceCodeUBS/src csmaintenance/3.50/SourceCodeUBS/war" \
-			$previoustag $currenttag
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
 			;;
   "services")
-			rollback-check "services/Sourcecode/src services/Sourcecode/mapping" \
-			$previoustag $currenttag
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do  
+			rollback-check $target_module $previoustag $currenttag
+			done
 			;;
   "fs750")
-			rollback-check "fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war fs/Sourcecode/fsshared/src fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war services/Sourcecode/src services/Sourcecode/mapping" \
-			$previoustag $currenttag
-			;;			
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
+			;;
+  "fs")
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src"
+			do
+			rollback-check $target_module $previoustag $currenttag
+			done
+			;;
 	*)
+			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
 			rollback-check "$module" $previoustag $currenttag
 			;;
 esac
