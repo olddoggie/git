@@ -14,25 +14,37 @@ currenttag=$3
 bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
 prefolder=~/roll-back/Pre-"$2"
 nowfolder=~/roll-back/Now-"$3"
-file=~/roll-back-check_filelist.txt
+file=~/roll-back/roll-back-check_filelist-changes.txt
+file1=~/roll-back/roll-back-check_filelist-pre.txt
+file2=~/roll-back/roll-back-check_filelist-now.txt
 
 function rollback-check ()
 {
-echo "Start diff the file changes ..."
+echo "Start diff the file between "$previoustag" and "$currenttag" ..."
 cvs -d $bleumcvsroot \
 rdiff -s -r $2 -r $3 \
 "$1" | grep -v " is removed" | grep -v " is new"| grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
-|awk -F ' changed' '{print $1}' | tee $file | wc -l|awk '{print $0}'
+|awk -F ' changed' '{print $1}' | tee $file | wc -l|awk '{print "changed: "$0}'
+cp $file $file1 
+cvs -d $bleumcvsroot \
+rdiff -s -r $2 -r $3 \
+"$1" | grep " is removed" | grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
+|awk -F ' is' '{print $1}' | tee -a $file1 | wc -l|awk '{print "removed: "$0}'
+cp $file $file2 
+cvs -d $bleumcvsroot \
+rdiff -s -r $2 -r $3 \
+"$1" | grep " is new" | grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
+|awk -F ' is' '{print $1}' | tee -a $file2 | wc -l|awk '{print "added: "$0}'
 echo "initialize roll-back check folder..."
 source go $prefolder
 echo "checking out "$previoustag" ..."
-cat $file | xargs -i cvs -d $bleumcvsroot co -r $previoustag "{}"
+cat $file1 | xargs -i cvs -d $bleumcvsroot co -r $previoustag "{}"
 echo "initialize roll-back check folder..."
 source go $nowfolder
 echo "checking out "$currenttag" ..."
-cat $file | xargs -i cvs -d $bleumcvsroot co -r $currenttag "{}"
+cat $file2 | xargs -i cvs -d $bleumcvsroot co -r $currenttag "{}"
 echo "checking out finished.."
-echo "please use external diff tools to compare the folders and pay attention to the '=' and similar'=' marked files, they may be roll back files"
+echo "please use external diff tools to compare the folders and pay attention to the '=' marked files, they may be roll back files"
 echo ""
 echo "roll back files shall NOT be included in final file list"
 }
