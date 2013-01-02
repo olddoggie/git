@@ -116,6 +116,9 @@ alias c="convert-slash b2f"
 # WordNet check
 alias ck="ruby ~/bin/Check.rb"
 
+# command line by line
+alias cll="~/bin/command-line-by-line"
+
 # Look up dictionary
 alias d="dictionary" 
 alias d-ox="cp ~/dictionary/oxford-dict.txt temp.txt;vi temp.txt;rm -f temp.txt"

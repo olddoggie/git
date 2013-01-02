@@ -1,0 +1,34 @@
+#!/usr/bin/bash
+# do command line by line of a file
+#
+echo "Rational is using read Line and then do command based on each line output, pay attention to the double qoute on variables and IFS.."
+echo "first param is command you want to do line by line,(f--generate final filelist)"
+
+command=$1
+input=input.txt
+median=temp.txt
+result=result.txt
+
+function grep-v ()
+{
+while read LINE
+do
+cat $median | grep -v "$LINE" > $median
+done < $input
+}
+
+case $command in
+  "f")
+			echo "Now you are going to combine all file list to make a final one for this CAT..."
+			cat s1.txt | awk '/^[A-Za-z0-9]/ {print $0}'|sort -u  > s1.txt | cut -d '"' -f1 s1.txt > 1.txt			
+			cat s2.txt | awk '/^[A-Za-z0-9]/ {print $0}'|sort -u  > s2.txt | cut -d '"' -f1 s2.txt > 2.txt
+			comm -12 1.txt 2.txt > $input
+			cp s1.txt $median
+			grep-v
+			cp s2.txt $result && cat $median >> $result
+			;;
+	*)
+			echo "no such kind of command yet..."
+			exit 1
+			;;
+esac
