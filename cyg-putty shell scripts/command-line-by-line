@@ -26,6 +26,9 @@ case $command in
 			cp s1.txt $median
 			grep-v
 			cp s2.txt $result && cat $median >> $result
+			cat $result | sort -u | tee $result
+			echo "====== total file num is ========" 
+			cat $result | wc -l
 			;;
 	*)
 			echo "no such kind of command yet..."
