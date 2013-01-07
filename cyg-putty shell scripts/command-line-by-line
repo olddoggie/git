@@ -1,29 +1,15 @@
 #!/usr/bin/bash
 # do command line by line of a file
-#
 echo "Rational is using read Line and then do command based on each line output, pay attention to the double qoute on variables and IFS.."
 echo "first param is command you want to do line by line,(f--generate final filelist)"
-
+echo "second param is target_folder you want to process on,(e.g./cygdrive/d/release/cs/file/CS7.81-CAT1)"
+echo ""
 command=$1
+target_folder="$2"
 dir=~/final-file-list
-input=input.txt
-median=temp.txt
-result=result.txt
-/cygdrive/d/release/cs/file/CS7.81-CAT1
-
-function grep-v ()
-{
-while read LINE
-do
-cat $median | grep -v "$LINE" > $median
-done < $input
-}
-
-function cp-file ()
-{
-find  $1 | sort -t '-' -k4 | grep txt | grep $2 > copy.txt
-declare -i i=0;while read LINE;do i=i+1 ;cp "$LINE" $3$i.txt; done < copy.txt
-}
+copy=temp-copy.txt
+input=temp-input.txt
+median=temp-median.txt
 
 function initial ()
 {
@@ -34,22 +20,85 @@ fi
 echo "Creating directory final-file-list..."
 mkdir $dir
 source ~/bin/go $dir
+echo "Initializing finished..."
+echo ""
+}
+function cp-file ()
+{
+echo "Copying all '$2' txt files from '$1' to '$dir'..."
+find  $1 | sort -t '-' -k4 | grep txt | grep $2 > $copy
+declare -i i=0;while read LINE;do i=i+1;cp "$LINE" $2$i.txt; done < $copy
+echo "Copy finished..."
+echo ""
+}
+function grep-v ()
+{
+while read LINE
+do
+cat $median | grep -v "$LINE" > $median
+done < $input
+}
+function combine-file ()
+{
+# $1,$2 is origine file copied from $target_dir; $3 and $4 is temp files corresponding to $1,$2.
+# $input and $median are connective files with command grep-v
+# the only output file is $5
+cat $1 | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  > $1 | cut -d '"' -f1 $1 > $3
+cat $2 | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  > $2 | cut -d '"' -f1 $2 > $4
+comm -12 $3 $4 > $input
+cp $1 $median
+grep-v
+cp -f $2 $5 && cat $median >> $5 && cat $5 | sort -u > $5
+echo "Result has been generated into '$5'..."
+echo ""
 }
 
 case $command in
   "f")
 			echo "Now you are going to combine all file list to make a final one for this CAT..."
-			cat s1.txt | awk '/^[A-Za-z0-9]/ {print $0}'|sort -u  > s1.txt | cut -d '"' -f1 s1.txt > 1.txt			
-			cat s2.txt | awk '/^[A-Za-z0-9]/ {print $0}'|sort -u  > s2.txt | cut -d '"' -f1 s2.txt > 2.txt
-			comm -12 1.txt 2.txt > $input
-			cp s1.txt $median
-			grep-v
-			cp s2.txt $result && cat $median >> $result
-			cat $result | sort -u | tee $result
-			echo "====== total file num is ========" 
-			cat $result | wc -l
+			initial
+			for target_module in src war
+			do
+				result=result-"$target_module".txt
+				cp-file  "$target_folder" $target_module
+				echo "Start combining file lists for '$target_folder's '$target_module' module..."
+				echo ""
+				declare -i sum=`ls "$target_module"*.txt |wc -l`
+				if [ $sum -eq 1 ]
+				 then 
+					cat "$target_module"1.txt | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  | tee $result
+					echo "====== total $target_module file num is ========"
+					cat $result | wc -l
+					echo ""
+				else
+					echo "Comparing first with second list ordered by build time..."
+					echo ""
+					combine-file "$target_module"1.txt "$target_module"2.txt temp-1.txt temp-2.txt $result
+						if [ $sum -eq 2 ]
+						 then
+							echo ""
+							cat $result | tee $result
+							echo "====== total $target_module file num is ========"
+							cat $result | wc -l
+							echo ""
+						else
+							echo ""
+							echo "First comparision finished, now let's move on...."
+							declare -i j=3
+							while [ $j -le $sum ]
+							do
+							combine-file $result "$target_module"$j.txt temp-result.txt temp-$j.txt $result
+							j=j+1
+							done
+							cat $result | tee $result
+							echo "====== total $target_module file num is ========"
+							cat $result | wc -l
+							echo ""
+						fi
+				fi
+			done
 			;;
-	*)
+			*)
 			echo "no such kind of command yet..."
 			exit 1
 			;;
