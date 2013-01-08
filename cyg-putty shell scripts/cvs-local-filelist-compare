@@ -8,7 +8,7 @@ echo "!! In order to fetch the correct file list, make sure to run ~/bin/cvs-loc
 echo ""
 echo "By default, there no need to input any param,it will auto diff the ruby file list and cvs update file list before check in for this build"
 echo ""
-echo "Optional Param suffix:1.f--diff with final file list,2.n--diff normal and regular files and roughly generate the common part,3.ram/rad/rmd)--diff SYA[B]/SYM/SYD of ruby-file-list and roughly generate the common part,4.clean--clean the workspace."
+echo "Optional Param suffix:1.f--diff with final file list,2.n--diff normal and regular files and roughly generate the common part,3.ram/rad/rmd)--diff SYA[B]/SYM/SYD of ruby-file-list and roughly generate the common part,4.sync--diff with sync list,5.clean--clean the workspace."
 echo ""
 echo "Attention to ''sort -u(unique)'.Make sure you do this one module by another, because e.g. once combine afcoll,afcsr,afshared file list together, there maybe duplicate files both in SYM or SYA, since afcoll and afcsr have many files with same name, so in order to keep the result more accurate, please do 'cvs-local-filelist-compare <f/r>' one module one time."
 echo ""
@@ -84,7 +84,7 @@ echo "If you wanna specify a field to analysis, do like this: join -t '$4' -1 <f
 
 case $1 in
   "f")
-			file1="temp.txt"
+			file1=temp.txt
 			copy-cvs-file-list $file2
 			check-target $file1 $file2
 			sort-ruby-filelist $file1 $compare1
@@ -176,6 +176,58 @@ case $1 in
 			cat $output |wc -l
 			echo "These files below were modified by us then deleted at last, keep SYD, remove SYM!"
 			echo ""
+			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			;;
+  "sync")
+			file0=sync-list.txt
+			file1=temp.txt
+			file2="temp-"$file0.txt
+			compare2=general-sync-list.txt
+			output=compare-result-sync.txt
+			common=common-part-sync.txt
+			sk=y
+			while [ "$sk" == "y" -o "$sk" == "Y"  ] 
+			do
+			read -p "Do you need elimintate potential duplicate SYNC lines? input n to Skip,input y to do it...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+				echo "Skip."
+				break
+			fi
+			if [ "$sk" = "y" -o "$sk" = "Y" ]
+			then
+
+break
+else
+read -p "Confirm whether you really wanna re-New '$temp_start'. Press Enter/Input 'y' to approve re-New : " sk
+	if [ "$sk" = "y" -o "$sk" = "Y" ]
+	 then
+	echo "re-Newing '$temp_start'.. "
+	touch $temp_start
+	break
+	fi
+	if [ "$sk" = "n" -o "$sk" = "N" ]
+	 then
+	echo "Skip."
+	else
+	sk=y # continue loop.
+	fi
+fi
+done
+			if [ -f $file0 ]
+			 then
+			 rm -f $file0
+			fi
+			touch $file0
+			echo ""
+			read -p "please fill in the all SYNC codes into '$file0'..."
+			echo "Ok."
+			echo "--Starting transfering from win/dos to unix format--"
+			dos2UNIX -k -n $file0 $file2 # Oblige to change the format of target files into unix style
+			check-target $file1 $file2
+			sort-ruby-filelist $file1 $compare1
+			sort-ruby-filelist $file2 $compare2
+			echo "These files below were duplicate in file list and sync list,keep unique!"			
 			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
 			;;
 	"clean")

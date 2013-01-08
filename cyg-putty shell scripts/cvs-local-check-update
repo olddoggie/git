@@ -30,10 +30,10 @@ rdiff -s -r $previoustag -r $currenttag "$baselinefolder" | grep File \
 echo "Finsh diff with $3 ..."
 echo "Start generating New CIs which should be added into CM plan..."
 cat $file | grep --color "new" |gawk 'BEGIN{ "date" | getline d; print "++++New CIs:",d}{{for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}' \
-|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is' '{print $1}'| tee -a $file | wc -l|awk '{print $0-1}'
+|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is new' '{print $1}'| tee -a $file | wc -l|awk '{print $0-1}'
 echo "Start generating Deleted CIs which should be removed from CM plan..."
 cat $file | grep --color "removed" |gawk 'BEGIN{ "date" | getline d; print "----Deleted CIs:",d}{{for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}' \
-|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is' '{print $1}'| tee -a $file | wc -l|awk '{print $0-1}'
+|gawk -F '/' '{a=NF; print $a}'|gawk -F ' is removed' '{print $1}'| tee -a $file | wc -l|awk '{print $0-1}'
   else
 source ~/bin/go /cygdrive/d
 echo "$3 module is now being updated ..."

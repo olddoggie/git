@@ -117,7 +117,7 @@ alias c="convert-slash b2f"
 alias ck="ruby ~/bin/Check.rb"
 
 # command line by line
-alias cll="~/bin/command-line-by-line"
+alias cvsgen-finallist="cvs-local-finallist-generate"
 
 # Look up dictionary
 alias d="dictionary" 
