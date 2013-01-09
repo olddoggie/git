@@ -93,7 +93,7 @@ declare -i sum=`ls "$1"*.txt |wc -l`
 if [ $sum -eq 1 ]
  then
 	cat "$1"1.txt | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  | tee $2
-	echo "====== total '$1' file num is ========"
+	echo "====== file list '$1' file num is ========"
 	cat $2 | wc -l
 	echo ""
 else
@@ -103,7 +103,7 @@ else
 		if [ $sum -eq 2 ]
 		 then
 			echo ""
-			echo "====== total '$1' file num is ========"
+			echo "====== file list '$1' file num is ========"
 			cat $2 | wc -l
 			echo ""
 		else
@@ -115,7 +115,7 @@ else
 			combine-file $2 "$1"$j.txt temp-result.txt temp-$j.txt $2
 			j=j+1
 			done
-			echo "====== total '$1' file num is ========"
+			echo "====== file list '$1' file num is ========"
 			cat $2 | wc -l
 			echo ""
 		fi
@@ -185,24 +185,24 @@ source ~/bin/cvs-local-filelist-compare sync
 input=common-part-sync.txt
 cp -f temp-sync-list.txt $temp
 grep-v
-echo "OK!!!! The final file list result will be generated into '$1'..."
+echo "OK!!!! The total file(with sync) list result will be generated into 'plus-sync-result*.txt'..."
 echo ""
-cat $temp >> $1 && cat $1 | sort -u | tee $1
-echo "====== final file list '$1' num is ========"
-cat $1 | wc -l
+cat $temp >> $1 && cat $1 | sort -u > plus-sync-"$1"
+echo "====== total file list '$1' num is ========"
+cat plus-sync-"$1" | wc -l
 echo ""
 }
 
 function announce-finish ()
 {
-echo "Now you are gonna double check the final file list for module '$1'..."
+echo "Now you are gonna double check the total file list(with sync) for module '$1'..."
 echo ""
-echo "Combine different result list module by module..."
+echo "Combine different result(with sync) list module by module..."
 echo ""
 rm $temp
-cat result-*.txt >>  $temp
+cat plus-sync-result-*.txt >>  $temp
 echo ""
-read -p "Do you need double check the accuracy by diffing result list with the CVS final update filelist? input n to Skip...................... " sk
+read -p "Do you need double check the accuracy by diffing result(with sync) list with the CVS final update filelist? input n to Skip...................... " sk
 echo ""
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
@@ -227,10 +227,10 @@ else
 	echo "Finished final check, pay attention to the difference part listed in '$output'..."
 	echo ""
 fi
-cat $temp | sort -u | tee result-"$1".txt
-echo "====== final file list for module '$1' num is ========"
-cat result-"$1".txt | wc -l
-echo "Good job! Final update file list done."
+cat $temp | sort -u > plus-sync-result-"$1".txt
+echo "====== total file(with sync) list for module '$1' num is ========"
+cat plus-sync-result-"$1".txt | wc -l
+echo "Good job! Final update file list done.Check detail in 'result-*.txt' kept them in CM log."
 echo ""
 echo "Still, Don't forget to compare the code between two CVS after baselined Release Tag and send out any additional configuration related tips for this CAT release to Customer!"
 }
