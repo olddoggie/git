@@ -26,7 +26,7 @@ echo "Set the Reference time(usually set last Sat. Morning 7 A.M because that's 
 echo "----------> Do NOT forget add 'CCT'!"
 read -p "----------> time1 (e.g. 2012-11-17 7:00 CCT / 2 day ago 7:00 CCT)=" -t 30 time1
 time1="${time1:-yesterday 20:30 CCT}"
-time2="${time1:-yesterday CCT}"
+time2="${time1:-yesterday 9:00 CCT}"
 read -p "the previous CCT time you wanna fetch as a refernce ----------> $time1.. PRESS Enter to start compare"
 fi
 
