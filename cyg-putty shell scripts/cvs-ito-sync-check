@@ -18,8 +18,8 @@ FS750Pretag=BLEUM_FS_IT_01092013_1				# update often
 # On ito-cvs,there is a zone gap between the moment of real check in, whihc will trigger notification mail and the timestamp recorded in ito-cvs repositoy, the gap is almost 2 hours and a quarter.
 if [ "$1" = "cron" ] # executed by system as crontab job
   then
-time1="yesterday 12:30 UTC"
-time2="yesterday"
+time1="yesterday 12:30 UTC" # prevent our code check in before 20:30 ervery night
+time2="yesterday 1:00 UTC"  # prevent duplicate result, since we have second cron job on 9:00 every morning
 else # for mannual check on Monday or any time you loke
 echo ""
 echo "Set the Reference time(usually set last Sat. Morning 7 A.M because that's the time cron suspened till now), default is yesterday 20:30 CCT and yesterday CCT as crontab job routine..."
