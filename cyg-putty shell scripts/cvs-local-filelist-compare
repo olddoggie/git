@@ -181,7 +181,7 @@ case $1 in
   "sync")
 			file0=sync-list.txt
 			file1=temp.txt
-			file2="temp-"$file0.txt
+			file2="temp-"$file0
 			compare2=general-sync-list.txt
 			output=compare-result-sync.txt
 			common=common-part-sync.txt
