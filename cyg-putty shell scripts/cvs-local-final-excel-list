@@ -7,4 +7,5 @@ while read LINE
 do cat result-cs-src.txt | cvs -d :sspi:jack.wang@192.168.2.200:/1fb rlog -N -rCS_7_90. $LINE |awk -F"author: " '{print $2}' \
 | awk -F ";" '/^[A-Za-z0-9]/ {print $1}'
 done < src.txt | paste result-cs-src.txt - > final.txt
-cat final.txt | sed 's/A    /A\t/g' | sed 's/\"/\"\t/g'> final.txt && UNIX2dos -k -n final.txt final.dos.txt
+cat final.txt |  sed 's/A    /A\t/g' | sed 's/AB   /A\t/g'|sed 's/M    /M\t/g' | sed 's/D    /D\t/g' | sed 's/\"/\"\t/g'> final.txt 
+UNIX2dos -k -n final.txt final.dos.txt
