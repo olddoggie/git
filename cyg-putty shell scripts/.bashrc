@@ -118,6 +118,7 @@ alias ck="ruby ~/bin/Check.rb"
 
 # command line by line
 alias cvsgen-finallist="cvs-local-finallist-generate"
+alias cvsgen-finallist-excel="cvs-local-final-excel-list"
 
 # Look up dictionary
 alias d="dictionary" 

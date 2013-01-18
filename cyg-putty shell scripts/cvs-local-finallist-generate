@@ -106,41 +106,64 @@ echo ""
 
 function final-list-gen ()
 {
-echo "Now you are going to combine all file list to make a final one for this CAT..."
-cp-file  "$target_folder" $1
-echo "Start combining file lists for '$target_folder's '$1' module..."
+sk=y
+while [ "$sk" == "y" -o "$sk" == "Y"  ] 
+do
 echo ""
-declare -i sum=`ls "$1"*.txt |wc -l`
-if [ $sum -eq 1 ]
+read -p "Do you need combine all file list to make a final one for '$1' CAT release? input n to Skip/input y to do it...................... " sk
+echo ""
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
-	cat "$1"1.txt | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  | tee $2
-	echo "====== file list '$1' file num is ========"
-	cat $2 | wc -l
-	echo ""
-else
-	echo "Comparing first with second list ordered by build time..."
-	echo ""
-	combine-file "$1"1.txt "$1"2.txt temp-1.txt temp-2.txt $2
-		if [ $sum -eq 2 ]
-		 then
-			echo ""
-			echo "====== file list '$1' file num is ========"
-			cat $2 | wc -l
-			echo ""
-		else
-			echo ""
-			echo "First comparision finished, now let's move on...."
-			declare -i j=3
-			while [ $j -le $sum ]
-			do
-			combine-file $2 "$1"$j.txt temp-result.txt temp-$j.txt $2
-			j=j+1
-			done
-			echo "====== file list '$1' file num is ========"
-			cat $2 | wc -l
-			echo ""
-		fi
+	echo "Skip."
 fi
+if [ "$sk" = "y" -o "$sk" = "Y" ]
+ then
+	echo "Now you are going to combine all file list to make a final one for this CAT..."
+	cp-file  "$target_folder" $1
+	echo "Start combining file lists for '$target_folder's '$1' module..."
+	echo ""
+	declare -i sum=`ls "$1"*.txt |wc -l`
+	if [ $sum -eq 1 ]
+	 then
+		cat "$1"1.txt | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  | tee $2
+		echo "====== file list '$1' file num is ========"
+		cat $2 | wc -l
+		echo ""
+	else
+		echo "Comparing first with second list ordered by build time..."
+		echo ""
+		combine-file "$1"1.txt "$1"2.txt temp-1.txt temp-2.txt $2
+			if [ $sum -eq 2 ]
+			 then
+				echo ""
+				echo "====== file list '$1' file num is ========"
+				cat $2 | wc -l
+				echo ""
+			else
+				echo ""
+				echo "First comparision finished, now let's move on...."
+				declare -i j=3
+				while [ $j -le $sum ]
+				do
+				combine-file $2 "$1"$j.txt temp-result.txt temp-$j.txt $2
+				j=j+1
+				done
+				echo "====== file list '$1' file num is ========"
+				cat $2 | wc -l
+				echo ""
+			fi
+	fi
+break
+else
+	read -p "Confirm whether you really wanna combine all file list to make a final one for '$1' CAT release? input n to Skip/input y or blank to do it again...................... " sk
+	if [ "$sk" = "n" -o "$sk" = "N" ]
+	 then
+		echo "Skip."
+	else
+		sk=y # continue loop.
+	fi
+fi
+done	
 }
 
 function eliminate-duplicate-amd ()
@@ -207,7 +230,7 @@ echo "Now you are going to elimainate duplicate lines for '$1' between final lis
 echo ""
 cp -f $1 $temp
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo "Duplicated line in sync list should be removed..."
+echo "Duplicated line in sync list for '$1' should be removed..."
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo ""
 source ~/bin/cvs-local-filelist-compare sync
@@ -215,7 +238,7 @@ input=common-part-sync.txt
 cp -f temp-sync-list.txt $temp
 grep-v
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo "OK!!!! The total file(with sync) list result will be generated into 'plus-sync-result*.txt'..."
+echo "OK!!!! The total file(with sync) list result will be generated into 'plus-sync-$1'..."
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo ""
 cat $temp >> $1 && cat $1 | sort -u > plus-sync-"$1"

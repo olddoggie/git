@@ -23,7 +23,7 @@ output=compare-result-filelist.txt
 function copy-cvs-file-list()
 {
 echo "--Start diffing--"
-echo "--Copy update_filelist to current folder, renamed as '$2'--"
+echo "--Copy update_filelist to current folder, renamed as '$1'--"
 cp $file0 $1
 }
 
@@ -207,6 +207,7 @@ case $1 in
 				read -p "..................................................Press Enter"
 				read -p "finsh fill in the all SYNC codes into '$file0'?...Press Enter"
 				echo "Ok."
+				cp $file0 sync-`date +%H-%M-%S`.txt
 				echo "--Starting transfering from win/dos to unix format--"
 				dos2UNIX -k -n $file0 $file2 # Oblige to change the format of target files into unix style
 				check-target $file1 $file2

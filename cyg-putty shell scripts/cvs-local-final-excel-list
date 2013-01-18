@@ -1,11 +1,95 @@
 #!/usr/bin/bash
-# This script is used for generating the final excel list for developer
-echo "Rationale is cat <filelist> |grep -v '\[.*files\]' | sort -u | awk '/^[A-Za-z]/ {print $0}' > <output file>"
+# This script is used to help generate the final excel list appending commit author's name to each line in oreder to save developers' efficience when preparing final update file list version in release day
+echo "Rationale is read each line of final list,then using cvs rlog -N -rBranch./-rHEAD \$LINE |awk -F\"author: \" '{print \$2}' | awk -F \";\" '/^[A-Za-z0-9]\/ {print \$1}'"
+echo "first param is the target update filelist (result-cs-src/result-cs-war/result-afcollagent-src/result-fscm-war/result-services-src .txt...)"
+echo "second param is the branch/HEAD CAT release is based on,(e.g.HEAD/CS_7_90/AFF_3_60...)"
 echo ""
-cat result-cs-src.txt | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/src/"$0}' > src.txt
+module=$1
+input=input.txt
+temp=temp.txt
+result_folder=~/final-file-list/result
+bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
+
+if [ "$2" = "HEAD" -o "$2" = "head" ]
+  then
+	echo "This CAT is released on HEAD trunk!"
+	echo ""
+	branch_name=HEAD
+else
+ 	echo "This CAT is released on branch '$2'!"
+	echo ""
+	branch_name="$2."
+fi
+
+function initial ()
+{
+echo "Initializing the working space '$result_folder'..."
+source ~/bin/go $result_folder
+if [ -f final\-*.txt ]
+ then
+rm -f final-result-*.txt
+fi
+echo "Finished..."
+echo ""
+}
+
+function original-file-transfer ()
+{
+echo "Now starting transfer the original txt file '$1' into excel-style format..."
+echo ""
+echo "1.Appending the last commit author's name..."
+echo ""
 while read LINE
-do cat result-cs-src.txt | cvs -d :sspi:jack.wang@192.168.2.200:/1fb rlog -N -rCS_7_90. $LINE |awk -F"author: " '{print $2}' \
-| awk -F ";" '/^[A-Za-z0-9]/ {print $1}'
-done < src.txt | paste result-cs-src.txt - > final.txt
-cat final.txt |  sed 's/A    /A\t/g' | sed 's/AB   /A\t/g'|sed 's/M    /M\t/g' | sed 's/D    /D\t/g' | sed 's/\"/\"\t/g'> final.txt 
-UNIX2dos -k -n final.txt final.dos.txt
+do cat  $1 | cvs -d $bleumcvsroot rlog -N -r"$branch_name" $LINE |awk -F"author: " '{print $2}' \
+| awk -F ";" '/^[A-Za-z0-9]/ {print $1}' 
+done < $input | paste $1 - | tee $temp
+echo "2.Using tab to seperate each keyword in the list..."
+echo ""
+cat $temp | sed 's/A    /A\t/g' | sed 's/AB   /A\t/g'| sed 's/M    /M\t/g' | sed 's/D    /D\t/g' \
+| sed 's/\(\"added\)/\t\"added/g'| sed 's/\(\"modified\)/\t\"modified/g'| sed 's/\(\"deleted\)/\t\"deleted/g' > $temp
+UNIX2dos -k -n $temp "final-$1"
+echo "Finished transfering the original file's format into 'final-$1'..."
+echo ""
+rm $input $temp
+}
+
+case $module in
+	"cs")
+	 initial
+	 for target in src war
+	 do
+		target_module=$module-$target
+		target_file="result-$target_module.txt"
+		case $target_module in
+			"cs-src")	
+				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/src/"$0}' > $input
+				;;
+			"cs-war")
+				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/war/"$0}' > $input
+				;;
+		esac
+	  original-file-transfer $target_file
+	 done
+		;;
+	"af")
+	 initial
+	 for target in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war 
+	 do
+		target_module=$module-$target
+		target_file="result-$target_module.txt"
+		case $target_module in
+			"cs-src")	
+				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/src/"$0}' > $input
+				;;
+			"cs-war")
+				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/war/"$0}' > $input
+				;;
+		esac
+	  original-file-transfer $target_file
+	 done
+		;;		
+	*)
+		echo "no such module yet..."
+		exit 1
+		;;
+esac
