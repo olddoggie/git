@@ -226,25 +226,48 @@ done
 
 function eliminate-duplicate-sync ()
 {
-echo "Now you are going to elimainate duplicate lines for '$1' between final list and sync list..."
+sk=y
+while [ "$sk" == "y" -o "$sk" == "Y"  ] 
+do
 echo ""
-cp -f $1 $temp
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo "Duplicated line in sync list for '$1' should be removed..."
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+read -p "Do you need elimintate potential duplicate SYNC lines for '$1'? input n to Skip/input y to do it...................... " sk
 echo ""
-source ~/bin/cvs-local-filelist-compare sync
-input=common-part-sync.txt
-cp -f temp-sync-list.txt $temp
-grep-v
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo "OK!!!! The total file(with sync) list result will be generated into 'plus-sync-$1'..."
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo ""
-cat $temp >> $1 && cat $1 | sort -u > plus-sync-"$1"
-echo "====== total file list '$1' num is ========"
-cat plus-sync-"$1" | wc -l
-echo ""
+if [ "$sk" = "n" -o "$sk" = "N" ]
+ then
+	echo "Skip."
+fi
+if [ "$sk" = "y" -o "$sk" = "Y" ]
+ then
+	echo "Now you are going to elimainate duplicate lines SYNC lines for '$1' between final list and sync list..."
+	echo ""
+	cp -f $1 $temp
+	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	echo "Duplicated line in sync list for '$1' should be removed..."
+	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	echo ""
+	source ~/bin/cvs-local-filelist-compare sync
+	input=common-part-sync.txt
+	cp -f temp-sync-list.txt $temp
+	grep-v
+	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	echo "OK!!!! The total file(with sync) list result will be generated into 'plus-sync-$1'..."
+	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	echo ""
+	cat $temp >> $1 && cat $1 | sort -u > plus-sync-"$1"
+	echo "====== total file list '$1' num is ========"
+	cat plus-sync-"$1" | wc -l
+	echo ""
+break
+else
+	read -p "Confirm whether you really wanna elimintate potential duplicate SYNC lines for '$1'? input n to Skip/input y or blank to do it again...................... " sk
+	if [ "$sk" = "n" -o "$sk" = "N" ]
+	 then
+		echo "Skip."
+	else
+		sk=y # continue loop.
+	fi
+fi
+done
 }
 
 function announce-finish ()
