@@ -16,5 +16,5 @@ else
 	source ~/bin/go $temp
 	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services afservice \
 	outputXmlFiles DatabaseXMLfiles fssplashcontent \
-	ccms afautopay adjustments autopayservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
+	ccms afautopay adjustments autopayservice ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
 fi
