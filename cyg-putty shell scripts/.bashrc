@@ -35,6 +35,7 @@ alias h="history"
 # Log-in by SSH
 alias mac="echo 'aaaaa';echo 'cd /Users/bleum/Public/jk';ssh bleum@192.168.2.123"
 alias lcl="echo 'admin,1234';ssh oracle@192.168.2.100"
+alias lcl2="echo 'admin,1234';ssh oracle@192.168.2.215"
 alias ibu="echo 'build';ssh build@itobuild.1fb.net"
 alias ioas="oas"
 alias icvs="echo '35\$Ticket!';ssh oracle@ito-as1.1fb.net"

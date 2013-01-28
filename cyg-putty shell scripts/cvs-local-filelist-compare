@@ -10,7 +10,7 @@ echo "!! In order to fetch the correct file list, make sure to run ~/bin/cvs-loc
 echo ""
 echo "1--No first param (by default),but you have to navigate to release folder first,it will auto diff the ruby file list and cvs update file list before check in for this build"
 echo ""
-echo "2--first param (optional):1.f--diff with final file list,2.n--diff normal and regular files and roughly generate the common part,3.ram/rad/rmd)--diff SYA[B]/SYM/SYD of ruby-file-list and roughly generate the common part,4.sync--only diff with sync list to see the duplicate lines,5.r--diff two ruby generated file,6.clean--clean the workspace."
+echo "2--first param (optional):1.f--diff with final file list,2.n--diff normal and regular files and roughly generate the common part,3.ram/rad/rmd)--diff SYA[B]/SYM/SYD of ruby-file-list and roughly generate the common part,4.r--diff two ruby generated file,5.clean--clean the workspace."
 echo ""
 echo "Attention to ''sort -u(unique)'.Make sure you do this one module by another, because e.g. once combine afcoll,afcsr,afshared file list together, there maybe duplicate files both in SYM or SYA, since afcoll and afcsr have many files with same name, so in order to keep the result more accurate, please do 'cvs-local-filelist-compare <f/r>' one module one time."
 echo ""
@@ -179,34 +179,6 @@ case $1 in
 			cat $output |wc -l
 			echo "These files below were modified by us then deleted at last, keep SYD, remove SYM!"
 			echo ""
-			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
-			;;
-  "sync")
-			file0=sync-list.txt
-			file1=temp.txt
-			file2="temp-"$file0
-			compare2=general-sync-list.txt
-			output=compare-result-sync.txt
-			common=common-part-sync.txt
-			if [ -f $file0 ]
-  			 then
-				rm -f $file0
-			fi
-			touch $file0
-			echo ""
-			read -p "please fill in the all SYNC codes into '$file0'...Press Enter"
-			read -p "..................................................Press Enter"
-			read -p "finsh fill in the all SYNC codes into '$file0'?...Press Enter"
-			echo "Ok."
-			echo "Keep a copy for this sync list at the moment... "
-			cp $file0 sync-`date +%H-%M-%S`.txt
-			echo ""
-			echo "--Starting transfering from win/dos to unix format--"
-			dos2UNIX -k -n $file0 $file2 # Oblige to change the format of target files into unix style
-			check-target $file1 $file2
-			sort-ruby-filelist $file1 $compare1
-			sort-ruby-filelist $file2 $compare2
-			echo "These files below were duplicate in file list and sync list,keep unique!"			
 			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
 			;;
   "r")
