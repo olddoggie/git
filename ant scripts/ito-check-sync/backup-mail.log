@@ -1,0 +1,27 @@
+Detected Java version: 1.5 in: D:\Program Files\Java\JDK\jre
+Detected OS: Windows XP
+parsing buildfile D:\sync\sync logs\script\sync-mail.xml with URI = file:/D:/sync/sync%20logs/script/sync-mail.xml
+Project base dir set to: D:\sync\sync logs
+parsing buildfile jar:file:/D:/Program%20Files/ant/lib/ant.jar!/org/apache/tools/ant/antlib.xml with URI = jar:file:/D:/Program%20Files/ant/lib/ant.jar!/org/apache/tools/ant/antlib.xml from a zip file
+Build sequence for target(s) `pre-cron' is [initial-cron, check, copy-cron, pre-cron]
+Complete build sequence is [initial-cron, check, copy-cron, pre-cron, copy-if-success, delete, report-if-fail, mail, scp, ]
+
+initial-cron:
+   [delete] Deleting directory D:\cygwin\home\jack.wang\Temp
+   [delete] Deleting D:\cygwin\home\jack.wang\Temp\ito-sync-detail.txt
+   [delete] Deleting directory D:\cygwin\home\jack.wang\Temp
+
+check:
+[available] Searching D:\cygwin\home\jack.wang\itosync-daily-check-log.txt
+[available] Found: D:\cygwin\home\jack.wang\itosync-daily-check-log.txt
+
+copy-cron:
+     [copy] Copying 1 file to D:\cygwin\home\jack.wang\Temp
+     [copy] Copying D:\cygwin\home\jack.wang\itosync-daily-check-log.txt to D:\cygwin\home\jack.wang\Temp\ito-sync-detail.txt
+     [copy] Copying 1 file to D:\sync\sync logs
+     [copy] Copying D:\cygwin\home\jack.wang\Temp\ito-sync-detail.txt to D:\sync\sync logs\sync-ito-01-29-2013 Tue.txt
+
+pre-cron:
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
