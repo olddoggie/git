@@ -241,11 +241,28 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo "Now you are going to elimainate duplicate lines SYNC lines for '$1' between final list and sync list..."
 	echo ""
 	cp -f $1 $temp
+	file0=sync-list.txt
+	dir0=sync
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo "Duplicated line in sync list for '$1' should be removed..."
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo ""
-	source ~/bin/cvs-local-filelist-compare sync
+	echo "Starting to generate total sync list for '$1' ..."
+	echo ""
+	if [ -f $file0 ]
+  	 then
+		rm -f $file0
+	fi
+	echo ""
+	read -p "please prepare all the SYNC files into '$file0'...Press Enter"
+	read -p "..................................................Press Enter"
+	read -p "finsh fill in the all SYNC codes into '$file0'?...Press Enter"
+	echo "Ok."	
+	
+	
+	
+	
+	source ~/bin/cvs-local-filelist-compare r
 	input=common-part-sync.txt
 	cp -f temp-sync-list.txt $temp
 	grep-v
