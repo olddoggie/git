@@ -9,7 +9,7 @@
 <project name="mail" default="cron" basedir="./">
 
 <!-- Important: Define the file/dir location -->
-	<property name="log.dir" value=""/>
+	<property name="log.dir" value="-****"/>
 	<property name="log.name" value="ito-sync-detail.txt"/>
 
 <!-- Changable: Define the mail information -->
@@ -44,13 +44,13 @@
 
 <!-- log exists then copy and set mail content -->	
 	<target name="report-if-success" depends="check" if="log.exist">
-		<property name="mail.subject" value="ito CVS Daily SYNC Notifier [@ito-as1.1fb.net] -- Succeed"/>	
+		<property name="mail.subject" value="ito CVS Daily SYNC Notifier [@****] -- Succeed"/>	
 		<property name="mail.content" value="${log.dir}/${log.name}"/>
 	</target>
 
 <!-- log NOT exists sert mail content -->
-	<target name="report-if-fail" depends="check" unless="file.exist">
-		<property name="mail.subject" value="ito CVS Daily SYNC Notifier [@ito-as1.1fb.net] -- Fail"/>	
+	<target name="report-if-fail" depends="check" unless="log.exist">
+		<property name="mail.subject" value="ito CVS Daily SYNC Notifier [@****] -- Fail"/>	
 		<property name="mail.content" value="${log.dir}/fail-mail.txt"/>
 	</target>
 

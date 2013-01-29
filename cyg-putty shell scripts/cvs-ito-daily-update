@@ -3,18 +3,36 @@
 echo "Rationale is cvs co/up project folder"
 echo ""
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
-temp="/cygdrive/d/LatestitoCVS"
+latestCVS="/cygdrive/d/LatestitoCVS"
+brchCVS="/cygdrive/d/LatestitoCVS"
 
-if [ ! -d $temp ]
+if [ ! -d $latestCVS ]
   then
-	mkdir $temp
-	source ~/bin/go $temp
+	mkdir $latestCVS
+	source ~/bin/go $latestCVS
 	cvs -d $itocvsroot co -P cs afcollagent afcsragent afshared fsagent fscm fsshared services afservice \
 	outputXmlFiles DatabaseXMLfiles fssplashcontent \
-	ccms afautopay adjustments autopayservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
-else
-	source ~/bin/go $temp
-	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services afservice \
-	outputXmlFiles DatabaseXMLfiles fssplashcontent \
 	ccms afautopay adjustments autopayservice ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
+else
+	source ~/bin/go $latestCVS 
+	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services \
+	afservice outputXmlFiles DatabaseXMLfiles fssplashcontent ccms afautopay adjustments autopayservice \
+	ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
+fi
+
+if [ ! -d $brchCVS ]
+  then
+	mkdir $brchCVS
+	source ~/bin/go $brchCVS
+	cvs -d $itocvsroot co -P -r AFF_3_57 afcollagent afcsragent afshared
+	cvs -d $itocvsroot co -P -r AFF_3_60 services
+	cvs -d $itocvsroot co -P -r FS_7_50 fscm fsshared fssplashcontent
+	cvs -d $itocvsroot co -P -r FS_7_50 services $brchCVS/fs_services
+else
+	source ~/bin/go $brchCVS 
+	cvs -d $itocvsroot up -d -P -r AFF_3_57 afcollagent afcsragent afshared
+	cvs -d $itocvsroot up -d -P -r AFF_3_60 services
+	cvs -d $itocvsroot up -d -P -r FS_7_50 fscm fsshared fssplashcontent
+	source ~/bin/go fs_services && cvs -d $itocvsroot up -d -P -r FS_7_50 services && source ~/bin/go $brchCVS
+	
 fi
