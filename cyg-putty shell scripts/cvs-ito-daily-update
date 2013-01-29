@@ -3,8 +3,8 @@
 echo "Rationale is cvs co/up project folder"
 echo ""
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
-latestCVS="/cygdrive/d/LatestitoCVS"
-brchCVS="/cygdrive/d/LatestitoCVS"
+latestCVS="/cygdrive/d/ITOCVS-Latest"
+brchCVS="/cygdrive/d/ITOCVS-Brch"
 
 if [ ! -d $latestCVS ]
   then
