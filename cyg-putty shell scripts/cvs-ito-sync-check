@@ -1,4 +1,4 @@
-P#!/usr/bin/bash
+#!/usr/bin/bash
 # This script is used for simple check whether any codes updated in ito-CVS daily
 echo "Rationale is cvs rdiff -s -D <date> -r HEAD/Branch <project folder> | grep File "
 echo "Please do NOT forget updating the <previous tag> for branch projects!"
