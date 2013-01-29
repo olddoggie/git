@@ -1,0 +1,1 @@
+ant -verbose -buildfile backup-mail.xml -logfile G:\backupconfig\backup-mail.log

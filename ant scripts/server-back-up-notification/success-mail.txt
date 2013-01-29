@@ -1,0 +1,6 @@
+CVS Server local back up is successful.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Current repository locates on ${repo.dir}, and has been backed up to G:\${back.dir}. 
+The conf files are: ${task.file} and ${script.dir}.
+ 
+For more information, please check the attachment for your reference. Any problems ,please contact Leopard CM Rep.(sent by server)

@@ -1,0 +1,7 @@
+CVS Server local back up is failed.
+-------------------------------------------------------------------------------------------------------------------------------------------------
+Current repository locates on ${repo.dir}, and should be backed up to G:\${back.dir}. 
+The conf files are: ${task.file} and ${script.dir}. 
+This failure may be caused by: script expired ; back-up size litte than 40GB ; no back-up generated. 
+
+Please contact Leopard CM Rep and ask SSG for help.(sent by server)
