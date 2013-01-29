@@ -8,6 +8,7 @@ echo "first param is cvs module/project baseline folder(cs/af/fs750/fs/services 
 echo "second param is the target branch name you want to create"
 echo "third param is the *Root tag (previous tag) name"
 echo "Strictly follow the branch creation process, create ito branch After local branch has been created!"
+echo "Pay attention for Afshared module, have to create branch on 'doc' module manually for the sake of UBS running."
 echo "Do NOT forget to record this branch in CM Log."
 echo ""
 module=$1
@@ -118,7 +119,12 @@ echo ""
 echo "Sure,you can do mannual check later, then send out mail and update the CM Log."
 fi
 }
-
+function fyi-notice ()
+{
+echo "just Attention for affinity............"
+echo "You have to create branch on 'Afshared/doc' manually for the sake of UBS running."
+echo "OK....................................."
+}
 case $module in
   "af")
 			module="afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
@@ -137,6 +143,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "cs")
   			module="cs/src,cs/war"
@@ -155,6 +162,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "services")
   			module="services/src,services/mapping"
@@ -173,6 +181,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "fs750")
   			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
@@ -191,6 +200,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "fs")
    			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
@@ -209,6 +219,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;			
 	*)
 			read -p "you are NOT Creating a branch according to any Original Planned Module(s), please be careful.. Press Enter"
@@ -225,5 +236,6 @@ case $module in
 			input-command-chk
 			echo ""
 			fi
+			fyi-notice
 			;;
 esac

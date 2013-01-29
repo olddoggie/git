@@ -8,6 +8,7 @@ echo "first param is cvs module/project baseline folder(cs/af/fs750/fs/services 
 echo "second param is the target branch name you want to create"
 echo "third param is the *Root tag (previous tag) name"
 echo "Strictly follow the branch creation process, branch form can be found under: 1fbodc/Form/Project"
+echo "FYI,If needed, besides 'src' and 'war' module, create the branch based on 'whole folder'."
 echo "Do NOT forget to record this branch in CM Log."
 echo ""
 module=$1
@@ -125,6 +126,12 @@ echo ""
 echo "Sure,you can do mannual check later, then send out mail and update the CM Log."
 fi
 }
+function fyi-notice ()
+{
+echo "just FYI............"
+echo "If needed, besides 'src' and 'war' module, create the branch based on 'whole folder'."
+echo "OK..................."
+}
 
 case $module in
   "af")
@@ -144,6 +151,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "cs")
   			module="cs/src,cs/war"
@@ -162,6 +170,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "services")
   			module="services/src,services/mapping"
@@ -180,6 +189,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "fs750")
   			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
@@ -198,6 +208,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;
   "fs")
    			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
@@ -216,6 +227,7 @@ case $module in
 			echo ""
 			fi
 			done
+			fyi-notice
 			;;			
 	*)
 			variable-declaration
@@ -231,5 +243,6 @@ case $module in
 			input-command-chk
 			echo ""
 			fi
+			fyi-notice
 			;;
 esac
