@@ -1,0 +1,14 @@
+﻿How to use the jar:
+
+cd  to jar folder then use the following command:
+
+java -jar UpdateFileListTool.jar "Parameter A" "Parameter B" "Parameter C" 
+
+Parameter A:      project name
+Parameter B:      cat name
+Parameter C:      update file list txt file path
+
+e.g.:
+java -jar UpdateFileListTool.jar "CS 7.90" "CAT1" "D:/test/update_filelist.txt" 
+
+The word/excel files will be generated in the same path folder of the txt file.
