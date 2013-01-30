@@ -1,34 +1,69 @@
 #!/usr/bin/bash
 # This script is used to help generate the final excel list appending commit author's name to each line in oreder to save developers' efficience when preparing final update file list version in release day
 echo "Rationale is read each line of final list,then using cvs rlog -N -rBranch./-rHEAD \$LINE |awk -F\"author: \" '{print \$2}' | awk -F \";\" '/^[A-Za-z0-9]\/ {print \$1}'"
-echo "first param is the target update filelist (result-cs-src/result-cs-war/result-afcollagent-src/result-fscm-war/result-services-src .txt...)"
-echo "second param is the branch/HEAD CAT release is based on,(e.g.HEAD/CS_7_90/AFF_3_60...)"
+echo ""
+echo "First param is the target update filelist (result-cs-src/result-cs-war/result-afcollagent-src/result-fscm-war/result-services-src .txt...)"
+echo ""
+echo "Second param is the branch/HEAD CAT release is based on,(e.g.HEAD/CS_7_90/AFF_3_60...),if blank,default will be HEAD trunk."
+echo ""
+echo "Default work base dir is ~/final-file-list/result, follow up script 'cvs-local-finallist-generate'"
+echo ""
+echo "Before start,confirm your result-* file is Unix format, in order to prevent the format divercity when running bash shell's 'paste' command."
+echo ""
+echo "After txt transferred,run command: java -jar <UpdateFileTool> <project> <CAT> <work base dir> to generate final excel version list.(just attention the path transmitted to java tool should be MS-DOS style)"
 echo ""
 module=$1
 input=input.txt
 temp=temp.txt
 result_folder=~/final-file-list/result
+result_folder_dos="D:\cygwin\home\jack.wang\final-file-list\result" # able to be recognized by UpdateFileTool's java command
+UpdateFileTool_dir="D:\cygwin\home\jack.wang\git\UpdateFile-GenerateTool"
+UpdateFileTool="$UpdateFileTool_dir\UpdateFileListTool.jar"
 bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
 
-if [ "$2" = "HEAD" -o "$2" = "head" ]
+if [ "$2" != "HEAD" -a "$2" != "head" ]
   then
-	echo "This CAT is released on HEAD trunk!"
-	echo ""
-	branch_name=HEAD
-else
  	echo "This CAT is released on branch '$2'!"
 	echo ""
 	branch_name="$2."
+else
+	echo "This CAT is released on HEAD trunk!"
+	echo ""
+	branch_name=HEAD
 fi
 
 function initial ()
 {
 echo "Initializing the working space '$result_folder'..."
+echo ""
 source ~/bin/go $result_folder
-if [ -f final\-*.txt ]
+echo ""	
+read -p "input n to Skip,if you really don't wanna transfer txt again, also Skip next step...................... " sk
+if [ "$sk" = "n" -o "$sk" = "N" ]
  then
-rm -f final-result-*.txt
+	echo "Skip."
+	echo ""
+else
+	echo ""
+	if [ ! `ls final* | wc -l` -eq 0 ]
+	 then
+	rm -f final-result-*.txt
+	fi
+	echo "Finished..."
+	echo ""
 fi
+}
+
+function check-target()
+{
+echo "--Check whether '$1' exists in '$result_folder'--"
+if [ ! -f $1 ]
+ then
+echo "!!Cannot find the target '$1',please run script 'cvs-local-finallist-generate'!" && exit 1 
+fi
+echo "File exists..."
+echo ""
+read -p "Now confirm that '$1' is Unix format....Press Enter"
 echo "Finished..."
 echo ""
 }
@@ -36,21 +71,73 @@ echo ""
 function original-file-transfer ()
 {
 echo "Now starting transfer the original txt file '$1' into excel-style format..."
+read -p "input n to Skip...................... " sk
+if [ "$sk" = "n" -o "$sk" = "N" ]
+ then
+	echo "Skip."
+	echo ""
+else
+	echo ""
+	echo "1.Appending the last commit author's name..."
+	echo ""
+	while read LINE
+	do cat  $1 | cvs -d $bleumcvsroot rlog -N -r"$branch_name" $LINE |awk -F"author: " '{print $2}' \
+	| awk -F ";" '/^[A-Za-z0-9]/ {print $1}'
+	done < $input | paste $1 - > $temp
+	echo "OK."
+	echo ""
+	echo "2.Using tab to seperate each keyword in the list..."
+	echo ""
+	cat $temp | sed 's/A    /A\t/g' | sed 's/AB   /A\t/g'| sed 's/M    /M\t/g' | sed 's/D    /D\t/g' \
+	| sed 's/\(\"added\)/\t\"added/g'| sed 's/\(\"modified\)/\t\"modified/g'| sed 's/\(\"deleted\)/\t\"deleted/g' > $temp
+	echo "OK."
+	UNIX2dos -k -n $temp "final-$1"
+	echo "OK."
+	echo ""
+	echo "Finished transfering the original file's format into 'final-$1'..."
+	echo ""
+	rm $input $temp
+fi
+}
+
+function target-gen()
+{
+echo "Combining all the final txt lists together for this porject's CAT release..."
+if [ -f "final-result-$1.txt" ]
+ then
+	rm -f final-result-$1.txt
+fi
+cat final-result-*.txt >> final-result-$1.txt
+echo "OK."
+echo "======================================================================"
+read -p "please double check the 'final-result-$1.txt' to confirm 1.author name appending;2.tab-seperated comments;3.comments is written in correct format with double colon,e.g. ...CS 7.80:PDD1.1:... ...Press Enter"
+read -p "checking final-result-$1.txt by notepad++ and count by reg finding<<<CAT1:.*:>>>,see whether need any revise...Press Enter"
+read -p "finish checking carefully?...Press Enter"
+echo "======================================================================"
+echo "OK."
+echo "Final txt list 'final-result-$1.txt' is now being generated into excel/word version..."
+if [ ! -f "$UpdateFileTool" ]
+ then
+echo "!!Cannot find the target tool,please check it first!" && exit 1 
+fi
 echo ""
-echo "1.Appending the last commit author's name..."
+echo "======================================================================"
+read -p "input Parameter A:project name,!!there is a blank in middle!!,e.g.CS 7.90/CS 8.0/FS 7.50/AF 3.57/AF 3.60: " pn
+read -p "input Parameter B:cat name,e.g.CAT1/CAT2/CAT3/CAT4: " cn
+read -p "input Parameter C:update txt list path,by default is '$result_folder_dos': " rf
+rf="${rf:-$result_folder_dos}"
+read -p "Input finish..A:'$pn',B:'$cn',C:'$rf'..Press Enter"
+echo "======================================================================"
 echo ""
-while read LINE
-do cat  $1 | cvs -d $bleumcvsroot rlog -N -r"$branch_name" $LINE |awk -F"author: " '{print $2}' \
-| awk -F ";" '/^[A-Za-z0-9]/ {print $1}' 
-done < $input | paste $1 - | tee $temp
-echo "2.Using tab to seperate each keyword in the list..."
+rm -f *.xls && rm -f *.doc
 echo ""
-cat $temp | sed 's/A    /A\t/g' | sed 's/AB   /A\t/g'| sed 's/M    /M\t/g' | sed 's/D    /D\t/g' \
-| sed 's/\(\"added\)/\t\"added/g'| sed 's/\(\"modified\)/\t\"modified/g'| sed 's/\(\"deleted\)/\t\"deleted/g' > $temp
-UNIX2dos -k -n $temp "final-$1"
-echo "Finished transfering the original file's format into 'final-$1'..."
+echo "txt --> excel ongoing.........."
 echo ""
-rm $input $temp
+java -jar "$UpdateFileTool" "$pn" "$cn" "$rf/final-result-$1.txt"
+echo "txt --> excel finished.........."
+echo ""
+echo "Finished generating excel/word version final file list into '$rf'..."
+echo ""
 }
 
 case $module in
@@ -60,33 +147,67 @@ case $module in
 	 do
 		target_module=$module-$target
 		target_file="result-$target_module.txt"
-		case $target_module in
-			"cs-src")	
-				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/src/"$0}' > $input
-				;;
-			"cs-war")
-				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/war/"$0}' > $input
-				;;
-		esac
-	  original-file-transfer $target_file
+		check-target $target_file
+		cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/'$target'/"$0}' > $input
+		original-file-transfer $target_file
 	 done
+	 target-gen $module
 		;;
 	"af")
 	 initial
 	 for target in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war 
 	 do
-		target_module=$module-$target
+		target_module=$target
 		target_file="result-$target_module.txt"
-		case $target_module in
-			"cs-src")	
-				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/src/"$0}' > $input
+		check-target $target_file
+		target1=`echo $target | awk -F '-' '{print $1}'`
+		target2=`echo $target | awk -F '-' '{print $2}'`
+		cat $target_file | awk '{print $2}' | awk '{print "affinity/sourcecode/'$target1'/'$target2'/"$0}' > $input
+		original-file-transfer $target_file
+	 done
+	 target-gen $module
+		;;
+	"af360")
+	 initial
+	 for target in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war services-src services-mapping
+	 do
+		target_module=$target
+		target_file="result-$target_module.txt"
+		check-target $target_file
+		target1=`echo $target | awk -F '-' '{print $1}'`
+		target2=`echo $target | awk -F '-' '{print $2}'`
+		case $target1 in
+			services)	
+				cat $target_file | awk '{print $2}' | awk '{print "'$target1'/Sourcecode/'$target2'/"$0}' > $input
 				;;
-			"cs-war")
-				cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/war/"$0}' > $input
+			*)
+				cat $target_file | awk '{print $2}' | awk '{print "affinity/sourcecode/'$target1'/'$target2'/"$0}' > $input
 				;;
 		esac
-	  original-file-transfer $target_file
+		original-file-transfer $target_file
 	 done
+	 target-gen $module
+		;;
+	"fs750")
+	 initial
+	 for target in fscm-src fscm-war fsshared-src fssplashcontent-src fssplashcontent-war services-src services-mapping
+	 do
+		target_module=$target
+		target_file="result-$target_module.txt"
+		check-target $target_file
+		target1=`echo $target | awk -F '-' '{print $1}'`
+		target2=`echo $target | awk -F '-' '{print $2}'`
+		case $target1 in
+			services)	
+				cat $target_file | awk '{print $2}' | awk '{print "'$target1'/Sourcecode/'$target2'/"$0}' > $input
+				;;
+			*)
+				cat $target_file | awk '{print $2}' | awk '{print "fs/Sourcecode/'$target1'/'$target2'/"$0}' > $input
+				;;
+		esac
+		original-file-transfer $target_file
+	 done
+	 target-gen $module
 		;;
 	*)
 		echo "no such module yet..."

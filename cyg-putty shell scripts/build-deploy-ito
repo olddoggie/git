@@ -141,6 +141,12 @@ case $module in
 				echo "stage dir after build --- \$UBS_STAGE_DIR=/1fb/stage"
 				echo "stage dir after deploy prepare --- \$DEPLOY_STAGE_DIR=/1fb/home/build/stage"
 				echo ""
+				echo "Tibco (tibco@ditoapv2.1fb.net) bw instances --- /1fb/tibco/tra/domain/ito1/application"
+				echo ""
+				echo "Tibco testdata(scenario files) --- /1fb/testdata/BizworksRegressionTestbed"
+				echo ""
+				echo "Tibco outputXMLFIles(usually renamed to turn it off) -- /1fb/testdata/outputXmlFiles"
+				echo ""				
 				echo "other info, please: catg ~/env on ITIBUILD.txt; OR: ssh build@itobuild.1fb.net ---> env "
 			;;
 	*) # used for other instance deployment, just input the instance name here
