@@ -11,11 +11,11 @@ if [ ! -d $latestCVS ]
 	mkdir $latestCVS
 	source ~/bin/go $latestCVS
 	cvs -d $itocvsroot co -P cs afcollagent afcsragent afshared fsagent fscm fsshared services afservice \
-	outputXmlFiles DatabaseXMLfiles fssplashcontent \
+	chancestool chancesanalysisengine outputXmlFiles DatabaseXMLfiles fssplashcontent \
 	ccms afautopay adjustments autopayservice ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
 else
 	source ~/bin/go $latestCVS 
-	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services \
+	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services chancestool chancesanalysisengine \
 	afservice outputXmlFiles DatabaseXMLfiles fssplashcontent ccms afautopay adjustments autopayservice \
 	ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
 fi

@@ -44,7 +44,7 @@ cvs -d $itocvsroot rdiff -s -r "$1" -r "$2" "$3" |grep File \
 }
 
 rm -rf $file
-for module1 in cs afcollagent afcsragent afshared fsagent fscm fsshared services
+for module1 in cs afcollagent afcsragent afshared fsagent fscm fsshared services chancestool chancesanalysisengine
 do
 cvs-rdiff-by-date "$time1" "HEAD" $module1
 done
