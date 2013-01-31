@@ -164,6 +164,27 @@ cat $file \
 |awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-3}'
 fi
 
+if [ $module = "chances" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+"csmaintenance/chances analysis/SourceCode/src" "csmaintenance/chances analysis/SourceCode/war" | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--itoChancesTool src/war--",d,"----------"}{{for(k = 5; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l | awk '{print $0-1}'
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+"csmaintenance/Chances Analysis Rules Engine/SourceCode/src/main/java" "csmaintenance/Chances Analysis Rules Engine/SourceCode/src/main/webapp" "csmaintenance/Chances Analysis Rules Engine/SourceCode/src/main/resources" \
+| grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--itoChancesAnalysisEngine java/webapp/config--",d,"----------"}{{for(k = 7; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee -a $file | wc -l | awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-2}'
+fi
+
 if [ "$module" != "baseline" -a "$module" != "cs" -a "$module" != "af" -a "$module" != "fs" -a "$module" != "fs750" -a "$module" != "services" ]
   then
 echo "Start diff from $2 ..."
