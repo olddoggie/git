@@ -149,8 +149,8 @@ case $module in
 			;;
 	*) # used for other instance deployment, just input the instance name here
 				build-ito $module $currenttag
-				predeploy-ito $name
-				deployall-ito $name
+				predeploy-ito $module
+				deployall-ito $module
 				generate-command
 			;;
 esac
