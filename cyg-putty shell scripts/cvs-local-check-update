@@ -185,7 +185,7 @@ cat $file \
 |awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-2}'
 fi
 
-if [ "$module" != "baseline" -a "$module" != "cs" -a "$module" != "af" -a "$module" != "fs" -a "$module" != "fs750" -a "$module" != "services" ]
+if [ "$module" != "baseline" -a "$module" != "cs" -a "$module" != "chances" -a "$module" != "af" -a "$module" != "fs" -a "$module" != "fs750" -a "$module" != "services" ]
   then
 echo "Start diff from $2 ..."
 cvs -d $bleumcvsroot \
