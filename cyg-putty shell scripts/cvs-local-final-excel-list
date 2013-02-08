@@ -2,7 +2,7 @@
 # This script is used to help generate the final excel list appending commit author's name to each line in oreder to save developers' efficience when preparing final update file list version in release day
 echo "Rationale is read each line of final list,then using cvs rlog -N -rBranch./-rHEAD \$LINE |awk -F\"author: \" '{print \$2}' | awk -F \";\" '/^[A-Za-z0-9]\/ {print \$1}'"
 echo ""
-echo "First param is the target update filelist (result-cs-src/result-cs-war/result-afcollagent-src/result-fscm-war/result-services-src .txt...)"
+echo "first param is ito cvs module (cs/af/fs750/fs/services...)"
 echo ""
 echo "Second param is the branch/HEAD CAT release is based on,(e.g.HEAD/CS_7_90/AFF_3_60...),if blank,default will be HEAD trunk."
 echo ""
