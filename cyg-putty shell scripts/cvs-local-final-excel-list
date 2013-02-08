@@ -138,6 +138,12 @@ echo "txt --> excel finished.........."
 echo ""
 echo "Finished generating excel/word version final file list into '$rf'..."
 echo ""
+echo "Last but not least,copy the output excel doc into target CAT release file folder(e.g./cygdrive/d/release/cs/file/CS7.81-CAT1)..."
+read -p "input the target CAT release file folder(e.g./cygdrive/d/release/cs/file/CS7.81-CAT1): " ff
+echo ""
+cp *.xls *.doc "$ff"
+echo "Congratulations!"
+echo ""
 }
 
 case $module in
