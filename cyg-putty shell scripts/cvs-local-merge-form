@@ -343,11 +343,11 @@ if [ "$sk" = "n" -o "$sk" = "N" ]
 echo "Skip."
 else
 echo ""
-echo "Start checking any roll back files exist, which means there's no difference between merge_src(tagged on step 6.) and merge_before_dest(tagged on step 8.)..."
+echo "Start checking any roll back/not changed files exist, which means there's no difference between '$2' and '$3'..."
 echo ""
 ~/bin/cvs-local-rollback-check "$1" $2 $3
 echo ""
-read -p "If there're any codes totally same, they need NOT to be merged since merge src and dest are already the same,and after merge, you can just get clean copy, do NOT forget to mark these codes as NO Need merge in the Merge List!"
+read -p "If there're any codes totally same, they need NOT to be merged since: 1. branch root and merge src are totally same; 2.merge src and dest before merge are already the same. After merge, you can just get clean copy, do NOT forget to mark these codes as NO Need merge in the Merge List!"
 echo ""
 read -p "!If any codes NO need merge, *directly* Remove them from '$temp_lcl' BEFORE script check in codes..PRESS Enter if done"
 fi
@@ -572,10 +572,13 @@ echo ""
 echo "Comparing the file numbers between step 5 and step 10 .."
 check-sum
 echo ""
-echo "Checking any Roll back/No changes file (direcly modify '$temp_lcl', No need check in) ...."
+echo "Checking any Roll back file between '$root' and '$src_name' (direcly modify '$temp_lcl', No need check in) ...."
+check-rollbacks "$target_module" $root $src_name
+echo ""
+echo "Checking any No changes file between '$src_name' and '$bf_dest' (direcly modify '$temp_lcl', No need check in) ...."
 check-rollbacks "$target_module" $src_name $bf_dest
 echo ""
-echo "Check ING .."
+echo "Start Check ING codes.."
 code-chkin "$target_module"
 echo ""
 }
