@@ -92,7 +92,7 @@ echo "Start diff from $2 ..."
 cvs -d $itocvsroot \
 rdiff -s -r $previoustag -r $currenttag fsshared/src | grep File \
 |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
-'BEGIN{ "date" | getline d; print "--itoServices fsshared src--",d,"----------"}{{for(k = 3; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+'BEGIN{ "date" | getline d; print "--itoFsshared src--",d,"----------"}{{for(k = 3; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
 | tee $file | wc -l|awk '{print $0-1}'
 echo "Finsh diff with $3 ..."
 echo "Start generating $file"
@@ -378,7 +378,7 @@ cat $file \
 |awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist_ito.txt" > 0) lc++; print "----the total filelist number:"lc-2}'
 fi
 
-if [ $module != "adjustments" -a $module != "afautopay" -a $module != "ccms" -a $module != "cca" -a $module != "dda" -a $module != "databasexml" -a $module != "outputxml" -a $module != "phoneprocessor" -a $module != "accountservice" -a $module != "emailservice" -a $module != "autopayservice" -a $module != "textbankingservice" -a $module != "fssplashcontent" -a $module != "fs" -a $module != "fs750" -a $module != "services" -a $module != "afservice" -a $module != "af" -a $module != "cs" -a $module != "chances" ]
+if [ $module != "adjustments" -a $module != "afautopay" -a $module != "ccms" -a $module != "cca" -a $module != "dda" -a $module != "databasexml" -a $module != "outputxml" -a $module != "phoneprocessor" -a $module != "accountservice" -a $module != "emailservice" -a $module != "autopayservice" -a $module != "textbankingservice" -a $module != "fssplashcontent" -a $module != "fs" -a $module != "fs750" -a $module != "services" -a $module != "afservice" -a $module != "af" -a $module != "cs" -a $module != "chances" -a $module != "fsshared" ]
   then
 echo "Start diff from $2 ..."
 cvs -d $itocvsroot \
