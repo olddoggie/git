@@ -104,6 +104,21 @@ cat $file \
 |awk '{if (NR!=1) {print "M    "$0}else {print $0}} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-1}'
 fi
 
+if [ "$module" = "fsshared" ]
+  then
+echo "Start diff from $2 ..."
+cvs -d $bleumcvsroot \
+rdiff -s -r $previoustag -r $currenttag \
+fs/Sourcecode/fsshared/src | grep File \
+|awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
+'BEGIN{ "date" | getline d; print "--Services fsshared src--",d,"----------"}{{for(k = 4; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
+| tee $file | wc -l|awk '{print $0-1}'
+echo "Finsh diff with $3 ..."
+echo "Start generating $file"
+cat $file \
+|awk '{if (NR!=1) {print "M    "$0}else {print $0}} END{ while (getline < "/home/jack.wang/update_filelist.txt" > 0) lc++; print "----the total filelist number:"lc-1}'
+fi
+
 if [ "$module" = "fs750" ]
   then
 echo "Start diff from $2 ..."

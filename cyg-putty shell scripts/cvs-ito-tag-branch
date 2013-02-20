@@ -136,6 +136,7 @@ case $module in
 			do
 			input-command
 			echo ""
+			check_status
 			done
 			;;
   "fs750")
@@ -148,6 +149,14 @@ case $module in
 			;;
   "fs")
 			for target_module in "fsagent/src" "fsagent/war" "fscm/src" "fscm/war" "fsshared/src" 
+			do
+			input-command
+			echo ""
+			check_status
+			done
+			;;
+  "fsshared")
+			for target_module in "fsshared/src"
 			do
 			input-command
 			echo ""

@@ -154,6 +154,14 @@ case $module in
 			check_status
 			done
 			;;
+  "fsshared")
+			for target_module in "fs/Sourcecode/fsshared/src"
+			do
+			input-command
+			echo ""
+			check_status
+			done
+			;;
 	*)
 			target_module="$module"
 			input-command
