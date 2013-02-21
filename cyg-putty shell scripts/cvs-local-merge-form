@@ -620,14 +620,9 @@ read -p "Last but not least, update the 1fb CVS Branch Document.doc --> check in
 echo ""
 echo "Merge finished! Check in CM Log into CVS:/1fbodc/CM.."
 }
-function set-module ()
-{
-# In script you may define $module again, beasue it will be changed by other shell scripts..
-module="$1"
-}
 case $module in
   "af")
-			set-module "afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
+			module="afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
 			variable-declaration
 			echo ""
 			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
@@ -646,17 +641,15 @@ case $module in
 			echo "Auto check in has been finished for those file changes.."
 			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
-			set-module "afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
 			manual-chkin
 			echo ""
 			target_module="af"
 			create-tag "$target_module" $dest_name $dest
 			echo ""
-			set-module "afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war"
 			announce-finish
 			;;
   "cs")
-  			set-module "cs/src,cs/war"
+  			module="cs/src,cs/war"
 			variable-declaration
 			echo ""
 			for target_module in "csmaintenance/3.50/SourceCodeUBS/src" "csmaintenance/3.50/SourceCodeUBS/war"
@@ -675,17 +668,15 @@ case $module in
 			echo "Auto check in has been finished for those file changes.."
 			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
-  			set-module "cs/src,cs/war"			
 			manual-chkin
 			echo ""
 			target_module="cs"
 			create-tag "$target_module" $dest_name $dest
 			echo ""
-  			set-module "cs/src,cs/war"			
 			announce-finish
 			;;
   "services")
-  			set-module "services/src,services/mapping"
+  			module="services/src,services/mapping"
 			variable-declaration
 			echo ""
 			for target_module in "services/Sourcecode/src" "services/Sourcecode/mapping"
@@ -704,44 +695,15 @@ case $module in
 			echo "Auto check in has been finished for those file changes.."
 			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
-  			set-module "services/src,services/mapping"			
 			manual-chkin
 			echo ""
 			target_module="services"
 			create-tag "$target_module" $dest_name $dest
 			echo ""
-  			set-module "services/src,services/mapping"			
 			announce-finish
 			;;
-  "fsshared")
-  			set-module "fsshared/src"
-			variable-declaration
-			echo ""
-			target_module="$module"
-			read -p "input n to Skip whole Merge Action on '$target_module'...................... " sk
-			if [ "$sk" = "n" -o "$sk" = "N" ]
-			 then
-			echo "Loop to next module."
-			else
-			echo ""
-			main-merge
-			copy-intermediate "$target_module"
-			fi
-			echo ""
-			echo "Auto check in has been finished for those file changes.."
-			echo ""
-			echo "Now start manual checking in modified conflicts/special files.."
-  			set-module "fsshared/src"			
-			manual-chkin
-			echo ""
-			target_module="fsshared"
-			create-tag "$target_module" $dest_name $dest
-			echo ""
-  			set-module "fsshared/src"			
-			announce-finish
-			;;			
   "fs750")
-  			set-module "fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
+  			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
 			variable-declaration
 			echo ""
 			for target_module in "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" "fs/Sourcecode/fssplashcontent/src" "fs/Sourcecode/fssplashcontent/war" "services/Sourcecode/src" "services/Sourcecode/mapping"
@@ -760,17 +722,15 @@ case $module in
 			echo "Auto check in has been finished for those file changes.."
 			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
-  			set-module "fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"			
 			manual-chkin
 			echo ""
 			target_module="fs750"
 			create-tag "$target_module" $dest_name $dest
 			echo ""
-  			set-module "fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"			
 			announce-finish
 			;;
   "fs")
-   			set-module "fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
+   			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
 			variable-declaration
 			echo ""
 			for target_module in "fs/Sourcecode/fsagent/src" "fs/Sourcecode/fsagent/war" "fs/Sourcecode/fscm/src" "fs/Sourcecode/fscm/war" "fs/Sourcecode/fsshared/src" 
@@ -789,13 +749,11 @@ case $module in
 			echo "Auto check in has been finished for those file changes.."
 			echo ""
 			echo "Now start manual checking in modified conflicts/special files.."
-   			set-module "fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"			
 			manual-chkin
 			echo ""
 			target_module="fs"
 			create-tag "$target_module" $dest_name $dest
 			echo ""
-   			set-module "fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"			
 			announce-finish
 			;;
   "clean")
