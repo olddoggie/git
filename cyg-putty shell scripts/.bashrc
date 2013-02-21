@@ -73,6 +73,8 @@ alias v4="vi bleumModule4.txt"
 alias v5="vi bleumModule5.txt"
 alias v6="vi bleumModule6.txt"
 alias v7="vi bleumModule7.txt"
+alias v8="vi bleumModule8.txt"
+alias v9="vi bleumModule9.txt"
 alias c1="cat bleumModule1.txt && cat bleumModule1.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
 alias c2="cat bleumModule2.txt && cat bleumModule2.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
 alias c3="cat bleumModule3.txt && cat bleumModule3.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
@@ -81,6 +83,7 @@ alias c5="cat bleumModule5.txt && cat bleumModule5.txt | grep -v '\[.*files\]' |
 alias c6="cat bleumModule6.txt && cat bleumModule6.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
 alias c7="cat bleumModule7.txt && cat bleumModule7.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
 alias c8="cat bleumModule8.txt && cat bleumModule8.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
+alias c9="cat bleumModule9.txt && cat bleumModule9.txt | grep -v '\[.*files\]' | awk '/^[A-Za-z]/ {print $0}'|wc -l"
 
 # cvs command option
 alias cvsd="cvs -d :sspi:jack.wang@192.168.2.200:/1fb"
