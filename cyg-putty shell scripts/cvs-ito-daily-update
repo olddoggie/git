@@ -24,15 +24,14 @@ if [ ! -d $brchCVS ]
   then
 	mkdir $brchCVS
 	source ~/bin/go $brchCVS
-	cvs -d $itocvsroot co -P -r AFF_3_57 afcollagent afcsragent afshared
-	cvs -d $itocvsroot co -P -r AFF_3_60 services
-	cvs -d $itocvsroot co -P -r FS_7_50 fscm fsshared fssplashcontent
-	cvs -d $itocvsroot co -P -r FS_7_50 services $brchCVS/fs_services
+	cvs -d $itocvsroot co -P -r AFF_3_60 afcollagent afcsragent afshared
+	cvs -d $itocvsroot co -P -r AFF_3_60_CAT1 services fsshared
+	cvs -d $itocvsroot co -P -r FS_7_50 fscm fssplashcontent
+	cvs -d $itocvsroot co -P -r FS_7_50 services fsshared $brchCVS/fs_services
 else
 	source ~/bin/go $brchCVS 
-	cvs -d $itocvsroot up -d -P -r AFF_3_57 afcollagent afcsragent afshared
-	cvs -d $itocvsroot up -d -P -r AFF_3_60 services
-	cvs -d $itocvsroot up -d -P -r FS_7_50 fscm fsshared fssplashcontent
-	source ~/bin/go fs_services && cvs -d $itocvsroot up -d -P -r FS_7_50 services && source ~/bin/go $brchCVS
-	
+	cvs -d $itocvsroot up -d -P -r AFF_3_60 afcollagent afcsragent afshared
+	cvs -d $itocvsroot up -d -P -r AFF_3_60_CAT1 services fsshared
+	cvs -d $itocvsroot up -d -P -r FS_7_50 fscm fssplashcontent
+	source ~/bin/go fs_services && cvs -d $itocvsroot up -d -P -r FS_7_50 services fsshared && source ~/bin/go $brchCVS
 fi
