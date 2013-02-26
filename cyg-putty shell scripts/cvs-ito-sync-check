@@ -46,13 +46,14 @@ cvs -d $itocvsroot rdiff -s -r "$1" -r "$2" "$3" |grep File \
 }
 
 rm -rf $file
-for module1 in cs afcollagent afcsragent afshared fsagent fscm fsshared services chancestool chancesanalysisengine
+for module1 in cs afcollagent afcsragent afshared fsagent fscm fsshared services
 do
 cvs-rdiff-by-date "$time1" "HEAD" $module1
 done
 
 for module2 in afservice outputXmlFiles DatabaseXMLfiles fssplashcontent \
-ccms afautopay adjustments autopayservice ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor
+ccms afautopay adjustments autopayservice ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor \
+chancestool chancesanalysisengine
 do
 cvs-rdiff-by-date "$time2" "HEAD" $module2
 done
