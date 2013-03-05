@@ -35,4 +35,18 @@ fi
 echo "Coping svn2cvs..."
 echo ""
 cp -ru *.* "$cvs_dir"
-cvs -d $bleumcvsroot importxasqxasq
+source cd "$cvs_dir"
+rm -rf .svn
+echo "Checking newly added files..."
+echo ""
+echo "Checking modified files..."
+echo ""
+echo "Checking removed files..."
+echo ""
+echo "Check-in codes from svn2cvs..."
+echo ""
+cvs -d $bleumcvsroot add -kb 
+cvs -d $bleumcvsroot add  
+cvs -d $bleumcvsroot commit -m ""
+echo "Finished svn repository back-up job, please check the latest codes in ‘$cvsURL’..."
+echo ""
