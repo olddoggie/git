@@ -12,7 +12,7 @@ AF360_services=AFF_3_60_CAT1		# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
 CS790Pretag=BLEUM_CS790_SYNC_12242012_1 			# update often
-AF360Pretag=BLEUM_AFFINITY_ST_02262013_1 			# update often
+AF360Pretag=BLEUM_AFFINITY_ST_03062013_1 			# update often
 AF360_services_root=BLEUM_FS_SYNC_02162013_1		# not update ofter
 FS750Pretag=BLEUM_FS_SYNC_02262013_1				# update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
