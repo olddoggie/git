@@ -9,7 +9,7 @@ echo "Rationale is svn diff -c --summarize,svn export,get \$line function and cv
 echo ""
 echo "first param is svn project name (e.g.openproperty ...)"
 echo "second param is the CAT name which will be used when draft commit comment (e.g. CAT1.... )"
-echo "third param is the target path of the sourcecodes subfolder in SVN project folder (e.g. trunk,OpenProperty_POC\src.... )"
+echo "third param is the target path of the sourcecodes subfolder in SVN project folder (e.g. trunk,trunk\OpenProperty.... )"
 echo "forth param is the CVS HEAD/branch/tag name which you check codes into in CVS project folder (e.g. HEAD.... )"
 echo "Initializing..."
 echo ""
@@ -79,6 +79,7 @@ done < $1
 }
 echo "Reseting bk log files..."
 echo ""
+source cd $bk_dir
 rm -f *.log
 echo "Reseting cvs repossitory..."
 echo ""
