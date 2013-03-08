@@ -5,7 +5,12 @@
 # written: jack.wang
 # date: 2013/3/8
 #########################################################
-
+echo "Rationale is svn diff -c --summarize,svn export,get \$line function and cvs basic commands...."
+echo ""
+echo "first param is svn project name (e.g.openproperty ...)"
+echo "second param is the CAT name which will be used when draft commit comment (e.g. CAT1.... )"
+echo "third param is the target path of the sourcecodes subfolder in SVN project folder (e.g. trunk,OpenProperty_POC\src.... )"
+echo "forth param is the CVS HEAD/branch/tag name which you check codes into in CVS project folder (e.g. HEAD.... )"
 echo "Initializing..."
 echo ""
 project="$1"
@@ -24,7 +29,8 @@ add_kb_file=$bk_dir/add_kb_file.log
 add_kv_file=$bk_dir/add_kv_file.log
 del_file=$bk_dir/del_file.log
 cvs_dir=/home/svn/cvs/"$project"
-svnURL="file:///home/svn/repos/$project"/"$svn_path"
+svnDir=/home/svn/repos
+svnURL="file://$svnDir/$project"/"$svn_path"
 cvsURL="$project"/sourcecode
 bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
 function grep-v ()
@@ -86,20 +92,20 @@ cat $total | grep "\." > $total_file
 cat $total | grep -v "\." > $total_dir
 echo "Preparing newly added dirs..."
 echo ""
-cat $total_dir | grep "A    " > $add_dir
+cat $total_dir | grep "A       " > $add_dir
 echo "Preparing newly added binary files..."
 echo ""
 cp $total_file $temp
 grep-v TXT_FILE_TYPES $temp
-cat $temp | grep "A    " > $add_kb_file
+cat $temp | grep "A       " > $add_kb_file
 echo "Preparing newly added txt files..."
 echo ""
 cp $total_file $temp
 grep-v $add_kb_file $temp
-cat $temp | grep "A    " > $add_kv_file
+cat $temp | grep "A       " > $add_kv_file
 echo "Preparing removed files..."
 echo ""
-cat $total_file | grep "D    " > $del_file
+cat $total_file | grep "D       " > $del_file
 echo "Getting latest svn codes..."
 echo ""
 svn export -r HEAD "$svnURL" "$cvs_dir" 
