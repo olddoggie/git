@@ -327,7 +327,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo ""
 	cat $temp >> $1 && cat $1 | sort -u > plus-sync-"$1"
-	echo "====== total file list '$1' num is ========"
+	echo "====== total file list plus-sync-'$1' num is ========"
 	cat plus-sync-"$1" | wc -l
 	echo ""
 break
@@ -381,7 +381,7 @@ else
 	echo ""
 fi
 cat $temp | sort -u > plus-sync-result-"$1".txt
-echo "====== total file(with sync) list for module '$1' num is ========"
+echo "====== total file(with sync) list: plus-sync-result-"$1".txt num is ========"
 cat plus-sync-result-"$1".txt | wc -l
 cp plus-sync-result-"$1".txt $result_folder
 echo ""
