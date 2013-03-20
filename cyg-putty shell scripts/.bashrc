@@ -33,7 +33,7 @@ alias lg="ls -l |grep -i"
 alias h="history"
 
 # Log-in by SSH
-alias mac="echo 'aaaaa';echo 'cd /Users/bleum/Public/jk';ssh bleum@192.168.2.123"
+alias mac="echo 'aaaaa';echo 'cd /Users/bleum/Public/jk';ssh bleum@192.168.2.122"
 alias lcl="echo 'admin,1234';ssh oracle@192.168.2.100"
 alias lcl2="echo 'admin,1234';ssh oracle@192.168.2.215"
 alias ldb="echo '35%Ticket!';ssh oracle@192.168.2.214"

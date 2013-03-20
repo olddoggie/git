@@ -510,7 +510,7 @@ read -p "* Confirm the merge source tag (usually branch name) is '$src_name'. Pr
 read -p "* Confirm the merge destination tag (maybe HEAD) is '$dest_name'. Press Enter" 
 read -p "According to the merge process, there still have some variable you need define, see below -----> "
 echo ""
-read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN>/BLEUM_<MODULE>_BRCHMERGE_SRC_<DATE>_<SN> of last time on SOURCE branch. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
+read -p "* If this is first time of merge,specify tag as branch root tag. Otherwise,specify as the branch MERGE_SRC tag of last time.. e.g.BLEUM_"$mn"_BRCHROOT_"$dt"_1 / BLEUM_"$mn"_BRCHMERGE_SRC_"$dt"_1. Now identify the tag which will be used as Root Point of the source branch during this merge: " root
 echo "variable declaration finished ..."
 }
 function main-merge ()
