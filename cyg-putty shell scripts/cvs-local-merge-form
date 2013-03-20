@@ -250,6 +250,7 @@ echo "Now Check the whole result in file '$temp_lcl', please record the local_ch
 cat $temp_mod > $temp_lcl && cat $temp_add >> $temp_lcl && cat $temp_rm >> $temp_lcl
 cat $temp_lcl | wc -l | awk '{print "<----------------Total: "$0" ------------------->"}'| tee -a $temp_lcl
 rn0=n
+st_local_changes_numbers=`cvs st -Rq | grep "File"| grep "Locally " | wc -l` 
 while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
 do
 cat $temp_lcl | wc -l | awk '{print "Finally,the local_changes_numbers is:  "$0-1" "}'
@@ -259,9 +260,19 @@ read -p "Confirm the local_changes_numbers you recorded '$local_changes_numbers'
 	if [ "$rn0" = "n" -o "$rn0" = "N" ]
 	 then
 	 read -p "Now Finalize the local changed(added,removed,modified) file list , if still got any changes, according to Merge List(excel form) Directly but Carefully Change '$temp_lcl', then re-Input the local_changes_numbers.. PRESS Enter"
+	 continue
+	else
+	 echo "Input Number is Correct."
+	fi
+	if [ $st_local_changes_numbers == $local_changes_numbers ]
+	 then
+	 echo "Number is absolutely Correct."
+	else
+	 read -p "!!Warining!! $st_local_changes_numbers is NOT equals to $local_changes_numbers, '$temp_lcl' must have some duplicated lines, please double check it, Directly but Carefully Change '$temp_lcl', then re-Input the local_changes_numbers.. PRESS Enter"
 	 echo ""
-	 else
-	echo "Number is Correct."
+	 read -p "Now start manually refine the '$temp_lcl' >>>"
+	 echo ""
+	 rn0=n
 	fi
 done
 echo ""
