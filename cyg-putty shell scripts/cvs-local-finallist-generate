@@ -381,7 +381,7 @@ else
 	echo ""
 fi
 cat $temp | sort -u > plus-sync-result-"$1".txt
-echo "====== total file(with sync) list: plus-sync-result-"$1".txt num is ========"
+echo "====== total file(All modules with sync) list: plus-sync-result-"$1".txt num is ========"
 cat plus-sync-result-"$1".txt | wc -l
 cp plus-sync-result-"$1".txt $result_folder
 echo ""
