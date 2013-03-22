@@ -153,9 +153,17 @@ case $module in
 	 do
 		target_module=$module-$target
 		target_file="result-$target_module.txt"
-		check-target $target_file
-		cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/'$target'/"$0}' > $input
-		original-file-transfer $target_file
+		cvs_log=cvs.log_"$target_module"
+		check-target $target_file && check-target "$cvs_log"
+		#cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/'$target'/"$0}' > $input
+		#original-file-transfer $target_file
+		cat $target_file | cut -d '"' -f1 | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
+		| awk -F '/' '{ {for(j = 1; j<NF; j++) printf "%s\\\\/",$j} printf "%s\n",$j}' > $input
+		while read LINE
+		do
+		cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
+		| tr "\n" " " | tr \" \'| awk '{printf "\"%s\"",$0}' | sed '1 i '"$LINE"''| tr "\n" " " | awk '{printf "%s\n",$0}'>> "$2"
+		done < $input
 	 done
 	 target-gen $module
 		;;

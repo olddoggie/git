@@ -466,6 +466,9 @@ read -p "Are you 100% sure that no Out-Of-Scope files existing in result list? O
 echo ""
 read -p "Just FYI,as above mentioned,the generated total sync list in eliminate-duplicate-sync step may not be 100% correct,'cause there might be tiny possibility that SYA and SYD are duplicated....Press Enter" -t 5
 echo ""
+echo "cvs log files for each tartget_module have been copied to '$result_folder/cvs.log_*', take reference if needed."
+cp cvs.log_* $result_folder
+echo ""
 echo "Good job! Final update file list done. Check detail in '$result_folder/result-*.txt' kept them in CM log."
 cp result-*.txt $result_folder
 echo ""
