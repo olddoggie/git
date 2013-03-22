@@ -230,19 +230,19 @@ else
 echo ""
 echo "Start analyzing the lcoally modified files during merge ..."
 echo ""
-cvs st -Rq | grep "Locally Modified" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_mod
+cvs st -Rq | grep "Locally Modified" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} | sort -u > $temp_mod
 echo "Now Check the result in file '$temp_mod' ... "
 cat $temp_mod | wc -l
 echo ""
 echo "Start analyzing the lcoally added files during merge ..."
 echo ""
-cvs st -Rq | grep "Locally Added" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -name {} > $temp_add
+cvs st -Rq | grep "Locally Added" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -name {} | sort -u > $temp_add
 echo "Now Check the result in file '$temp_add' ... "
 cat $temp_add | wc -l 
 echo ""
 echo "Start analyzing the lcoally removed files during merge ..."
 echo ""
-cvs st -Rq | grep "Locally Removed" | grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|awk -F 'no file ' '{print $2}' > $temp_rm
+cvs st -Rq | grep "Locally Removed" | grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|awk -F 'no file ' '{print $2}' | sort -u > $temp_rm
 echo "Now Check the result in file '$temp_rm' ... "
 cat $temp_rm | wc -l 
 echo ""
@@ -250,7 +250,7 @@ echo "Now Check the whole result in file '$temp_lcl', please record the local_ch
 cat $temp_mod > $temp_lcl && cat $temp_add >> $temp_lcl && cat $temp_rm >> $temp_lcl
 cat $temp_lcl | wc -l | awk '{print "<----------------Total: "$0" ------------------->"}'| tee -a $temp_lcl
 rn0=n
-st_local_changes_numbers=`cvs st -Rq | grep "File"| grep "Locally " | wc -l` 
+st_local_changes_numbers=`cvs st -Rq | grep "File" | grep "Locally " | wc -l` 
 while [ "$rn0" == "n" -o "$rn0" == "N"  ] 
 do
 cat $temp_lcl | wc -l | awk '{print "Finally,the local_changes_numbers is:  "$0-1" "}'
@@ -268,7 +268,7 @@ read -p "Confirm the local_changes_numbers you recorded '$local_changes_numbers'
 	 then
 	 echo "Number is absolutely Correct."
 	else
-	 read -p "!!Warining!! $st_local_changes_numbers is NOT equals to $local_changes_numbers, '$temp_lcl' must have some duplicated lines, please double check it, Directly but Carefully Change '$temp_lcl', then re-Input the local_changes_numbers.. PRESS Enter"
+	 read -p "!!Warining!! $st_local_changes_numbers is NOT equal to $local_changes_numbers, '$temp_lcl' must have some duplicated lines or other problems, please double check it, Directly but Carefully Change '$temp_lcl', then re-Input the local_changes_numbers.. PRESS Enter"
 	 echo ""
 	 read -p "Now start manually refine the '$temp_lcl' >>>"
 	 echo ""
@@ -289,7 +289,7 @@ else
 echo ""
 echo "Start analyzing the conflicts during merge,these part should be handled manaully by dev/tech leaders ..."
 echo ""
-cvs st -Rq | grep "File had conflicts on merge" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} > $temp_conflict
+cvs st -Rq | grep "File had conflicts on merge" |grep "File" | awk '{ {for(i = 2; i<NF; i++) printf "%s ",$i} printf "%s\n",$i}'| awk -F ' Status' '{print $1}'|xargs -i find ./ -type f -newer $temp_start -name {} | sort -u > $temp_conflict
 echo "Now Check the result in file '$temp_conflict', please record the conflicts_numbers ... "
 cat $temp_conflict | wc -l | awk '{print "<----------------Total: "$0" ------------------->"}'| tee -a $temp_conflict
 rn0=n
@@ -412,7 +412,7 @@ read -p "! For the worst, after code CHKIN, still can roll back to '$bf_dest'..P
 echo ""
 echo "Now CHKIN list '$temp_lcl' preparing...... "
 cat $temp_lcl | awk '/^[^a-zA-Z0-9<-]/ {print $0}' > $temp_lcl # /^[^a-zA-Z0-9<-]/ is used for excluding any other lines except for "./XX/XX lines"
-echo "Copy Removed files from '$temp_lcl' to '$total_changes'.."
+echo "Copy Removed files from '$total_changes' to '$temp_lcl'.."
 cat $total_changes | grep "removed" | awk '{printf "./%s\n",$0}' | awk -F ' is' '{print $1}'| tee -a $temp_lcl
 echo "CHKIN list '$temp_lcl' preparing Finished...... "
 echo ""

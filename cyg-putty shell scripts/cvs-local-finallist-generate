@@ -18,13 +18,28 @@ target_folder="$2"
 dir=~/final-file-list
 temp=temp.txt
 copy=temp-copy.txt
+comment=temp-comment.txt
 input=temp-input.txt
 result_folder=$dir/result
 sync_folder=$dir/sync
 sync_file=sync-list.txt
+bleumcvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
 
 read -p "How many deployments did you make for this CAT: " deploy_num
 echo ""
+read -p "Input 'HEAD' or <Branch_Name> for this CAT: " deploy_tag
+echo ""
+
+if [ "$deploy_tag" != "HEAD" -a "$deploy_tag" != "head" ]
+  then
+ 	echo "This CAT is released on branch '$deploy_tag'!"
+	echo ""
+	branch_name="$deploy_tag."
+else
+	echo "This CAT is released on HEAD trunk!"
+	echo ""
+	branch_name=HEAD
+fi
 
 function initial ()
 {
@@ -57,11 +72,60 @@ echo ""
 function cp-file ()
 {
 echo "Copying all '$2' txt files from '$1' to '$dir'..."
-find  $1 | sort -t '-' -k4 | grep txt | grep $2 > $copy
-declare -i i=0;while read LINE;do i=i+1;cp "$LINE" $2$i.txt; done < $copy
+find  "$1" | sort -t '-' -k4 | grep txt | grep "$2" > $copy
+declare -i i=0;while read LINE;do i=i+1;cp -f "$LINE" "temp-$2"$i.txt; done < $copy
 echo "Copy finished..."
 echo ""
 check_sum
+echo ""
+}
+
+function fetch_cvspath ()
+{
+echo "According to '$1',now recover the whole path in CVS repo..."
+echo ""
+target1=`echo "$1" | awk -F '-' '{print $1}'`
+target2=`echo "$1" | awk -F '-' '{print $2}'`
+case $module in
+	"cs")
+	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/$target1/$target2"
+	 "af")
+	 target_cvspath="affinity/sourcecode/$target1/$target2"
+	 "af360")
+		case $target1 in
+			services)	
+				target_cvspath="$target1/Sourcecode/$target2"
+				;;
+			*)
+				target_cvspath="affinity/sourcecode/$target1/$target2"
+				;;
+		esac
+	 "fs")
+	 target_cvspath="fs/Sourcecode/$target1/$target2"
+	 "fs750")
+		case $target1 in
+			services)	
+				target_cvspath="$target1/Sourcecode/$target2"
+				;;
+			*)
+				target_cvspath="fs/Sourcecode/$target1/$target2"
+				;;
+		esac
+	 "services")
+	 target_cvspath="$target1/Sourcecode/$target2"	
+esac
+echo "Whole path in CVS repo is '$target_cvspath'..."
+echo ""
+}
+
+function fetch_cvslog ()
+{
+echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
+echo ""
+fetch_cvspath "$1"
+cvs_log=cvs.log_"$1"
+cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
+echo "cvs.log has been generated as 'cvs.log_$1'..."
 echo ""
 }
 
@@ -100,16 +164,10 @@ done < $input
 
 function combine-file ()
 {
-# $1,$2 is origine file copied from $target_dir; $3 and $4 is temp files corresponding to $1,$2.
-# $input and $temp are connective files with command grep-v
-# the only output file is $5
-cat $1 | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  > $1 | cut -d '"' -f1 $1 > $3
-cat $2 | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  > $2 | cut -d '"' -f1 $2 > $4
-comm -12 $3 $4 > $input
-cp -f $1 $temp
-grep-v
-cp -f $2 $5 && cat $temp >> $5 && cat $5 | sort -u > $5
-echo "Result has been generated into '$5'..."
+# $1.txt is combination of origine files($1*.txt) copied from $target_dir
+# the output file $2($1.txt) is the refined verison of combined filelist which has no coments appended 
+cat "temp-$1"*.txt | awk '/^[A-Za-z]/ {print $0}' | sort -u  | cut -d '"' -f1 > "$2"
+echo "Comments eliminated from combined file list into '$2'... "
 echo ""
 }
 
@@ -143,40 +201,59 @@ fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
 	echo "Now you are going to combine all file list to make a final one for this CAT..."
-	cp-file  "$target_folder" $1
+	cp-file  "$target_folder" "$1"
+	echo ""
+	fetch_cvslog "$1"
 	echo "Start combining file lists for '$target_folder's '$1' module..."
 	echo ""
-	declare -i sum=`ls "$1"*.txt |wc -l`
-	if [ $sum -eq 1 ]
-	 then
-		cat "$1"1.txt | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  | tee $2
-		echo "====== file list '$1' file num is ========"
-		cat $2 | wc -l
-		echo ""
-	else
-		echo "Comparing first with second list ordered by build time..."
-		echo ""
-		combine-file "$1"1.txt "$1"2.txt temp-1.txt temp-2.txt $2
-			if [ $sum -eq 2 ]
-			 then
-				echo ""
-				echo "====== file list '$1' file num is ========"
-				cat $2 | wc -l
-				echo ""
-			else
-				echo ""
-				echo "First comparision finished, now let's move on...."
-				declare -i j=3
-				while [ $j -le $sum ]
-				do
-				combine-file $2 "$1"$j.txt temp-result.txt temp-$j.txt $2
-				j=j+1
-				done
-				echo "====== file list '$1' file num is ========"
-				cat $2 | wc -l
-				echo ""
-			fi
-	fi
+	combine-file "$1" "$1".txt
+	# declare -i sum=`ls "$1"*.txt |wc -l`
+	# if [ $sum -eq 1 ]
+	 # then
+		# cat "$1"1.txt | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  | tee $2
+		# echo "====== file list '$1' file num is ========"
+		# cat $2 | wc -l
+		# echo ""
+	# else
+		# echo "Comparing first with second list ordered by build time..."
+		# echo ""
+		# combine-file "$1"1.txt "$1"2.txt temp-1.txt temp-2.txt $2
+			# if [ $sum -eq 2 ]
+			 # then
+				# echo ""
+				# echo "====== file list '$1' file num is ========"
+				# cat $2 | wc -l
+				# echo ""
+			# else
+				# echo ""
+				# echo "First comparision finished, now let's move on...."
+				# declare -i j=3
+				# while [ $j -le $sum ]
+				# do
+				# combine-file $2 "$1"$j.txt temp-result.txt temp-$j.txt $2
+				# j=j+1
+				# done
+				# echo "====== file list '$1' file num is ========"
+				# cat $2 | wc -l
+				# echo ""
+			# fi
+	# fi
+	echo "Now starting generate file list '$2'..."
+	cat "$1".txt | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
+	| awk -F '/' '{ {for(j = 1; j<NF; j++) printf "%s\\\\/",$j} printf "%s\n",$j}' > $input
+	# need use \\\\ in awk because $input should be like:com\\/onefbusa\\/afcollagent\\/web\\/action\\/search\\/COLLSearchAction.java
+	# so that when read Line below, the Line can be read as com\/onefbusa\/afcollagent\/web\/action\/search\/COLLSearchAction.java
+	# so that the sed can recongnize it as com/onefbusa/afcollagent/web/action/search/COLLSearchAction.java
+	while read LINE
+	do
+	cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
+	| tr "\n" " " | tr \" \'| awk '{printf "\"%s\"",$0}' | sed '1 i '"$LINE"''| tr "\n" " " | awk '{printf "%s\n",$0}'>> "$2"
+	done < $input
+	#also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
+	echo ""
+	echo "====== file list '$2' generated initially, file num is ========"
+	cat "$2" | wc -l
+	echo ""	
 break
 else
 	read -p "Confirm whether you really wanna combine all file list to make a final one for '$1' CAT release? input n to Skip/input y or blank to do it again...................... " sk
@@ -187,7 +264,7 @@ else
 		sk=y # continue loop.
 	fi
 fi
-done	
+done
 }
 
 function eliminate-duplicate-amd ()

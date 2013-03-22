@@ -3,8 +3,7 @@
 echo "Rationale is cat <filelist> |grep -v '\[.*files\]' | sort -u | awk '/^[A-Za-z]/ {print $0}' > <output file>"
 echo "cat <filelist2> |awk '/^[A-Za-z0-9]/ {print $1}' | sort -u > <output file2>"
 echo "comm -3 <output file> <output file2> to find out different part"
-echo "join -t '<seperate char>' -1 <field1> <file1> -2 <field2> <file2> to find out common part"
-echo "also can use comm -12 <file1> <file2> to find out common part"
+echo "comm -12 <file1> <file2> to find out common part"
 echo ""
 echo "!! In order to fetch the correct file list, make sure to run ~/bin/cvs-local-check-update for this build/release withOUT Interuption Nor Switching !! "
 echo ""
@@ -12,7 +11,7 @@ echo "1--No first param (by default),but you have to navigate to release folder 
 echo ""
 echo "2--first param (optional):1.f--diff with final file list,2.n--diff normal and regular files and roughly generate the common part,3.ram/rad/rmd)--diff SYA[B]/SYM/SYD of ruby-file-list and roughly generate the common part,4.r--diff two ruby generated file,5.clean--clean the workspace."
 echo ""
-echo "Attention to ''sort -u(unique)'.Make sure you do this one module by another, because e.g. once combine afcoll,afcsr,afshared file list together, there maybe duplicate files both in SYM or SYA, since afcoll and afcsr have many files with same name, so in order to keep the result more accurate, please do 'cvs-local-filelist-compare <f/r>' one module one time."
+echo "Attention to use sort, not sort -u. Make sure you do this one module by another, because e.g. once combine afcoll,afcsr,afshared file list together, there maybe duplicate files both in SYM or SYA, since afcoll and afcsr have many files with same name, so in order to keep the result more accurate, please do 'cvs-local-filelist-compare <f/r>' one module one time."
 echo ""
 read -p "Are you ready,if compare *final filelist*, please add suffix Param 'f/r' and create 'temp.txt' first.."
 echo ""
@@ -46,14 +45,15 @@ fi
 function sort-ruby-filelist()
 {
 echo "--Starting sorting ruby file lists--"
-cat $1 |grep -v '\[.*files\]' | awk '{print $2}' | sort -u | awk '/^[A-Za-z]/ {print $0}' > $2
+cat $1 | awk '/^[A-Za-z]/ {print $0}'| cut -d '"' -f1 | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort > $2
 echo ""
 }
 
 function sort-cvs-filelist()
 {
 echo "--Starting sorting cvs file lists--"
-cat $1 |awk '/^[A-Za-z0-9]/ {print $1}' | sort -u > $2
+cat $1 | awk -F 'changed from revision' '{print $1}' | awk -F 'is new;' '{print $1}' \
+| awk -F 'is removed;' '{print $1}'| awk '/^[A-Za-z0-9]/ { {for(j = 1; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}'| sort > $2
 rm temp-cvs-filelist.txt # Just delete the temp file
 echo ""
 }
@@ -63,7 +63,7 @@ function sort-normal-file()
 echo "--Starting transfering from win/dos to unix format--"
 dos2UNIX -k -n $1 "temp-"$1 # Oblige to change the format of target files into unix style
 echo "--Starting sorting regular files--"
-cat "temp-"$1 | sort -u > $2
+cat "temp-"$1 | sort > $2
 echo ""
 }
 
@@ -77,12 +77,12 @@ echo "--Finish diffing,see the '$3' for reference. "
 
 function find-common()
 {
-echo "--Start generating the common part by using bash/shell:join--"
-join -t "$4" $1 $2 | tee $3
+echo "--Start generating the common part by using bash/shell:comm -12--"
+#join -t "$4" $1 $2 | tee $3
+comm -12 $1 $2 | tee $3
 echo ""
 echo "--Finish generating common part,see the '$3' for reference. Not 100% accurate, take care!"
 echo ""
-echo "If you wanna specify a field to analysis, do like this: join -t '$4' -1 <field1> $1 -2 <field2> $2"
 }
 
 case $1 in
@@ -108,8 +108,8 @@ case $1 in
 			echo "different lines number:"
 			cat $output | wc -l
 			echo ""
-			read -p "please decide the separate char,default is '':" char0
-			find-common $compare1 $compare2 $common "$char0"  # '' is the separate character used by join
+			#read -p "please decide the separate char,default is '':" char0
+			find-common $compare1 $compare2 $common   # '' is the separate character used by join
 			echo "same lines number:"
 			cat $common | wc -l
 			;;
@@ -133,7 +133,7 @@ case $1 in
 			echo "different files number(duplicate number should use the num above minus the num below, keep SYA, remove duplicate SYM!):"
 			cat $output |wc -l
 			echo ""
-			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			find-common $compare1 $compare2 $common
 			;;
   "rad")
 			file0=temp.txt
@@ -156,7 +156,7 @@ case $1 in
 			cat $output |wc -l
 			echo "These files below were added by us at first but somehow deleted at last, they shall NOT be included in final file list!"
 			echo ""
-			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			find-common $compare1 $compare2 $common
 			;;
   "rmd")
 			file0=temp.txt
@@ -179,7 +179,7 @@ case $1 in
 			cat $output |wc -l
 			echo "These files below were modified by us then deleted at last, keep SYD, remove SYM!"
 			echo ""
-			find-common $compare1 $compare2 $common '' # '' is the separate character used by join
+			find-common $compare1 $compare2 $common
 			;;
   "r")
 			read -p "first target ruby file list:" file1
@@ -195,8 +195,8 @@ case $1 in
 			echo "different lines number:"
 			cat $output | wc -l
 			echo ""
-			read -p "please decide the separate char,default is '':" char0
-			find-common $compare1 $compare2 $common "$char0"  # '' is the separate character used by join
+			#read -p "please decide the separate char,default is '':" char0
+			find-common $compare1 $compare2 $common
 			echo "same lines number:"
 			cat $common | wc -l
 			;;
