@@ -18,7 +18,6 @@ target_folder="$2"
 dir=~/final-file-list
 temp=temp.txt
 copy=temp-copy.txt
-comment=temp-comment.txt
 input=temp-input.txt
 result_folder=$dir/result
 sync_folder=$dir/sync
@@ -93,7 +92,10 @@ case $module in
 	 target_cvspath="affinity/sourcecode/$target1/$target2"
 	 "af360")
 		case $target1 in
-			services)	
+		fsshared)	
+				target_cvspath="fs/Sourcecode/$target1/$target2"
+				;;
+		services)	
 				target_cvspath="$target1/Sourcecode/$target2"
 				;;
 			*)
@@ -127,14 +129,6 @@ cvs_log=cvs.log_"$1"
 cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
 echo "cvs.log has been generated as 'cvs.log_$1'..."
 echo ""
-}
-
-function grep-v ()
-{
-while read LINE
-do
-cat $temp | grep -v "$LINE" > $temp
-done < $input
 }
 
 function grep-v-am ()
@@ -173,16 +167,9 @@ echo ""
 
 function combine-sync-file ()
 {
-# refer to combine-file above, same rational
-cat $1 | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  > $1
-cat $2 | awk '/^[A-Za-z0-9]/ {print $0}' | sort -u  > $2
-cat $1 | awk '{print $2}' | sort -u > $3
-cat $2 | awk '{print $2}' | sort -u > $4
-comm -12 $3 $4 > $input
-cp -f $1 $temp
-grep-v
-cp -f $2 $5 && cat $temp >> $5 && cat $5 | sort -u > $5
-echo "Result has been generated into '$5'..."
+cat temp-sync-*.txt | awk '/^[A-Za-z]/ {print $0}' | cut -d '"' -f1 | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
+| sort -u   > "$1"
+echo "SYNC files combined into '$1'... "
 echo ""
 }
 
@@ -339,7 +326,7 @@ if [ "$sk" = "n" -o "$sk" = "N" ]
 fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
- 	cp -f $1 final-list.txt
+ 	cp -f "$1" final-list.txt
 	echo "Now you are going to elimainate duplicated SYNC lines for '$1' between final list and sync list..."
 	echo ""
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
@@ -352,11 +339,16 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 		rm -rf $sync_folder
 	fi
 	mkdir $sync_folder
-	source ~/bin/go $sync_folder	
-	touch 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt
+	source ~/bin/go $sync_folder
+	declare -i s = 1
+	while [ $s -le 10 ] 
+	do	
+	touch temp-sync-$s.txt
+	s=s+1
+	done
 	echo ""
 	echo "======================================================================"
-	read -p "please prepare all the SYNC files into '$sync_folder', naming as 1.txt,2.txt ordered by time for '$1' module only!...Press Enter"
+	read -p "please prepare all the SYNC files into '$sync_folder', naming as sync-1.txt,sync-2.txt ordered by time for '$1' module only!...Press Enter"
 	read -p "waiting..................................................Press Enter"
 	read -p "finish fill in the all SYNC files into '$sync_folder'?...Press Enter"
 	echo "======================================================================"
@@ -365,45 +357,47 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo ""
 	echo "Comparing sync list ascendingly..."
 	echo ""
-	declare -i sum=`ls *.txt |wc -l`
-	if [ $sum -eq 1 ]
-	 then
-	 	echo "Result has been generated into '$sync_file'..."
-		echo ""
-		cp -f 1.txt $sync_file
-	else
-		combine-sync-file 1.txt 2.txt temp-1.txt temp-2.txt $sync_file
-		if [ ! $sum -eq 2 ]
-		 then
-			echo "First comparision finished, now let's move on...."
-			echo ""
-			declare -i j=3
-			while [ $j -le $sum ]
-			do
-			combine-sync-file $sync_file $j.txt temp-$sync_file temp-$j.txt $sync_file
-			j=j+1
-			done
-		fi
-	fi
+	combine-sync-file $sync_file
+	# declare -i sum=`ls *.txt |wc -l`
+	# if [ $sum -eq 1 ]
+	 # then
+	 	# echo "Result has been generated into '$sync_file'..."
+		# echo ""
+		# cp -f 1.txt $sync_file
+	# else
+		# combine-sync-file 1.txt 2.txt temp-1.txt temp-2.txt $sync_file
+		# if [ ! $sum -eq 2 ]
+		 # then
+			# echo "First comparision finished, now let's move on...."
+			# echo ""
+			# declare -i j=3
+			# while [ $j -le $sum ]
+			# do
+			# combine-sync-file $sync_file $j.txt temp-$sync_file temp-$j.txt $sync_file
+			# j=j+1
+			# done
+		# fi
+	# fi
 	echo "Finish comparing sync list for '$1'..."
 	echo ""
-	source ~/bin/go $dir
-	cp -f $sync_folder/$sync_file $sync_file && cp $sync_file $result_folder/sync-$1
-	echo "Now,the total sync list has been generated into '$dir/$sync_file', also make a back-up as '$dir/sync-$1'..."
+	echo "====== SYNC list '$sync_file' num is ========"
+	cat $sync_file | wc -l
 	echo ""
-	echo "!Pay attention that the generated total sync list ('$dir/sync-$1') may not be 100% correct,'cause there might be tiny possibility that SYA and SYD are duplicated."
+	source ~/bin/go $dir
+	cat $sync_folder/$sync_file | awk '{print "SY   "$0}' > $sync_file && cp $sync_file $result_folder/sync-"$1"
+	echo "Now,the total sync list has been generated into '$dir/$sync_file', also make a back-up as '$result_folder/sync-$1'..."
 	echo ""
 	echo "Comparing two ruby file: 1.<final-list.txt> --->file list:'$1', 2.<$sync_file> --->sync list:'sync-$1'..."
 	echo ""
 	source ~/bin/cvs-local-filelist-compare r
-	input=common-part-ruby.txt
-	cp -f $sync_file $temp
-	grep-v
+	echo "Pay attention to the files listed in common-part-ruby.txt, they should be Eliminated from '$sync_file', and Make sure they are not duplicated anymore in 'plus-sync-$1' after combined <final-list.txt> and <$sync_file>..."
+	cat final-list.txt $sync_file | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort -u \
+	| awk '{print "PSY  "$0}' > plus-sync-"$1"
+	echo ""
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-	echo "OK!!!! The total file(with sync) list result will be generated into 'plus-sync-$1'..."
+	echo "OK!!!! The total file(with sync) list result is generated into 'plus-sync-$1'..."
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo ""
-	cat $temp >> $1 && cat $1 | sort -u > plus-sync-"$1"
 	echo "====== total file list plus-sync-'$1' num is ========"
 	cat plus-sync-"$1" | wc -l
 	echo ""
@@ -427,7 +421,7 @@ echo ""
 echo "Combine different result(with sync) list module by module..."
 echo ""
 rm $temp
-cat plus-sync-result-*.txt >>  $temp
+cat plus-sync-*.txt >>  $temp
 echo ""
 read -p "Do you need double check the accuracy by diffing result(with sync) list with the CVS final update filelist? input n to Skip...................... " sk
 echo ""
@@ -457,10 +451,10 @@ else
 	cp $output $result_folder
 	echo ""
 fi
-cat $temp | sort -u > plus-sync-result-"$1".txt
-echo "====== total file(All modules with sync) list: plus-sync-result-"$1".txt num is ========"
-cat plus-sync-result-"$1".txt | wc -l
-cp plus-sync-result-"$1".txt $result_folder
+cat $temp > plus-sync-"$1".txt
+echo "====== total file(All '$1' modules with sync) list: plus-sync-"$1".txt num is ========"
+cat plus-sync-"$1".txt | wc -l
+cp plus-sync-"$1".txt $result_folder
 echo ""
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo "Pay attention to the situation that result list has contained the files out of our scope, should grep -v to delete them!"
@@ -490,9 +484,9 @@ case $module in
 		do
 			eliminate-duplicate-amd $result
 		done
-		for result in result-cs-src.txt result-cs-war.txt
+		for target_module in cs-src cs-war
 		do
-			eliminate-duplicate-sync $result
+			eliminate-duplicate-sync "$target_module".txt
 		done
 		announce-finish cs
 		;;
@@ -507,12 +501,29 @@ case $module in
 		do
 			eliminate-duplicate-amd $result
 		done
-		for result in result-afcollagent-src.txt result-afcollagent-war.txt result-afcsragent-src.txt result-afcsragent-war.txt result-afshared-src.txt result-afshared-war.txt
+		for target_module in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war
 		do
-			eliminate-duplicate-sync $result
+			eliminate-duplicate-sync "$target_module".txt
 		done
 		announce-finish affinity
 		;;
+  "af360")
+		initial
+		for target_module in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war fsshared-src services-src services-mapping
+		do
+			result=result-"$target_module".txt
+			final-list-gen $target_module $result
+		done
+		for result in result-afcollagent-src.txt result-afcollagent-war.txt result-afcsragent-src.txt result-afcsragent-war.txt result-afshared-src.txt result-afshared-war.txt result-fsshared-src.txt result-services-src.txt result-services-mapping.txt
+		do
+			eliminate-duplicate-amd $result
+		done
+		for target_module in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war fsshared-src services-src services-mapping
+		do
+			eliminate-duplicate-sync "$target_module".txt
+		done
+		announce-finish af360
+		;;		
   "fs750")
 		initial
 		for target_module in fscm-src fscm-war fsshared-src fssplashcontent-src fssplashcontent-war services-src services-mapping
@@ -524,9 +535,9 @@ case $module in
 		do
 			eliminate-duplicate-amd $result
 		done
-		for result in result-fscm-src.txt result-fscm-war.txt result-fsshared-src.txt result-fssplashcontent-src.txt result-fssplashcontent-war.txt result-services-src.txt result-services-mapping.txt
+		for target_module in fscm-src fscm-war fsshared-src fssplashcontent-src fssplashcontent-war services-src services-mapping
 		do
-			eliminate-duplicate-sync $result
+			eliminate-duplicate-sync "$target_module".txt
 		done
 		announce-finish fs750
 		;;
@@ -541,9 +552,9 @@ case $module in
 		do
 			eliminate-duplicate-amd $result
 		done
-		for result in result-fsagent-src.txt result-fsagent-war.txt result-fscm-src.txt result-fscm-war.txt result-fsshared-src.txt
+		for target_module in fsagent-src fsagent-war fscm-src fscm-war fsshared-src
 		do
-			eliminate-duplicate-sync $result
+			eliminate-duplicate-sync "$target_module".txt
 		done
 		announce-finish fs
 		;;
@@ -558,9 +569,9 @@ case $module in
 		do
 			eliminate-duplicate-amd $result
 		done
-		for result in result-services-src.txt result-services-mapping.txt
+		for target_module in services-src services-mapping
 		do
-			eliminate-duplicate-sync $result
+			eliminate-duplicate-sync "$target_module".txt
 		done
 		announce-finish services
 		;;		
