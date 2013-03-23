@@ -14,7 +14,7 @@ if [ ! -d $latestCVS ]
 	chancestool chancesanalysisengine outputXmlFiles DatabaseXMLfiles fssplashcontent \
 	ccms afautopay adjustments autopayservice ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
 else
-	source ~/bin/go $latestCVS 
+	source ~/bin/go $latestCVS
 	cvs -d $itocvsroot up -A -d -P cs afcollagent afcsragent afshared fsagent fscm fsshared services chancestool chancesanalysisengine \
 	afservice outputXmlFiles DatabaseXMLfiles fssplashcontent ccms afautopay adjustments autopayservice \
 	ccmsservice emailservice accountservice textbankingservice ddacifxfer ccacifxfer phoneprocessor 
@@ -24,14 +24,18 @@ if [ ! -d $brchCVS ]
   then
 	mkdir $brchCVS
 	source ~/bin/go $brchCVS
-	cvs -d $itocvsroot co -P -r AFF_3_60 afcollagent afcsragent afshared
+#	cvs -d $itocvsroot co -P -r AFF_3_60 afcollagent afcsragent afshared
 	cvs -d $itocvsroot co -P -r AFF_3_60_CAT1 services fsshared
 	cvs -d $itocvsroot co -P -r FS_7_50 fscm fssplashcontent
 	cvs -d $itocvsroot co -P -r FS_7_50 services fsshared $brchCVS/fs_services
 else
 	source ~/bin/go $brchCVS 
-	cvs -d $itocvsroot up -d -P -r AFF_3_60 afcollagent afcsragent afshared
+#	cvs -d $itocvsroot up -d -P -r AFF_3_60 afcollagent afcsragent afshared
 	cvs -d $itocvsroot up -d -P -r AFF_3_60_CAT1 services fsshared
 	cvs -d $itocvsroot up -d -P -r FS_7_50 fscm fssplashcontent
+	if [ ! -d fs_services ]
+	  then
+	  	mkdir fs_services
+	fi
 	source ~/bin/go fs_services && cvs -d $itocvsroot up -d -P -r FS_7_50 services fsshared && source ~/bin/go $brchCVS
 fi

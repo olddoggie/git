@@ -79,7 +79,7 @@ check_sum
 echo ""
 }
 
-function fetch_cvspath ()
+function fetch-cvspath ()
 {
 echo "According to '$1',now recover the whole path in CVS repo..."
 echo ""
@@ -87,23 +87,29 @@ target1=`echo "$1" | awk -F '-' '{print $1}'`
 target2=`echo "$1" | awk -F '-' '{print $2}'`
 case $module in
 	"cs")
-	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/$target1/$target2"
+	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/$target2"
+	 ;;
 	 "af")
 	 target_cvspath="affinity/sourcecode/$target1/$target2"
+	 ;;
 	 "af360")
 		case $target1 in
 		fsshared)	
 				target_cvspath="fs/Sourcecode/$target1/$target2"
+				branch_name="AFF_3_60_CAT1."				
 				;;
 		services)	
 				target_cvspath="$target1/Sourcecode/$target2"
+				branch_name="AFF_3_60_CAT1."
 				;;
 			*)
 				target_cvspath="affinity/sourcecode/$target1/$target2"
 				;;
 		esac
+	 ;;
 	 "fs")
 	 target_cvspath="fs/Sourcecode/$target1/$target2"
+	 ;;
 	 "fs750")
 		case $target1 in
 			services)	
@@ -113,18 +119,20 @@ case $module in
 				target_cvspath="fs/Sourcecode/$target1/$target2"
 				;;
 		esac
+	 ;;
 	 "services")
-	 target_cvspath="$target1/Sourcecode/$target2"	
+	 target_cvspath="$target1/Sourcecode/$target2"
+	 ;;
 esac
 echo "Whole path in CVS repo is '$target_cvspath'..."
 echo ""
 }
 
-function fetch_cvslog ()
+function fetch-cvslog ()
 {
 echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
 echo ""
-fetch_cvspath "$1"
+fetch-cvspath "$1"
 cvs_log=cvs.log_"$1"
 cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
 echo "cvs.log has been generated as 'cvs.log_$1'..."
@@ -160,7 +168,7 @@ function combine-file ()
 {
 # $1.txt is combination of origine files($1*.txt) copied from $target_dir
 # the output file $2($1.txt) is the refined verison of combined filelist which has no coments appended 
-cat "temp-$1"*.txt | awk '/^[A-Za-z]/ {print $0}' | sort -u  | cut -d '"' -f1 > "$2"
+cat "temp-$1"*.txt | awk '/^[A-Za-z]/ {print $0}' | cut -d '"' -f1 | sort -u > "$2"
 echo "Comments eliminated from combined file list into '$2'... "
 echo ""
 }
@@ -190,7 +198,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo "Now you are going to combine all file list to make a final one for this CAT..."
 	cp-file  "$target_folder" "$1"
 	echo ""
-	fetch_cvslog "$1"
+	fetch-cvslog "$1"
 	echo "Start combining file lists for '$target_folder's '$1' module..."
 	echo ""
 	combine-file "$1" "$1".txt
@@ -270,7 +278,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
 	echo "Now you are going to elimainate duplicate lines for '$1' in added/modified/deleted..."
 	echo ""
-	cp -f $1 $temp
+	cp -f "$1" $temp
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo "1.Added line should be removed and Modifyied line should be kept,while the first char should be A..."
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
@@ -295,9 +303,12 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	input=common-part-AD.txt
 	grep-v-ad
 	echo "OK!!!"
-	cat $temp | sort -u | tee $1
+	cat $temp | sort -u | tee "$1"
 	echo "====== final file list '$1' num is ========"
 	cat $1 | wc -l
+	echo "Updating '$target_module.txt'..."
+	cat "$1" | cut -d '"' -f1 > "$target_module".txt
+	echo "OK!!"
 	echo ""
 break
 else
@@ -318,7 +329,7 @@ sk=y
 while [ "$sk" == "y" -o "$sk" == "Y"  ] 
 do
 echo ""
-read -p "Do you need elimintate potential duplicate SYNC lines for '$1'? input n to Skip/input y to do it...................... " sk
+read -p "Optional.Do you need elimintate potential duplicate SYNC lines for '$target_module'? input n to Skip/input y to do it...................... " sk
 echo ""
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
@@ -327,10 +338,10 @@ fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
  	cp -f "$1" final-list.txt
-	echo "Now you are going to elimainate duplicated SYNC lines for '$1' between final list and sync list..."
+	echo "Now you are going to elimainate duplicated SYNC lines for '$target_module' between final list and sync list..."
 	echo ""
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-	echo "Duplicated lines in sync list for '$1' should be removed..."
+	echo "Duplicated lines in sync list for '$target_module' should be removed..."
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo ""
 	echo "Initializing '$sync_folder'..."
@@ -348,12 +359,12 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	done
 	echo ""
 	echo "======================================================================"
-	read -p "please prepare all the SYNC files into '$sync_folder', naming as sync-1.txt,sync-2.txt ordered by time for '$1' module only!...Press Enter"
+	read -p "please prepare all the SYNC files into '$sync_folder', naming as sync-1.txt,sync-2.txt ordered by time for '$target_module' module only!...Press Enter"
 	read -p "waiting..................................................Press Enter"
 	read -p "finish fill in the all SYNC files into '$sync_folder'?...Press Enter"
 	echo "======================================================================"
 	echo "Ok."	
-	echo "Starting to generate total sync list for '$1' into '$dir/$sync_file'..."
+	echo "Starting to generate total sync list for '$target_module' into '$dir/$sync_file'..."
 	echo ""
 	echo "Comparing sync list ascendingly..."
 	echo ""
@@ -378,7 +389,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 			# done
 		# fi
 	# fi
-	echo "Finish comparing sync list for '$1'..."
+	echo "Finish comparing sync list for '$target_module'..."
 	echo ""
 	echo "====== SYNC list '$sync_file' num is ========"
 	cat $sync_file | wc -l
@@ -390,7 +401,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo "Comparing two ruby file: 1.<final-list.txt> --->file list:'$1', 2.<$sync_file> --->sync list:'sync-$1'..."
 	echo ""
 	source ~/bin/cvs-local-filelist-compare r
-	echo "Pay attention to the files listed in common-part-ruby.txt, they should be Eliminated from '$sync_file', and Make sure they are not duplicated anymore in 'plus-sync-$1' after combined <final-list.txt> and <$sync_file>..."
+	echo "Pay attention to the files listed in 'common-part-ruby.txt', they should be Eliminated from '$sync_file', and Make sure they are not duplicated anymore in 'plus-sync-$1' after combined <final-list.txt> and <$sync_file>..."
 	cat final-list.txt $sync_file | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort -u \
 	| awk '{print "PSY  "$0}' > plus-sync-"$1"
 	echo ""
@@ -403,7 +414,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo ""
 break
 else
-	read -p "Confirm whether you really wanna elimintate potential duplicate SYNC lines for '$1'? input n to Skip/input y or blank to do it again...................... " sk
+	read -p "Confirm whether you really wanna elimintate potential duplicate SYNC lines for '$target_module'? input n to Skip/input y or blank to do it again...................... " sk
 	if [ "$sk" = "n" -o "$sk" = "N" ]
 	 then
 		echo "Skip."
@@ -423,7 +434,7 @@ echo ""
 rm $temp
 cat plus-sync-*.txt >>  $temp
 echo ""
-read -p "Do you need double check the accuracy by diffing result(with sync) list with the CVS final update filelist? input n to Skip...................... " sk
+read -p "Optional.Do you need double check the accuracy by diffing result(with sync) list with the CVS final update filelist? input n to Skip...................... " sk
 echo ""
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
