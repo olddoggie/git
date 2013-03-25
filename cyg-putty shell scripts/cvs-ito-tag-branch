@@ -133,7 +133,8 @@ case $module in
 		    echo "Current AF3.60 project, fsshared and services coding on branch:'AFF_3_60_CAT1'..."
    			echo ""
    			if [ $tagroot = "HEAD" ]
-		    tagroot="AFF_3_60_CAT1"
+			 then
+				tagroot="AFF_3_60_CAT1"
 		    fi
    			for target_module in "fsshared/src" "services/src" "services/mapping"
 			do
