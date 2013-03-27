@@ -24,12 +24,12 @@
 	<property name="script.dir" value="/home/svn/bin/ant-scirpt"/>
 
 <!-- Changable: Define the mail information -->
-	<property name="from" value="jack.wang@bleum.com"/>
-	<property name="to" value="jack.wang@bleum.com,sam.sun@bleum.com,neal.fu@bleum.com"/>
-	<property name="cc" value="maggie.zhou@bleum.com,tod.tao@bleum.com,jerome.li@bleum.com,ray.chen@bleum.com,kevin.shen@bleum.com,rokgy.luo@bleum.com,dean.long@bleum.com,benny.liu@bleum.com,bryan.wang@bleum.com"/>
+	<property name="from" value="-"/>
+	<property name="to" value="-"/>
+	<property name="cc" value="-"/>
 	<property name="mail.server" value="192.168.0.232" />	
-	<property name="user" value="jack.wang"/>
-	<property name="password" value="jkjk,22222"/>	
+	<property name="user" value="-"/>
+	<property name="password" value="-"/>	
 
 <!-- Define the properties for the script -->	
 	<property name="back.dir" value="/home/svn/back-up/svn2dump"/>

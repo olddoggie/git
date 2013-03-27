@@ -96,4 +96,4 @@ do_mail()
 source ~/bin/call-ant back-mail
 }
 # some error handling and/or run our backup and accounting
-do_accounting && do_svndump && do_mail
+do_accounting && do_svndump 

@@ -28,12 +28,12 @@
 	<property name="script.dir" value="G:\backupconfig"/>	
 
 <!-- Changable: Define the mail information -->
-	<property name="from" value="jack.wang@bleum.com"/>
-	<property name="to" value="jack.wang@bleum.com,edison.ma@bleum.com,sunny.hu@bleum.com"/>
-	<property name="cc" value="bryan.wang@bleum.com,maggie.zhou@bleum.com,dean.long@bleum.com,benny.liu@bleum.com"/>
+	<property name="from" value="-"/>
+	<property name="to" value="-"/>
+	<property name="cc" value="-"/>
 	<property name="mail.server" value="192.168.0.232" />	
-	<property name="user" value="jack.wang"/>
-	<property name="password" value="jkjk,33333"/>	
+	<property name="user" value="-"/>
+	<property name="password" value="-"/>	
 	
 <!-- Define the properties for the script -->	
 	<property name="log.dir" value="backuplog"/>
