@@ -1,0 +1,12 @@
+SVN Server local back up is failed.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Current repository locates on 192.168.2.100:/home/svn/repos, and should be backed up to ${back.dir}
+
+The conf files list in: /home/svn/bin
+
+This failure may be caused by: 
+	1. script expired 
+	2. svn dump crashes
+	3. no back-up log generated. 
+
+Please contact Leopard CM Rep and ask SSG for help.(sent by server)

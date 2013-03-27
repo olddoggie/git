@@ -1,0 +1,23 @@
+#!/bin/sh
+# This script is used for crontab using /bin/mv command
+function cron_mv()
+{
+mv "$1" "$2"
+}
+
+case $1 in
+  "mv_svnbacklog")
+			if [ ! -f /home/svn/back-up/svn2dump/svnback.log ]
+			 then
+				echo "No previous logs found,go ahead."
+			else
+				echo "Start cron job with moving previous logs..."
+				cron_mv "/home/svn/back-up/svn2dump/svnback.log" "/home/svn/back-up/svn2dump/logs/svnback.before.`date +%Y-%m-%d`.log"
+				echo "OK."
+			fi
+			;;
+	*)
+			echo "No such kind of ant scirpt .."
+			exit 1
+			;;
+esac

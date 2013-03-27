@@ -46,42 +46,42 @@ export PATH=$PATH:/bin:/usr/bin:/usr/local/bin
 # our actual rsyncing function
 do_accounting()
 {
-        echo " " >> $LogFile
-        echo " " >> $LogFile
-        echo "###########################" >> $LogFile
-        echo "$DATE" >> $LogFile
-        echo "###########################" >> $LogFile
-        cd $BackDir
+        echo " " | tee -a $LogFile
+		echo " " | tee -a $LogFile
+        echo "###########################" | tee -a $LogFile
+        echo "$DATE" | tee -a $LogFile
+        echo "###########################" | tee -a $LogFile
+        source ~/bin/go $BackDir
 }
 
 do_svndump()
 {
    PROJECTLIST=`cat $ProjectLst`
-   source cd $SVNDIR
+   source ~/bin/go $SVNDIR
    for project in $PROJECTLIST
           do
-          echo "begin to dump $project databases" >> $LogFile
+          echo "begin to dump $project databases" | tee -a $LogFile
                 if [ ! -f $BACKUPDIR/$project.dump ]
                 then
                 YOUNGEST=`svnlook youngest $project`
                 svnadmin dump $project > $BACKUPDIR/$project.dump
-                echo "OK,dump file successfully!!"
+                echo "OK,dump file successfully!!" | tee -a $LogFile
                 echo "$YOUNGEST" > $BACKUPDIR/$project.youngest
                 else
-                        echo "$project.dump existed,will do increatment job" >> $LogFile
+                        echo "$project.dump existed,will do increatment job" | tee -a $LogFile
                         if [ ! -f $BACKUPDIR/$project.youngest ]
                         then
-                        echo "error, no youngest check!" >> $LogFile
+                        echo "error, no youngest check!" | tee -a $LogFile
                         else
                                 PREVYOUNGEST=`cat $BACKUPDIR/$project.youngest`
                                 NEWYOUNGEST=`svnlook youngest $project`
                                 if [ $PREVYOUNGEST -eq $NEWYOUNGEST ]
                                 then
-                                        echo " no database updated!" >> $LogFile
+                                        echo " no database updated!" | tee -a $LogFile
                                 else
                                         LASTYOUNGEST=`expr $PREVYOUNGEST + 1`
-                                        echo "last youngest is $LASTYOUNGEST" >> $LogFile
-                                        svnadmin dump $project --revision $LASTYOUNGEST:$NEWYOUNGEST --incremental > $BACKUPDIR/$project-$LASTYOUNGET-$NEWYOUNGEST.$DATE
+                                        echo "last youngest is $LASTYOUNGEST" | tee -a $LogFile
+                                        svnadmin dump $project --revision $LASTYOUNGEST:$NEWYOUNGEST --incremental > $BACKUPDIR/$project-$LASTYOUNGET-$NEWYOUNGEST.$DATE.dump
                                         echo "$NEWYOUNGEST" > $BACKUPDIR/$project.youngest
                                 fi
                         fi
@@ -92,7 +92,8 @@ do_svndump()
 # our post rsync accounting function
 do_mail()
 {
-   mail $MAILADDR -s svn-back_log < $LogFile
+#   mail $MAILADDR -s svn-back_log < $LogFile
+source ~/bin/call-ant back-mail
 }
 # some error handling and/or run our backup and accounting
 do_accounting && do_svndump && do_mail
