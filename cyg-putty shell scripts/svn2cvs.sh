@@ -59,7 +59,13 @@ function add-d ()
 cat $1 | sed 's/A       //g' | sort -u > $1
 while read LINE
 do
-ls "$LINE"/cvs || cvs -d $bleumcvsroot add "$LINE"
+if [ ! -d $LINE/CVS ]
+ then
+	cvs -d $bleumcvsroot add "$LINE"
+	echo "directory '$LINE' added, go to next line..."
+else
+	echo "go to next line..."
+fi
 done < $1
 STAT=$?
 check_status
