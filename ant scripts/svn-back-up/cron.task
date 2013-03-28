@@ -7,17 +7,12 @@ mv "$1" "$2"
 
 case $1 in
   "mv_svnbacklog")
-			if [ ! -f /home/svn/back-up/svn2dump/svnback.log ]
-			 then
-				echo "No previous logs found,go ahead."
-			else
-				echo "Start cron job with moving previous logs..."
-				cron_mv "/home/svn/back-up/svn2dump/svnback.log" "/home/svn/back-up/svn2dump/logs/svnback.before.`date +%Y-%m-%d`.log"
-				echo "OK."
-			fi
-			;;
+		echo "After cron job, moving log file to backup folder and recycle for next week..."
+		cron_mv "/home/svn/back-up/svn2dump/svnback.log" "/home/svn/back-up/svn2dump/logs/svnback.until.`date +%Y-%m-%d`.log"
+		echo "OK."
+	;;
 	*)
-			echo "No such kind of ant scirpt .."
-			exit 1
-			;;
+		echo "No such kind of ant scirpt .."
+		exit 1
+	;;
 esac
