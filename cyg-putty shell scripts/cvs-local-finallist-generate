@@ -192,6 +192,7 @@ echo ""
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 	echo "Skip."
+	break
 fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
@@ -244,12 +245,13 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	# need use \\\\ in awk because $input should be like:com\\/onefbusa\\/afcollagent\\/web\\/action\\/search\\/COLLSearchAction.java
 	# so that when read Line below, the Line can be read as com\/onefbusa\/afcollagent\/web\/action\/search\/COLLSearchAction.java
 	# so that the sed can recongnize it as com/onefbusa/afcollagent/web/action/search/COLLSearchAction.java
+	# fyi, eliminate \n, can use tr "\n" " " , also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
 	while read LINE
 	do
 	cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
-	| tr "\n" " " | tr \" \'| awk '{printf "\"%s\"",$0}' | sed '1 i '"$LINE"''| tr "\n" " " | awk '{printf "%s\n",$0}'>> "$2"
-	done < $input
-	#also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
+	| tr \" \'| awk '{printf "\"%s \"\n",$0}'
+	done < $input | paste -d " " "$1".txt - > "$2"
+	cat "$2" | sed '/^A/ s/  "/ "added by Bleum: /g; /^M/ s/  "/ "modified by Bleum: /g; /^D/ s/  "/ "deleted by Bleum: /g' > "$2"
 	echo ""
 	echo "====== file list '$2' generated initially, file num is ========"
 	cat "$2" | wc -l
@@ -279,6 +281,7 @@ echo ""
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 	echo "Skip."
+	break
 fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
@@ -340,6 +343,10 @@ echo ""
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 	echo "Skip."
+	cat "$1" | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort -u | awk '{print "PSY  "$0}' > plus-sync-"$1"
+	echo "====== total file list plus-sync-'$1' num is ========"
+	cat plus-sync-"$1" | wc -l
+	break
 fi
 if [ "$sk" = "y" -o "$sk" = "Y" ]
  then
@@ -357,7 +364,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	fi
 	mkdir $sync_folder
 	source ~/bin/go $sync_folder
-	declare -i s = 1
+	declare -i s=1
 	while [ $s -le 10 ] 
 	do	
 	touch temp-sync-$s.txt
@@ -424,6 +431,9 @@ else
 	if [ "$sk" = "n" -o "$sk" = "N" ]
 	 then
 		echo "Skip."
+		cat "$1" | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort -u | awk '{print "PSY  "$0}' > plus-sync-"$1"
+		echo "====== total file list plus-sync-'$1' num is ========"
+		cat plus-sync-"$1" | wc -l		
 	else
 		sk=y # continue loop.
 	fi

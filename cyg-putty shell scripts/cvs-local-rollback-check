@@ -45,7 +45,7 @@ source ~/bin/go $nowfolder
 echo "checking out "$currenttag"..."
 cat $file2 | xargs -i cvs -d $bleumcvsroot co -r $currenttag "{}"
 echo "checking out finished.."
-echo "please use external diff tools to compare '$dir' and pay attention to the '=' marked files --> roll back files and '≈' --> may be roll back files, be careful!"
+echo "please use external diff tools to compare '$dir' and pay attention to the '=' marked files --> roll back files and 'similar=' --> may be roll back files, be careful!"
 echo ""
 echo "roll back files shall NOT be included in final file list."
 echo "'$1' finished."
