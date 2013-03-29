@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # This script is used for simple check whether any roll back codes when drafting file list, especially for prject CAT release final file list
-echo "For CAT release final file list, define preTag as last CAT and this script Must be used !!AFTER chkin/build/deploy and just BEFORE drafting!"
+echo "For CAT release final file list, define preTag as last CAT and this script Must be used !!AFTER chkin/build/deploy and just BEFORE drafting!!"
 echo ""
 echo "Rationale is cvs rdiff -r -s tagname -r HEAD project folder, then check out the files and use external tool to compare whether any roll-back exists!"
 echo ""
@@ -12,11 +12,12 @@ module=$1
 previoustag=$2
 currenttag=$3
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
-prefolder=~/roll-back/Pre-ito-"$2"
-nowfolder=~/roll-back/Now-ito-"$3"
-file=~/roll-back/roll-back-check_filelist-ito-changes.txt
-file1=~/roll-back/roll-back-check_filelist-ito-pre.txt
-file2=~/roll-back/roll-back-check_filelist-ito-now.txt
+dir=~/ito-roll-back_`date +%Y-%m-%d-%H-%M-%S`
+prefolder=$dir/Pre-"$2"
+nowfolder=$dir/Now-"$3"
+file=$dir/roll-back-check_filelist-changes.txt
+file1=$dir/roll-back-check_filelist-pre.txt
+file2=$dir/roll-back-check_filelist-now.txt
 
 function rollback-check ()
 {
@@ -35,58 +36,76 @@ cvs -d $itocvsroot \
 rdiff -s -r $2 -r $3 \
 "$1" | grep " is new" | grep File |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} ' \
 |awk -F ' is' '{print $1}' | tee -a $file2 | wc -l|awk '{print "added: "$0}'
-echo "initialize roll-back check folder..."
-source go $prefolder
+echo "initialize roll-back check folder of preTag..."
+source ~/bin/go $prefolder
 echo "checking out "$previoustag" ..."
 cat $file1 | xargs -i cvs -d $itocvsroot co -r $previoustag "{}"
-echo "initialize roll-back check folder..."
-source go $nowfolder
-echo "checking out "$currenttag" ..."
+echo "initialize roll-back check folder of curTag..."
+source ~/bin/go $nowfolder
+echo "checking out "$currenttag"..."
 cat $file2 | xargs -i cvs -d $itocvsroot co -r $currenttag "{}"
 echo "checking out finished.."
-echo "please use external diff tools to compare the folders and pay attention to the '=' marked files, they may be roll back files"
+echo "please use external diff tools to compare '$dir' and pay attention to the '=' marked files --> roll back files and '¡Ö' --> may be roll back files, be careful!"
 echo ""
-echo "roll back files shall NOT be included in final file list"
+echo "roll back files shall NOT be included in final file list."
+echo "'$1' finished."
+source ~/bin/go $dir
+mv -f $file "$4"-changes.txt && mv -f $file1 "$4"-pre.txt && mv -f $file2 "$4"-now.txt
+echo ""
 }
 
 case $module in
   "af")
-			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			mkdir -p $prefolder $nowfolder
 			for target_module in "afcollagent/src" "afcollagent/war" "afcsragent/src" "afcsragent/war" "afshared/src" "afshared/war"
 			do
-			rollback-check $target_module $previoustag $currenttag
+			target_folder=`echo $target_module | awk -F '/' '{print $1"-"$2}'`
+			rollback-check $target_module $previoustag $currenttag $target_folder
 			done
 			;;
   "cs")
-			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			mkdir -p $prefolder $nowfolder
 			for target_module in "cs/src" "cs/war"
 			do
-			rollback-check $target_module $previoustag $currenttag
+			target_folder=`echo $target_module | awk -F '/' '{print $1"-"$2}'`			
+			rollback-check $target_module $previoustag $currenttag $target_folder
 			done
 			;;
   "services")
-			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			mkdir -p $prefolder $nowfolder
 			for target_module in "services/src" "services/mapping"
 			do
-			rollback-check $target_module $previoustag $currenttag
-			done  
+			target_folder=`echo $target_module | awk -F '/' '{print $1"-"$2}'`
+			rollback-check $target_module $previoustag $currenttag $target_folder
+			done
 			;;
+  "af360")
+			mkdir -p $prefolder $nowfolder
+			for target_module in "afcollagent/src" "afcollagent/war" "afcsragent/src" "afcsragent/war" "afshared/src" "afshared/war" "fsshared/src" "services/src" "services/mapping"
+			do
+			target_folder=`echo $target_module | awk -F '/' '{print $1"-"$2}'`
+			rollback-check $target_module $previoustag $currenttag $target_folder
+			done
+			;;			
   "fs750")
-			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			mkdir -p $prefolder $nowfolder
 			for target_module in "fscm/src" "fscm/war" "fsshared/src" "fssplashcontent/src" "fssplashcontent/war" "services/src" "services/mapping"
 			do
-			rollback-check $target_module $previoustag $currenttag
+			target_folder=`echo $target_module | awk -F '/' '{print $1"-"$2}'`
+			rollback-check $target_module $previoustag $currenttag $target_folder
 			done
 			;;
   "fs")
-			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
+			mkdir -p $prefolder $nowfolder
 			for target_module in "fsagent/src" "fsagent/war" "fscm/src" "fscm/war" "fsshared/src"
 			do
-			rollback-check $target_module $previoustag $currenttag
+			target_folder=`echo $target_module | awk -F '/' '{print $1"-"$2}'`
+			rollback-check $target_module $previoustag $currenttag $target_folder
 			done
 			;;
 	*)
-			rm -rf $prefolder $nowfolder && mkdir -p $prefolder $nowfolder
-			rollback-check "$module" $previoustag $currenttag
+			mkdir -p $prefolder $nowfolder
+			target_folder=`echo "$module" | awk -F '/' '{print $(NF-1)"-"$NF}'`
+			rollback-check "$module" $previoustag $currenttag "$target_folder"
 			;;
 esac
