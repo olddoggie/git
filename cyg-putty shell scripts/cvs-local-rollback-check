@@ -124,7 +124,7 @@ case $module in
 			;;
 	*)
 			mkdir -p $prefolder $nowfolder
-			chkout_folder=`echo "$module" | awk -F '/' '{print $(NF-1)"-"$NF}'
+			chkout_folder=`echo "$module" | awk -F '/' '{print $(NF-1)"-"$NF}'`
 			rollback-check "$module" $previoustag $currenttag "$chkout_folder"
 			;;
 esac

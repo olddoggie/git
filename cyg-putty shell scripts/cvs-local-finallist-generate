@@ -234,6 +234,11 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 			# fi
 	# fi
 	echo "Now starting generate file list '$2'..."
+	if [ `cat "$1".txt | wc -l` -eq 0 ]
+	 then
+		echo "No code update in module: '$1', just Skip to generate '$2'..."
+		cp -f "$1".txt "$2"
+	else
 	cat "$1".txt | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
 	| awk -F '/' '{ {for(j = 1; j<NF; j++) printf "%s\\\\/",$j} printf "%s\n",$j}' > $input
 	# need use \\\\ in awk because $input should be like:com\\/onefbusa\\/afcollagent\\/web\\/action\\/search\\/COLLSearchAction.java
@@ -248,6 +253,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	echo ""
 	echo "====== file list '$2' generated initially, file num is ========"
 	cat "$2" | wc -l
+	fi
 	echo ""	
 break
 else
