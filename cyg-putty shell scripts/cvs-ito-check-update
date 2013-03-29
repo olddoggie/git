@@ -77,7 +77,7 @@ case "$module" in
     rdiff -s -r $previoustag -r $currenttag fsshared/src | grep File \
     |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
     'BEGIN{ "date" | getline d; print "--itoFsshared src--",d,"----------"}{{for(k = 3; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
-    | tee $file | wc -l|awk '{print $0-1}'
+    | tee -a $file | wc -l|awk '{print $0-1}'
     if [ $currenttag = "HEAD" ]
 	 then
       currenttag="AFF_3_60_CAT1"
@@ -87,12 +87,12 @@ case "$module" in
     services/src services/mapping | grep File \
     |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
     'BEGIN{ "date" | getline d; print "--itoServices src/mapping--",d,"----------"}{{for(k = 3; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
-    | tee $file | wc -l|awk '{print $0-1}'    
+    | tee -a $file | wc -l|awk '{print $0-1}'    
     echo "Finsh diff with $3 ..."
     echo "Start generating $file"
     cat $file \
     |awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist_ito.txt" > 0) lc++; print "----the total filelist number:"lc-5}'
-    ;;    
+    ;;
   "afservice")
     echo "Start diff from $2 ..."
     cvs -d $itocvsroot \
