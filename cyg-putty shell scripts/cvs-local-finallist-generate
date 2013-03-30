@@ -133,9 +133,15 @@ function fetch-cvslog ()
 echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
 echo ""
 fetch-cvspath "$1"
-cvs_log=cvs.log_"$1"
+cvs_log=$dir/cvs.log_"$1".txt
 cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
-echo "cvs.log has been generated as 'cvs.log_$1'..."
+echo "cvs.log has been generated as 'cvs.log_$1.txt'..."
+echo ""
+echo "======================================================================"
+read -p "please double check the 'cvs.log_$1.txt', make sure it is correct...Press Enter"
+read -p "if not correct, manually get cvs log by using 'cvs rlog -r$branch_name' like commands on local/ito cvs and overwrite previous one...Press Enter"
+read -p "finish check the 'cvs.log_$1.txt', move on...Press Enter"
+echo "======================================================================"
 echo ""
 }
 

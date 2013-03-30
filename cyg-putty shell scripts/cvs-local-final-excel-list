@@ -15,8 +15,9 @@ echo ""
 module=$1
 input=temp-input.txt
 temp=temp.txt
-cvs_log="cvs.log_$target_module"
-result_folder=~/final-file-list/result
+dir=~/final-file-list
+cvs_log=$dir/cvs.log_"$target_module".txt
+result_folder=$dir/result
 result_folder_dos="D:\cygwin\home\jack.wang\final-file-list\result" # able to be recognized by UpdateFileTool's java command
 UpdateFileTool_dir="D:\cygwin\home\jack.wang\git\UpdateFile-GenerateTool"
 UpdateFileTool="$UpdateFileTool_dir\UpdateFileListTool.jar"
@@ -124,13 +125,19 @@ echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
 echo ""
 fetch-cvspath "$1"
 cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
-echo "cvs.log has been generated as 'cvs.log_$1'..."
+echo "cvs.log has been generated as 'cvs.log_$1.txt'..."
+echo ""
+echo "======================================================================"
+read -p "please double check the 'cvs.log_$1.txt', make sure it is correct...Press Enter"
+read -p "if not correct, manually get cvs log by using 'cvs rlog -r$branch_name' like commands on local/ito cvs and overwrite previous one...Press Enter"
+read -p "finish check the 'cvs.log_$1.txt', move on...Press Enter"
+echo "======================================================================"
 echo ""
 }
 
 function check-cvslog()
 {
-echo "--Check whether '$1' exists in '$result_folder'--"
+echo "--Check whether '$1' exists in '$dir'--"
 if [ ! -f "$1" ]
  then
 	echo "!!Cannot find the target '$1',please run fetch_cvslog again..."
