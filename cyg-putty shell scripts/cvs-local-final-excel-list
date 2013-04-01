@@ -16,8 +16,8 @@ module=$1
 input=temp-input.txt
 temp=temp.txt
 dir=~/final-file-list
-cvs_log=$dir/cvs.log_"$target_module".txt
 result_folder=$dir/result
+cvs_log=$result_folder/cvs.log_"$module".txt
 result_folder_dos="D:\cygwin\home\jack.wang\final-file-list\result" # able to be recognized by UpdateFileTool's java command
 UpdateFileTool_dir="D:\cygwin\home\jack.wang\git\UpdateFile-GenerateTool"
 UpdateFileTool="$UpdateFileTool_dir\UpdateFileListTool.jar"
@@ -70,18 +70,17 @@ echo "Finished..."
 echo ""
 }
 
-function fetch-cvspath ()
+function fetch-cvslog ()
 {
-echo "According to '$1',now recover the whole path in CVS repo..."
+echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
 echo ""
-target1=`echo "$1" | awk -F '-' '{print $1}'`
-target2=`echo "$1" | awk -F '-' '{print $2}'`
-case $module in
+case "$1" in
 	"cs")
-	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/$target2"
+	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/src csmaintenance/3.50/SourceCodeUBS/war"
+	 cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
 	 ;;
 	 "af")
-	 target_cvspath="affinity/sourcecode/$target1/$target2"
+	 target_cvspath="affinity/sourcecode/afcollagent/src affinity/sourcecode/afcollagent/war affinity/sourcecode/afcsragent/src affinity/sourcecode/afcsragent/war affinity/sourcecode/afshared/src affinity/sourcecode/afshared/war"
 	 ;;
 	 "af360")
 		case $target1 in
@@ -115,16 +114,7 @@ case $module in
 	 target_cvspath="$target1/Sourcecode/$target2"
 	 ;;
 esac
-echo "Whole path in CVS repo is '$target_cvspath'..."
 echo ""
-}
-
-function fetch-cvslog ()
-{
-echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
-echo ""
-fetch-cvspath "$1"
-cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
 echo "cvs.log has been generated as 'cvs.log_$1.txt'..."
 echo ""
 echo "======================================================================"
@@ -137,11 +127,11 @@ echo ""
 
 function check-cvslog()
 {
-echo "--Check whether '$1' exists in '$dir'--"
+echo "--Check whether '$1' exists in '$result_folder'--"
 if [ ! -f "$1" ]
  then
 	echo "!!Cannot find the target '$1',please run fetch_cvslog again..."
-	fetch-cvslog "$target_module"
+	fetch-cvslog "$module"
 else
 	echo "File exists..."
 	echo ""
@@ -232,12 +222,14 @@ echo ""
 case $module in
 	"cs")
 	 initial
+	 check-cvslog $cvs_log
 	 for target in src war
 	 do
 		target_module=$module-$target
 		target_file="result-$target_module.txt"
 		check-target $target_file
-		check-cvslog $cvs_log
+		# add module name 'src', 'war' at front of the file to make file list clear enough to be locate in cvs.log
+		cat $target_file | sed 's#A    #A    '$target'/#g ; s#M    #M    '$target'/#g ; s#D    #D    '$target'/#g' > $target_file
 		#getting author name from cvs.log which can is generated already,no need do multiple queries for each files..
 		#cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/'$target'/"$0}' > $input
 		original-file-transfer $target_file

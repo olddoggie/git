@@ -255,9 +255,10 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	while read LINE
 	do
 	cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
-	| tr \" \'| awk '{printf "\"%s \"\n",$0}'
+	| tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"/ \"/g'
 	done < $input | paste -d " " "$1".txt - > "$2"
-	cat "$2" | sed '/^A/ s/  "/ "added by Bleum: /g; /^M/ s/  "/ "modified by Bleum: /g; /^D/ s/  "/ "deleted by Bleum: /g' > "$2"
+	# sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
+	cat "$2" | sed '/^A/ s/  ##"/ "added by Bleum: /g; /^M/ s/  ##"/ "modified by Bleum: /g; /^D/ s/  ##"/ "deleted by Bleum: /g' > "$2"
 	echo ""
 	echo "====== file list '$2' generated initially, file num is ========"
 	cat "$2" | wc -l
@@ -449,7 +450,7 @@ done
 
 function announce-finish ()
 {
-echo "Now you are gonna double check the total file list(with sync) for module '$1'..."
+echo "Now you are gonna double check the total file list(with sync) for module '$1',if not, the script will cope with the result and finalize itself by end..."
 echo ""
 echo "Combine different result(with sync) list module by module..."
 echo ""
@@ -499,8 +500,8 @@ read -p "Are you 100% sure that no Out-Of-Scope files existing in result list? O
 echo ""
 read -p "Just FYI,as above mentioned,the generated total sync list in eliminate-duplicate-sync step may not be 100% correct,'cause there might be tiny possibility that SYA and SYD are duplicated....Press Enter" -t 5
 echo ""
-echo "cvs log files for each tartget_module have been copied to '$result_folder/cvs.log_*', take reference if needed."
-cp cvs.log_* $result_folder
+echo "cvs log files for each tartget_module have been copied to '$result_folder/cvs.log_$module.txt', take reference if needed."
+cat cvs.log_* >> $result_folder/cvs.log_"$module".txt
 echo ""
 echo "Good job! Final update file list done. Check detail in '$result_folder/result-*.txt' kept them in CM log."
 cp result-*.txt $result_folder
@@ -524,6 +525,7 @@ case $module in
 		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
+		echo ""		
 		announce-finish cs
 		;;
   "af")
@@ -541,6 +543,7 @@ case $module in
 		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
+		echo ""		
 		announce-finish affinity
 		;;
   "af360")
@@ -558,6 +561,7 @@ case $module in
 		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
+		echo ""		
 		announce-finish af360
 		;;		
   "fs750")
@@ -575,6 +579,7 @@ case $module in
 		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
+		echo ""		
 		announce-finish fs750
 		;;
   "fs")
@@ -592,6 +597,7 @@ case $module in
 		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
+		echo ""		
 		announce-finish fs
 		;;
   "services")
@@ -609,8 +615,9 @@ case $module in
 		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
+		echo ""
 		announce-finish services
-		;;		
+		;;
 		*)
 		echo "no such module yet..."
 		exit 1
