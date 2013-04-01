@@ -36,11 +36,13 @@ else
 	if [ ! -d fs_fsshared ]
 	  then
 	  	mkdir fs_fsshared
+		cvs -d $cvsroot co -P -d fs_fsshared -r FS_7_50 fs/Sourcecode/fsshared/src
 	fi
 	if [ ! -d fs_services ]
 	  then
 	  	mkdir fs_services
-	fi	
+		cvs -d $cvsroot co -P -d fs_services -r FS_7_50 services
+	fi
 	source ~/bin/go fs_fsshared && cvs -d $cvsroot up -d -P -r FS_7_50 && source ~/bin/go $jkcvs
 	source ~/bin/go fs_services && cvs -d $cvsroot up -d -P -r FS_7_50 && source ~/bin/go $jkcvs
 fi
