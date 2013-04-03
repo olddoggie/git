@@ -72,55 +72,16 @@ echo ""
 
 function fetch-cvslog ()
 {
-echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
+echo "Getting cvs.log from '$2' of module '$module'..."
 echo ""
-case "$1" in
-	"cs")
-	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/src csmaintenance/3.50/SourceCodeUBS/war"
-	 cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
-	 ;;
-	 "af")
-	 target_cvspath="affinity/sourcecode/afcollagent/src affinity/sourcecode/afcollagent/war affinity/sourcecode/afcsragent/src affinity/sourcecode/afcsragent/war affinity/sourcecode/afshared/src affinity/sourcecode/afshared/war"
-	 ;;
-	 "af360")
-		case $target1 in
-		fsshared)
-				target_cvspath="fs/Sourcecode/$target1/$target2"
-				branch_name="AFF_3_60_CAT1."
-				;;
-		services)	
-				target_cvspath="$target1/Sourcecode/$target2"
-				branch_name="AFF_3_60_CAT1."
-				;;
-			*)
-				target_cvspath="affinity/sourcecode/$target1/$target2"
-				;;
-		esac
-	 ;;
-	 "fs")
-	 target_cvspath="fs/Sourcecode/$target1/$target2"
-	 ;;
-	 "fs750")
-		case $target1 in
-			services)	
-				target_cvspath="$target1/Sourcecode/$target2"
-				;;
-			*)
-				target_cvspath="fs/Sourcecode/$target1/$target2"
-				;;
-		esac
-	 ;;
-	 "services")
-	 target_cvspath="$target1/Sourcecode/$target2"
-	 ;;
-esac
+cvs -d $bleumcvsroot rlog -N -r"$2" "$1" > "$cvs_log"
 echo ""
-echo "cvs.log has been generated as 'cvs.log_$1.txt'..."
+echo "cvs.log has been generated as 'cvs.log_$module.txt'..."
 echo ""
 echo "======================================================================"
-read -p "please double check the 'cvs.log_$1.txt', make sure it is correct...Press Enter"
-read -p "if not correct, manually get cvs log by using 'cvs rlog -r$branch_name' like commands on local/ito cvs and overwrite previous one...Press Enter"
-read -p "finish check the 'cvs.log_$1.txt', move on...Press Enter"
+read -p "please double check the 'cvs.log_$module.txt', make sure it is correct...Press Enter"
+read -p "if not correct, manually get cvs log by using 'cvs rlog -r$2' like commands on local/ito cvs and overwrite previous one...Press Enter"
+read -p "finish check the 'cvs.log_$module.txt', move on...Press Enter"
 echo "======================================================================"
 echo ""
 }
@@ -128,10 +89,30 @@ echo ""
 function check-cvslog()
 {
 echo "--Check whether '$1' exists in '$result_folder'--"
+echo ""
 if [ ! -f "$1" ]
  then
 	echo "!!Cannot find the target '$1',please run fetch_cvslog again..."
-	fetch-cvslog "$module"
+	case "$1" in
+		cs)
+				for target_cvspath in 
+				cp "$cvs_log" cvs_log_service
+				moudle=af360
+				fetch-cvslog "$target_cvspath1" "$branch_name"
+				cat cvs_log_service >> "$cvs_log" && rm cvs_log_service
+				;;		
+		af360)
+				moudle=af360_services
+				fetch-cvslog "$target_cvspath2" "AFF_3_60_CAT1."
+				cp "$cvs_log" cvs_log_service
+				moudle=af360
+				fetch-cvslog "$target_cvspath1" "$branch_name"
+				cat cvs_log_service >> "$cvs_log" && rm cvs_log_service
+				;;			
+			*)
+				fetch-cvslog "$target_cvspath" "$branch_name" 
+				;;
+	esac
 else
 	echo "File exists..."
 	echo ""
@@ -147,6 +128,9 @@ if [ "$sk" = "n" -o "$sk" = "N" ]
 	echo "Skip."
 	echo ""
 else
+	echo ""
+	echo "0.First revert original file '$1' by adding '$2' at front in order to make cvs.log clear.."
+	cat "$1" | sed 's#A    #A    '"$2"'/#g ; s#AB   #AB   '"$2"'/#g ; s#M    #M    '"$2"'/#g ; s#D    #D    '"$2"'/#g' > "$1"
 	echo ""
 	echo "1.Appending the last commit author's name..."
 	echo ""
@@ -222,6 +206,7 @@ echo ""
 case $module in
 	"cs")
 	 initial
+	 target_cvspath="csmaintenance/3.50/SourceCodeUBS/src csmaintenance/3.50/SourceCodeUBS/war"	 
 	 check-cvslog $cvs_log
 	 for target in src war
 	 do
@@ -229,62 +214,69 @@ case $module in
 		target_file="result-$target_module.txt"
 		check-target $target_file
 		# add module name 'src', 'war' at front of the file to make file list clear enough to be locate in cvs.log
-		cat $target_file | sed 's#A    #A    '$target'/#g ; s#M    #M    '$target'/#g ; s#D    #D    '$target'/#g' > $target_file
 		#getting author name from cvs.log which can is generated already,no need do multiple queries for each files..
 		#cat $target_file | awk '{print $2}' | awk '{print "csmaintenance/3.50/SourceCodeUBS/'$target'/"$0}' > $input
-		original-file-transfer $target_file
+		original-file-transfer $target_file $target # $target here means add src, war at front of files to make result accurate
 	 done
 	 target-gen $module
 		;;
 	"af")
 	 initial
+	 target_cvspath="affinity/sourcecode/afcollagent/src affinity/sourcecode/afcollagent/war affinity/sourcecode/afcsragent/src affinity/sourcecode/afcsragent/war affinity/sourcecode/afshared/src affinity/sourcecode/afshared/war"
+	 check-cvslog $cvs_log	 
 	 for target in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war 
 	 do
 		target_module=$target
 		target_file="result-$target_module.txt"
 		check-target $target_file
-		check-cvslog $cvs_log
-		original-file-transfer $target_file
+		target=`echo "$target" | awk -F '-' '{printf"%s/%s",$1,$2}'`
+		original-file-transfer $target_file $target # $target here means add afcollagent/src, afcsragent/war,etc. at front of files to make result accurate
 	 done
 	 target-gen $module
 		;;
 	"af360")
 	 initial
+	 target_cvspath1="affinity/sourcecode/afcollagent/src affinity/sourcecode/afcollagent/war affinity/sourcecode/afcsragent/src affinity/sourcecode/afcsragent/war affinity/sourcecode/afshared/src affinity/sourcecode/afshared/war"
+	 target_cvspath2="fs/Sourcecode/fsshared/src services/Sourcecode/src services/Sourcecode/mapping"
+	 check-cvslog $cvs_log
 	 for target in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war fsshared-src services-src services-mapping
 	 do
 		target_module=$target
 		target_file="result-$target_module.txt"
 		check-target $target_file
-#		target1=`echo $target | awk -F '-' '{print $1}'`
-#		target2=`echo $target | awk -F '-' '{print $2}'`
-#		case $target1 in
-#			fsshared)	
-#				cat $target_file | awk '{print $2}' | awk '{print "fs/Sourcecode/'$target1'/'$target2'/"$0}' > $input
-#				;;
-#			services)	
-#				cat $target_file | awk '{print $2}' | awk '{print "'$target1'/Sourcecode/'$target2'/"$0}' > $input
-#				;;
-#			*)
-#				cat $target_file | awk '{print $2}' | awk '{print "affinity/sourcecode/'$target1'/'$target2'/"$0}' > $input
-#				;;
-#		esac
-		check-cvslog $cvs_log
-		original-file-transfer $target_file
+		target=`echo "$target" | awk -F '-' '{printf"%s/%s",$1,$2}'`
+		original-file-transfer $target_file $target # $target here means add afcollagent/src, afcsragent/war,etc. at front of files to make result accurate
 	 done
 	 target-gen $module
 		;;
 	"fs750")
 	 initial
+	 target_cvspath="fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war fs/Sourcecode/fsshared/src fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war services/Sourcecode/src services/Sourcecode/mapping"
+	 check-cvslog $cvs_log	 
 	 for target in fscm-src fscm-war fsshared-src fssplashcontent-src fssplashcontent-war services-src services-mapping
 	 do
 		target_module=$target
 		target_file="result-$target_module.txt"
 		check-target $target_file
-		check-cvslog $cvs_log
-		original-file-transfer $target_file
+		target=`echo "$target" | awk -F '-' '{printf"%s/%s",$1,$2}'`
+		original-file-transfer $target_file $target # $target here means add fscm/src, fsshared/src,etc. at front of files to make result accurate
 	 done
 	 target-gen $module
 		;;
+	"services")
+	 initial
+	 target_cvspath="services/Sourcecode/src services/Sourcecode/mapping"
+	 check-cvslog $cvs_log	 
+	 for target in services-src services-mapping 
+	 do
+		target_module=$target
+		target_file="result-$target_module.txt"
+		check-target $target_file
+		target=`echo "$target" | awk -F '-' '{printf"%s/%s",$1,$2}'`
+		original-file-transfer $target_file $target # $target here means add services/src, services/mapping at front of files to make result accurate
+	 done
+	 target-gen $module
+		;;		
 	*)
 		echo "no such module yet..."
 		exit 1

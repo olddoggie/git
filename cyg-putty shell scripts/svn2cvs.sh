@@ -149,7 +149,6 @@ while read LINE
 do
 mv $LINE $bk_dir/logs/$LINE.$DATE
 done < $temp
-mv $temp $bk_dir/logs
 STAT=$?
 check_status
 }
@@ -170,9 +169,9 @@ rm -rf "$cvs_dir" && mkdir "$cvs_dir"
 source ~/bin/go $cvs_repo
 if [ "$cvs_path" = "HEAD" ]
  then
-	cvs -d $bleumcvsroot co -P "$cvsURL"
+	cvs -d $bleumcvsroot co "$cvsURL" # do not use `cvs checkout -P`, beacuse it will ignore empty folder in cvs repo
 else
-	cvs -d $bleumcvsroot co -P -r "$cvs_path" "$cvsURL"
+	cvs -d $bleumcvsroot co -r "$cvs_path" "$cvsURL"
 fi
 STAT=$?
 check_status
