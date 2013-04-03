@@ -112,7 +112,7 @@ echo "HEAD version is: $CUR" | tee -a $log_file
 if [ ! -f $bk_dir/PRE_VERSION ]
  then	
 	echo "This is the first back up time!" | tee -a $log_file
-	mv $bk_dir/HEAD_VERSION $bk_dir/PRE_VERSION
+	echo "" | tee -a $log_file
 	PRE=0
 else
 	echo "Check sourcecode updated or not..." | tee -a $log_file
@@ -129,8 +129,8 @@ else
 	fi
 	if [ $PRE -lt $CUR ]
 	 then
-		echo "Sourcecodes updated!Previous version was: $PRE, now updating to $CUR"... | tee -a $log_file
-		mv $bk_dir/HEAD_VERSION $bk_dir/PRE_VERSION # update the version num as to be checked the tomorrow
+		echo "Sourcecodes updated!Previous version was: $PRE,while latest vers is: $CUR"... | tee -a $log_file
+		echo "" | tee -a $log_file
 	fi
 fi
 STAT=$?
@@ -226,3 +226,6 @@ echo "Finished svn repository back-up job, please check the latest codes in ‘$
 echo "" | tee -a $log_file
 save-log
 echo "back-up logs has been recorded into $bk_dir/logs. [ALL!]" | tee -a $log_file
+echo "finally,update the PRE_VERSION to '$CUR'. [OK.]" | tee -a $log_file
+mv $bk_dir/HEAD_VERSION $bk_dir/PRE_VERSION
+echo "Finished." | tee -a $log_file
