@@ -13,6 +13,7 @@ echo "third param is the target path of the sourcecodes subfolder in SVN project
 echo "forth param is the CVS HEAD/branch/tag name which you check codes into in CVS project folder (e.g. HEAD.... )"
 echo "Initializing..."
 echo ""
+export PATH=$PATH:/usr/local/bin/svn
 project="$1"
 CAT=$2
 svn_path="$3"
@@ -32,7 +33,7 @@ cvs_repo=/home/svn/cvs
 cvs_dir=/home/svn/cvs/"$project"
 svnDir=/home/svn/repos
 svnURL="file://$svnDir/$project"/"$svn_path"
-cvsURL="$project"/sourcecode
+cvsURL="$project"/Sourcecode
 bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
 # grep-v cat $2 | grep -v "$LINE" > $2 has no use on RedHat Linux bash shell,change to use awk '/[]$/ {print $0}' to filter the txt/binary files
 # BINARY_FILE_TYPES = [".jpe",".jpg",".pdf",".jpeg",".png",".bmp",".gif",".ttf",".jar",".war",".ear"]
@@ -104,39 +105,6 @@ STAT=$?
 check_status
 }
 
-function check-updated ()
-{
-CUR=`svnlook youngest "$svnDir/$project"`
-echo $CUR > $bk_dir/HEAD_VERSION
-echo "HEAD version is: $CUR" | tee -a $log_file
-if [ ! -f $bk_dir/PRE_VERSION ]
- then	
-	echo "This is the first back up time!" | tee -a $log_file
-	echo "" | tee -a $log_file
-	PRE=0
-else
-	echo "Check sourcecode updated or not..." | tee -a $log_file
-	PRE=`cat $bk_dir/PRE_VERSION`
-	if [ $PRE -eq $CUR ]
-	 then
-		echo "No sourcecode updated!" | tee -a $log_file
-	exit 1
-	fi
-	if [ $PRE -gt $CUR ]
-	 then
-		echo "Script failed! Some thing wrong with the PRE_VERSION num: $PRE,please check!" | tee -a $log_file
-	exit 1
-	fi
-	if [ $PRE -lt $CUR ]
-	 then
-		echo "Sourcecodes updated!Previous version was: $PRE,while latest vers is: $CUR"... | tee -a $log_file
-		echo "" | tee -a $log_file
-	fi
-fi
-STAT=$?
-check_status
-}
-
 function save-log ()
 {
 if [ ! -d $bk_dir/logs ]
@@ -169,15 +137,43 @@ rm -rf "$cvs_dir" && mkdir "$cvs_dir"
 source ~/bin/go $cvs_repo
 if [ "$cvs_path" = "HEAD" ]
  then
-	cvs -d $bleumcvsroot co "$cvsURL" # do not use `cvs checkout -P`, beacuse it will ignore empty folder in cvs repo
+	cvs -d $bleumcvsroot co -d "$project" "$cvsURL" # do not use `cvs checkout -P`, beacuse it will ignore empty folder in cvs repo
 else
-	cvs -d $bleumcvsroot co -r "$cvs_path" "$cvsURL"
+	cvs -d $bleumcvsroot co -d "$project" -r "$cvs_path" "$cvsURL"
 fi
 STAT=$?
 check_status
 echo "Preparing total changlist..." | tee -a $log_file
 echo "" | tee -a $log_file
-check-updated
+declare -i CUR=`svnlook youngest "$svnDir/$project"`
+echo $CUR > $bk_dir/HEAD_VERSION
+echo "HEAD version is: $CUR" | tee -a $log_file
+if [ ! -f $bk_dir/PRE_VERSION ]
+ then	
+	echo "This is the first back up time!" | tee -a $log_file
+	echo "" | tee -a $log_file
+	declare -i PRE=0
+else
+	echo "Check sourcecode updated or not..." | tee -a $log_file
+	declare -i PRE=`cat $bk_dir/PRE_VERSION`
+	if [ $PRE -eq $CUR ]
+	 then
+		echo "No sourcecode updated!" | tee -a $log_file
+	exit 1
+	fi
+	if [ $PRE -gt $CUR ]
+	 then
+		echo "Script failed! Some thing wrong with the PRE_VERSION num: $PRE,please check!" | tee -a $log_file
+	exit 1
+	fi
+	if [ $PRE -lt $CUR ]
+	 then
+		echo "Sourcecodes updated!Previous version was: $PRE,while latest vers is: $CUR"... | tee -a $log_file
+		echo "" | tee -a $log_file
+	fi
+fi
+STAT=$?
+check_status
 svn diff -r $PRE:HEAD --summarize "$svnURL" > $total
 STAT=$?
 check_status
@@ -200,12 +196,12 @@ echo "" | tee -a $log_file
 cat $total_file | grep "D       " > $del_file
 echo "Getting latest svn codes..." | tee -a $log_file
 echo "" | tee -a $log_file
-svn export --force -r HEAD "$svnURL" "$cvs_repo/$cvsURL"
+svn export --force -r HEAD "$svnURL" "$cvs_dir"
 STAT=$?
 check_status
-echo "Go to cvs project sourcecode folder '$cvs_repo/$cvsURL', prepare code check-in..." | tee -a $log_file
+echo "Go to cvs project sourcecode folder '$cvs_dir', prepare code check-in..." | tee -a $log_file
 echo "" | tee -a $log_file
-source ~/bin/go "$cvs_repo/$cvsURL"
+source ~/bin/go "$cvs_dir"
 echo ""
 echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
 echo "" | tee -a $log_file
@@ -222,7 +218,7 @@ rm-f $del_file
 echo "OK. Check-in codes from svn2cvs..." | tee -a $log_file
 echo "" | tee -a $log_file
 cvs -d $bleumcvsroot commit -R -m "$project $CAT:daily update from svn2cvs."
-echo "Finished svn repository back-up job, please check the latest codes in ‘$cvsURL’..." | tee -a $log_file
+echo "Finished svn repository back-up job, please check the latest codes in '$cvsURL' on 192.168.2.200.." | tee -a $log_file
 echo "" | tee -a $log_file
 save-log
 echo "back-up logs has been recorded into $bk_dir/logs. [ALL!]" | tee -a $log_file
