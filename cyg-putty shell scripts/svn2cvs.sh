@@ -45,6 +45,25 @@ bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
 # cat $2 | grep -v "$LINE" > $2
 # done < $1
 # }
+function confirm-d ()
+{
+while read LINE
+do
+	declare -i k = `cat "$LINE" | awk -F '/' '{print NF}'`-1
+	for (( i = 1; i <= k; i++ )); do
+		cvsdir = "`cat "$LINE" | awk -F '/' '{ {for(j = 1; j<=i; j++) printf "%s/",$j} print "CVS"}'`"
+		namedir = "`echo "$cvsdir" | sed 's#/CVS$##g'`"
+		if [ ! -d "$cvsdir" ]
+		 then
+			cvs -d $bleumcvsroot add "$namedir"
+			echo "directory '$namedir' added..."
+		fi
+	done
+done < $1
+STAT=$?
+check_status
+}
+
 function check_status
 {
 			if [ $STAT -eq 1 ]
@@ -63,7 +82,7 @@ do
 if [ ! -d $LINE/CVS ]
  then
 	cvs -d $bleumcvsroot add "$LINE"
-	echo "directory '$LINE' added, go to next line..."
+	echo "directory '$LINE' added..."
 else
 	echo "go to next line..."
 fi
