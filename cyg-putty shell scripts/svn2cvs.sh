@@ -13,7 +13,7 @@ echo "third param is the target path of the sourcecodes subfolder in SVN project
 echo "forth param is the CVS HEAD/branch/tag name which you check codes into in CVS project folder (e.g. HEAD.... )"
 echo "Initializing..."
 echo ""
-export PATH=$PATH:/usr/local/bin/svn
+export PATH=$PATH:/usr/local/bin
 project="$1"
 CAT=$2
 svn_path="$3"
