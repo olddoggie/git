@@ -45,48 +45,47 @@ bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
 # cat $2 | grep -v "$LINE" > $2
 # done < $1
 # }
-function confirm-d ()
-{
-while read LINE
-do
-	declare -i k = `cat "$LINE" | awk -F '/' '{print NF}'`-1
-	for (( i = 1; i <= k; i++ )); do
-		cvsdir = "`cat "$LINE" | awk -F '/' '{ {for(j = 1; j<=i; j++) printf "%s/",$j} print "CVS"}'`"
-		namedir = "`echo "$cvsdir" | sed 's#/CVS$##g'`"
-		if [ ! -d "$cvsdir" ]
-		 then
-			cvs -d $bleumcvsroot add "$namedir"
-			echo "directory '$namedir' added..."
-		fi
-	done
-done < $1
-STAT=$?
-check_status
-}
+# below function is replaced by function confirm-d because it is not accurate for SVN OP project
+# 'cause SVN generate added dir for each diff, but some empty dirs have been added into SVN Repo at first, while first imported into CVS Repo, the empty dirs will NOT be added,actully, the dirs which not newly added between svn diff will not be added again in function add-d, that's why the script is not so accurate.
+# function add-d ()
+# {
+# cat $1 | sed 's/A       //g' | sort -u > $1
+# while read LINE
+# do
+# if [ ! -d $LINE/CVS ]
+ # then
+	# cvs -d $bleumcvsroot add "$LINE"
+	# echo "directory '$LINE' added..."
+# else
+	# echo "go to next line..."
+# fi
+# done < $1
+# STAT=$?
+# check_status
+# }
 
 function check_status
 {
-			if [ $STAT -eq 1 ]
-				then
-				echo "Ooops...." | tee -a $log_file
-				echo "Command aborted, find the error msg above and do it again!" | tee -a $log_file
-				exit 1
-			fi
+	if [ $STAT -eq 1 ]
+		then
+		echo "Ooops...." | tee -a $log_file
+		echo "Command aborted, find the error msg above and do it again!" | tee -a $log_file
+		exit 1
+	fi
 }
 
-function add-d ()
+function confirm-d ()
 {
-cat $1 | sed 's/A       //g' | sort -u > $1
-while read LINE
-do
-if [ ! -d $LINE/CVS ]
- then
-	cvs -d $bleumcvsroot add "$LINE"
-	echo "directory '$LINE' added..."
-else
-	echo "go to next line..."
-fi
-done < $1
+declare -i k=`echo "$1" | awk -F '/' '{print NF}'`-1
+for (( i=1; i<=k; i++ )); do
+	cvsdir="`echo "$1" | awk -F '/' '{ {for(j=1; j<='$i'; j++) printf "%s/",$j} print "CVS"}'`"
+	namedir="`echo "$cvsdir" | sed 's#/CVS$##g'`"
+	if [ ! -d "$cvsdir" ]
+	 then
+		cvs -d $bleumcvsroot add "$namedir"
+		echo "directory '$namedir' added..."
+	fi
+done
 STAT=$?
 check_status
 }
@@ -96,6 +95,7 @@ function add-kb ()
 cat $1 | sed 's/A       //g' | sort -u > $1
 while read LINE
 do
+confirm-d "$LINE"
 cvs -d $bleumcvsroot add -kb "$LINE"
 done < $1
 STAT=$?
@@ -107,6 +107,7 @@ function add-kv ()
 cat $1 | sed 's/A       //g' | sort -u > $1
 while read LINE
 do
+confirm-d "$LINE"
 cvs -d $bleumcvsroot add "$LINE"
 done < $1
 STAT=$?
@@ -130,6 +131,7 @@ if [ ! -d $bk_dir/logs ]
  then
  mkdir $bk_dir/logs
 fi
+touch $temp
 ls $bk_dir/*.log | awk -F '/' '{print $NF}' > $temp
 source ~/bin/go $bk_dir
 while read LINE
@@ -178,6 +180,7 @@ else
 	if [ $PRE -eq $CUR ]
 	 then
 		echo "No sourcecode updated!" | tee -a $log_file
+		mv $bk_dir/HEAD_VERSION $bk_dir/PRE_VERSION
 	exit 1
 	fi
 	if [ $PRE -gt $CUR ]
@@ -222,9 +225,9 @@ echo "Go to cvs project sourcecode folder '$cvs_dir', prepare code check-in..." 
 echo "" | tee -a $log_file
 source ~/bin/go "$cvs_dir"
 echo ""
-echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
-echo "" | tee -a $log_file
-add-d $add_dir
+# echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
+# echo "" | tee -a $log_file
+# add-d $add_dir
 echo "Add-in newly added binary files from svn2cvs..." | tee -a $log_file
 echo "" | tee -a $log_file
 add-kb $add_kb_file

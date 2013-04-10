@@ -2,6 +2,8 @@
 # This script is used for codes updated in local-CVS daily
 echo "Rationale is cvs co/up project folder"
 echo ""
+echo "Make sure delete whole folder and make script check out project again if you want script a clean run; do NOT only delete all files in the folder but keep an empty folder still, the script will judge this as folder existing and directly do update then, obviously the process will fail, sicne there is no CVS folder at all!"
+echo ""
 cvsroot=":sspi:jack.wang@192.168.2.200:/1fb"
 bcvs="/cygdrive/d/BleumCVS"
 jkcvs="/cygdrive/d/JKCVS"
