@@ -237,9 +237,14 @@ add-kv $add_kv_file
 echo "Remove deleted files from svn2cvs..." | tee -a $log_file
 echo "" | tee -a $log_file
 rm-f $del_file
+echo "Getting comments:" | tee -a $log_file
+comments="`svnlook log "$svnDir/$project"`" # defult is the latest log of SVN HEAD
+comments=`echo "$comments" | tr "\n" " " | tr \" \'`
+echo "$comments" | tee -a $log_file
+echo "" | tee -a $log_file
 echo "OK. Check-in codes from svn2cvs..." | tee -a $log_file
 echo "" | tee -a $log_file
-cvs -d $bleumcvsroot commit -R -m "$project $CAT:daily update from svn2cvs."
+cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
 echo "Finished svn repository back-up job, please check the latest codes in '$cvsURL' on 192.168.2.200.." | tee -a $log_file
 echo "" | tee -a $log_file
 save-log

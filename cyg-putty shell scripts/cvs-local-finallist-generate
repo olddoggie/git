@@ -255,7 +255,7 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	while read LINE
 	do
 	cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
-	| tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"/ \"/g'
+	| tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"$/ \"/g'
 	done < $input | paste -d " " "$1".txt - > "$2"
 	# sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
 	cat "$2" | sed '/^A/ s/  ##"/ "added by Bleum: /g; /^M/ s/  ##"/ "modified by Bleum: /g; /^D/ s/  ##"/ "deleted by Bleum: /g' > "$2"
