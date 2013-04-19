@@ -37,9 +37,10 @@ svnDir=/home/svn/repos
 svnURL="file://$svnDir/$project"/"$svn_path"
 cvsURL="$project"/Sourcecode
 bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
+BINARY_FILE_TYPES="jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o"
 # grep-v cat $2 | grep -v "$LINE" > $2 has no use on RedHat Linux bash shell,change to use awk '/[]$/ {print $0}' to filter the txt/binary files
 # BINARY_FILE_TYPES = [".jpe",".jpg",".pdf",".jpeg",".png",".bmp",".gif",".ttf",".jar",".war",".ear",etc.]
-# TXT_FILE_TYPES = [".java",".jsp", ".txt", ".jhtml", ".html", ".xsd",".xml", ".properties", ".htm",".dtd",".tld",".css",".js",".tags"]
+# TXT_FILE_TYPES = [".java",".jsp", ".txt", ".jhtml", ".html", ".xsd",".xml", ".properties", ".htm",".dtd",".tld",".css",".js",".tags",".ftl"]
 # function grep-v ()
 # {
 # while read LINE
@@ -65,6 +66,10 @@ bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
 # STAT=$?
 # check_status
 # }
+function blank
+{
+echo "" | tee -a $log_file
+}
 
 function check_status
 {
@@ -133,22 +138,23 @@ source ~/bin/go $cvs_dir
 cvs st | grep "?" | grep "\." > $missing_file
 if [ ! -s $missing_file ]
  then
-	echo "" | tee -a $log_file
+	blank
 	echo "Perfect! No missing files." | tee -a $log_file
 else
-	echo "" | tee -a $log_file
+	blank
 	echo "Adding missing files..." | tee -a $log_file
-	cat $missing_file | sed 's/? /A       /g' | tee $missing_file
-	echo "" | tee -a $log_file
-	cat $missing_file | awk '/(jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o)$/ {print $0}' >  $temp
+	cat $missing_file | sed 's/? /A       /g' > $missing_file
+	cat $missing_file | tee -a $log_file
+	blank
+	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' >  $temp
 	add-kb $temp
-	cat $missing_file | awk '/(java|jsp|txt|jhtml|html|xsd|xml|properties|htm|dtd|tld|css|js|tag)$/ {print $0}' >  $temp
+	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' >  $temp
 	add-kv $temp
-	echo "" | tee -a $log_file
+	blank
 	comments="`svnlook log -r $PRE "$svnDir/$project"`" # the Missing files should have the previous missing comment.
 	comments=`echo "$comments" | tr "\n" " " | tr \" \'`
 	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
-	echo "" | tee -a $log_file
+	blank
 	echo "Added missing files, for the details, please check $missing_file." | tee -a $log_file
 fi
 STAT=$?
@@ -177,8 +183,8 @@ check_status
 
 echo "Starting back up from svn to cvs repo..."
 echo ""
-echo "" | tee -a $log_file
-echo "" | tee -a $log_file
+blank
+blank
 echo "##################################################################################################################" | tee -a $log_file
 echo "$DATE" | tee -a $log_file
 echo "for more details, please check $cron_file and $bk_dir/logs." | tee -a $log_file
@@ -186,7 +192,7 @@ echo "##########################################################################
 source ~/bin/go $bk_dir
 rm -f *.log
 echo "Reseting cvs repossitory..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 rm -rf "$cvs_dir" && mkdir "$cvs_dir"
 source ~/bin/go $cvs_repo
 if [ "$cvs_path" = "HEAD" ]
@@ -198,14 +204,14 @@ fi
 STAT=$?
 check_status
 echo "Preparing total changlist..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 declare -i CUR=`svnlook youngest "$svnDir/$project"`
 echo $CUR > $bk_dir/HEAD_VERSION
 echo "HEAD version is: $CUR" | tee -a $log_file
 if [ ! -f $bk_dir/PRE_VERSION ]
  then	
 	echo "This is the first back up time!" | tee -a $log_file
-	echo "" | tee -a $log_file
+	blank
 	declare -i PRE=0
 else
 	echo "Check sourcecode updated or not..." | tee -a $log_file
@@ -224,7 +230,7 @@ else
 	if [ $PRE -lt $CUR ]
 	 then
 		echo "Sourcecodes updated!Previous version was: $PRE,while latest vers is: $CUR"... | tee -a $log_file
-		echo "" | tee -a $log_file
+		blank
 	fi
 fi
 STAT=$?
@@ -238,67 +244,71 @@ check_status
 cat $total | grep "\." | sed 's#'"$svnURL"'/##g' > $total_file
 cat $total | grep -v "\." | sed 's#'"$svnURL"'#'"$cvs_dir"'#g' > $total_dir
 echo "Preparing newly added dirs..." | tee -a $log_file
-cat $total_dir | grep "A       " | tee $add_dir
-echo "" | tee -a $log_file
+cat $total_dir | grep "A       " > $add_dir
+cat $add_dir | tee -a $log_file
+blank
 echo "Preparing newly added binary files..." | tee -a $log_file
-cat $total_file | grep "A       "  | awk '/(jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o)$/ {print $0}' | tee $add_kb_file
-echo "" | tee -a $log_file
+cat $total_file | grep "A       "  | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' > $add_kb_file
+cat $add_kb_file | tee -a $log_file
+blank
 echo "Preparing newly added txt files..." | tee -a $log_file
-cat $total_file | grep "A       " | awk '/(java|jsp|txt|jhtml|html|xsd|xml|properties|htm|dtd|tld|css|js|tag)$/ {print $0}' | tee $add_kv_file
-echo "" | tee -a $log_file
+cat $total_file | grep "A       " | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' > $add_kv_file
+cat $add_kv_file | tee -a $log_file
+blank
 echo "Preparing removed files..." | tee -a $log_file
-cat $total_file | grep "D       " | tee $del_file
-echo "" | tee -a $log_file
+cat $total_file | grep "D       " > $del_file
+cat $del_file | tee -a $log_file
+blank
 echo "Getting latest svn codes..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 svn export --force -r HEAD "$svnURL" "$cvs_dir"
 STAT=$?
 check_status
-echo "" | tee -a $log_file
+blank
 echo "Go to cvs project sourcecode folder '$cvs_dir', prepare code check-in..." | tee -a $log_file
 source ~/bin/go "$cvs_dir"
-echo "" | tee -a $log_file
+blank
 echo "Convert eof-style from CRLF to LF in case the linux server will get dos file to be checked in, which may cause wincvs wrongly check out file from CRLF to CRCRLF..." | tee -a $log_file
-echo "" | tee -a $log_file
-find ./ -type f | awk '!/(jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o)$/ {print $0}' | xargs -i dos2unix -k {}
+blank
+find ./ -type f | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | xargs -i dos2unix -k {}
 STAT=$?
 check_status
 echo "Convertion finished." | tee -a $log_file
 # echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
 # add-d $add_dir
-echo "" | tee -a $log_file
+blank
 echo "Add-in newly added binary files from svn2cvs..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 add-kb $add_kb_file
-echo "" | tee -a $log_file
+blank
 echo "Add-in newly added txt files from svn2cvs..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 add-kv $add_kv_file
-echo "" | tee -a $log_file
+blank
 echo "Remove deleted files from svn2cvs..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 rm-f $del_file
-echo "" | tee -a $log_file
+blank
 echo "Getting comments:" | tee -a $log_file
 comments="`svnlook log "$svnDir/$project"`" # defult is the latest log of SVN HEAD
 comments=`echo "$comments" | tr "\n" " " | tr \" \'`
 echo "$comments" | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 echo "OK. Check-in codes from svn2cvs..." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
-echo "" | tee -a $log_file
+blank
 echo "Double Check whether there exist still any missing files..." | tee -a $log_file
 double-chk
-echo "" | tee -a $log_file
+blank
 echo "Finished svn repository back-up job, please check the latest codes in '$cvsURL' on 192.168.2.200.." | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 save-log
 echo "back-up logs has been recorded into $bk_dir/logs. [ALL!]" | tee -a $log_file
-echo "" | tee -a $log_file
+blank
 echo "finally,update the PRE_VERSION to '$CUR'. [OK.]" | tee -a $log_file
 mv $bk_dir/HEAD_VERSION $bk_dir/PRE_VERSION
-echo "" | tee -a $log_file
+blank
 echo "Finished." | tee -a $log_file
 cp $cron_file $bk_dir/logs/cron.log.$DATE
 echo "see you tomorrow!"

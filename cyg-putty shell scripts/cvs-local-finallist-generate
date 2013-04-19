@@ -516,13 +516,7 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-		done
-		for result in result-cs-src.txt result-cs-war.txt
-		do
 			eliminate-duplicate-amd $result
-		done
-		for target_module in cs-src cs-war
-		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -534,13 +528,7 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-		done
-		for result in result-afcollagent-src.txt result-afcollagent-war.txt result-afcsragent-src.txt result-afcsragent-war.txt result-afshared-src.txt result-afshared-war.txt
-		do
 			eliminate-duplicate-amd $result
-		done
-		for target_module in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war
-		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -552,13 +540,7 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-		done
-		for result in result-afcollagent-src.txt result-afcollagent-war.txt result-afcsragent-src.txt result-afcsragent-war.txt result-afshared-src.txt result-afshared-war.txt result-fsshared-src.txt result-services-src.txt result-services-mapping.txt
-		do
 			eliminate-duplicate-amd $result
-		done
-		for target_module in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war fsshared-src services-src services-mapping
-		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -570,13 +552,7 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-		done
-		for result in result-fscm-src.txt result-fscm-war.txt result-fsshared-src.txt result-fssplashcontent-src.txt result-fssplashcontent-war.txt result-services-src.txt result-services-mapping.txt
-		do
 			eliminate-duplicate-amd $result
-		done
-		for target_module in fscm-src fscm-war fsshared-src fssplashcontent-src fssplashcontent-war services-src services-mapping
-		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -588,13 +564,7 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-		done
-		for result in result-fsagent-src.txt result-fsagent-war.txt result-fscm-src.txt result-fscm-war.txt result-fsshared-src.txt
-		do
 			eliminate-duplicate-amd $result
-		done
-		for target_module in fsagent-src fsagent-war fscm-src fscm-war fsshared-src
-		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -606,13 +576,7 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-		done
-		for result in result-services-src.txt result-services-mapping.txt
-		do
 			eliminate-duplicate-amd $result
-		done
-		for target_module in services-src services-mapping
-		do
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""
