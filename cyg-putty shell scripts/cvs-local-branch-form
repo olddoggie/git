@@ -142,7 +142,8 @@ if [ "$fyi" = "n" -o "$fyi" = "N" ]
 fi
 if [ "$fyi" = "y" -o "$fyi" = "Y" ]
  then
-	echo "creating branch on whole project folder..."
+	echo "creating branch on whole project folder..." 
+	# Rational is local only file always keep latest version on branch, so based on HEAD, create branch on these files, and the specific files will not be overwritten, since they've already been branched before.
 	echo ""
 	case "$1" in
   		"cs")
@@ -177,10 +178,14 @@ if [ "$fyi" = "y" -o "$fyi" = "Y" ]
 				create-branch "$folder_path" HEAD $branchname
 			done
 		;;
+		*)
+			echo "Not implemented yet..."
+		;;		
 	esac
 	break
 else
 	echo "I don't know your choice, yes or no?...."
+	fyi=y
 	continue
 fi
 done
