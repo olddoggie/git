@@ -2,7 +2,7 @@
 # This script is used for assisting CM Rep to strictly follow 1fb odc branch form when creating a branch
 echo "Rationale is cvs rtag -r <tagroot> -<command> <tagname> project module"
 echo "Branch Root tag convention should be: BLEUM_<MODULE>_BRCHROOT_<DATE>_<SN> e.g.BLEUM_CS_BRCHROOT_11112012_1 "
-echo "Branch Name convention usually be: <MODULE>_<Version>_<version>_<special suffix> e.g. AFF_3_50_Porting/FS_7_50"
+echo "Branch Name convention usually be: <MODULE>_<Version>_<version>_<special suffix> e.g. AFF_3_60/FS_7_50"
 echo "!! After tag operation finishes, Do double check whether the tag operation is really and truely done correctly !!"
 echo "first param is cvs module/project baseline folder(cs/af/fs750/fs/services ...)"
 echo "second param is the target branch name you want to create"
@@ -129,8 +129,61 @@ fi
 function fyi-notice ()
 {
 echo "just FYI............"
-echo "If needed, besides 'src' and 'war' module, create the branch based on 'whole folder'."
+fyi=y
+while [ "$fyi" == "y" -o "$fyi" == "Y"  ] 
+do
+read -p "If needed, besides 'src' and 'war' module, create the branch based on 'whole folder',ok? y.Yes n.No :" fyi
+echo ""
+if [ "$fyi" = "n" -o "$fyi" = "N" ]
+ then
+	echo "If needed, you still can create the branch based on 'whole folder'."
+	break
+fi
+if [ "$fyi" = "y" -o "$fyi" = "Y" ]
+ then
+	echo "creating branch on whole project folder..."
+	echo ""
+	case "$1" in
+  		"cs")
+			folder_path="csmaintenance/3.50/SourceCodeUBS"
+			create-branch "$folder_path" HEAD $branchname
+		;;
+  		"services")
+			folder_path="services/Sourcecode"
+			create-branch "$folder_path" HEAD $branchname
+		;;		
+		"af")
+			for folder_path in "affinity/sourcecode/afcollagent" "affinity/sourcecode/afcsragent" "affinity/sourcecode/afshared"
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;	
+		"fs")
+			for folder_path in "fs/Sourcecode/fsagent" "fs/Sourcecode/fscm" "fs/Sourcecode/fsshared"
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;
+		"fs750")
+			for folder_path in "fs/Sourcecode/fscm" "fs/Sourcecode/fssplashcontent" "fs/Sourcecode/fsshared" "services/Sourcecode"
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;			
+		"af360")
+			for folder_path in "affinity/sourcecode/afcollagent" "affinity/sourcecode/afcsragent" "affinity/sourcecode/afshared" "fs/Sourcecode/fsshared" "services/Sourcecode"
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;
+	esac
+	break
+else
+	echo "I don't know your choice, yes or no?...."
+	continue
+fi
 echo "OK..................."
+done
 }
 
 case $module in
@@ -151,7 +204,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice af 
 			;;
   "cs")
   			module="cs/src,cs/war"
@@ -170,7 +223,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice CS
 			;;
   "services")
   			module="services/src,services/mapping"
@@ -189,8 +242,27 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice services
 			;;
+  "af360")
+  			module="afcollagent/src,afcollagent/war,afcsragent/war,afcsragent/src,afshared/src,afshared/war,fsshared/src,services/src,services/mapping"
+			variable-declaration
+			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war" "fs/Sourcecode/fsshared/src" "services/Sourcecode/src" "services/Sourcecode/mapping"
+			do
+			read -p "input n to Skip whole Branch Creation on '$target_module'...................... " sk
+			if [ "$sk" = "n" -o "$sk" = "N" ]
+			 then
+			echo "Loop to next module."
+			else
+			echo ""				
+			input-command-tag
+			input-command-brch
+			input-command-chk
+			echo ""
+			fi
+			done
+			fyi-notice af360
+			;;			
   "fs750")
   			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
 			variable-declaration  			
@@ -208,7 +280,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice fs750
 			;;
   "fs")
    			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
@@ -227,7 +299,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice fs
 			;;			
 	*)
 			variable-declaration
@@ -243,6 +315,5 @@ case $module in
 			input-command-chk
 			echo ""
 			fi
-			fyi-notice
 			;;
 esac
