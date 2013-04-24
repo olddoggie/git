@@ -132,6 +132,7 @@ echo "just FYI............"
 fyi=y
 while [ "$fyi" == "y" -o "$fyi" == "Y"  ] 
 do
+echo ""
 read -p "If needed, besides 'src' and 'war' module, create the branch based on 'whole folder',ok? y.Yes n.No :" fyi
 echo ""
 if [ "$fyi" = "n" -o "$fyi" = "N" ]
@@ -182,8 +183,9 @@ else
 	echo "I don't know your choice, yes or no?...."
 	continue
 fi
-echo "OK..................."
 done
+echo ""
+echo "OK..................."
 }
 
 case $module in
@@ -223,7 +225,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice CS
+			fyi-notice cs
 			;;
   "services")
   			module="services/src,services/mapping"
