@@ -11,7 +11,7 @@ AF360=AFF_3_60		 				# update often
 AF360_services=AFF_3_60_CAT1		# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS815Pretag=BLEUM_CS_RT_04252013_1 					# update often
+CS815Pretag=BLEUM_CS_RT_04252013_2 					# update often
 AF360Pretag=BLEUM_AFFINITY_CAT3_04192013_1			# update often
 AF360_CAT1tag=BLEUM_AFFINITY_CAT1_03152013_1    	# not update often
 AF360_services_root=BLEUM_FS_SYNC_02162013_1		# not update often
@@ -79,10 +79,10 @@ do
 cvs-rdiff-by-tag $AF360Pretag $AF360_services $module6
 done
 
-# for module5 in cs/src cs/war
-# do
-# cvs-rdiff-by-tag $CS815Pretag $CS815 $module5
-# done
+for module5 in cs/src cs/war
+do
+cvs-rdiff-by-tag $CS815Pretag $CS815 $module5
+done
 
 # for module6 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
 # do
