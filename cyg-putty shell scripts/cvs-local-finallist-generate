@@ -256,14 +256,17 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	do
 	cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
 	| tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"$/ \"/g'
-	done < $input | paste -d " " "$1".txt - > "$2"
+	done < $input | paste -d " " "$1".txt - > "$2"	
 	# sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
+	echo ""
+	echo "Now checking whether there is any duplicate comments in file list..."
+	source ~/bin/clean-ruby-cvslog "$2"
 	cat "$2" | sed '/^A/ s/  ##"/ "added by Bleum: /g; /^M/ s/  ##"/ "modified by Bleum: /g; /^D/ s/  ##"/ "deleted by Bleum: /g' > "$2"
 	echo ""
 	echo "====== file list '$2' generated initially, file num is ========"
 	cat "$2" | wc -l
 	fi
-	echo ""	
+	echo ""
 break
 else
 	read -p "Confirm whether you really wanna combine all file list to make a final one for '$1' CAT release? input n to Skip/input y or blank to do it again...................... " sk
@@ -465,13 +468,24 @@ if [ "$sk" = "n" -o "$sk" = "N" ]
 else
 	echo "Start generate CVS final update filelist ..."
 	echo ""
+	chk=n
+	while [ "$chk" == "n" -o "$chk" == "N"  ] 
+	do
 	echo "======================================================================"
 	read -p "Module Name,e.g.cs/af/fs750/fs/services: " mn
 	read -p "Previous CAT tag,e.g.BLEUM_FS_CAT3_12262012_1: " ptg
 	read -p "Current CAT head/branch/tag,e.g.HEAD/FS_7_50: " ctg
-	read -p "Input finish..Module is '$mn',Pre-tag is '$ptg',Current tag is '$ctg'..Press Enter"
-	read -p "If any input typo, don't worry, mannually do source ~/bin/cvs-local-check-update to get the CVS final list..Press Enter"
-	echo "======================================================================"
+	read -p "If any input typo, don't worry, manually do source ~/bin/cvs-local-check-update to get the CVS final list..Press Enter"
+	echo "----------------------------"
+	read -p "Input finish..Module is '$mn',Pre-tag is '$ptg',Current tag is '$ctg'..Press Enter/Input 'n' to re-input: " chk
+	if [ "$chk" == "n" -o "$chk" == "N" ]
+	 then
+		continue
+	else
+		break
+	fi
+	done
+	echo "======================================================================"	
 	source ~/bin/cvs-local-check-update $mn $ptg $ctg
 	echo ""
 	echo "Start final check..."	
