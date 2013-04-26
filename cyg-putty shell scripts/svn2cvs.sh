@@ -41,31 +41,15 @@ BINARY_FILE_TYPES="jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|
 # grep-v cat $2 | grep -v "$LINE" > $2 has no use on RedHat Linux bash shell,change to use awk '/[]$/ {print $0}' to filter the txt/binary files
 # BINARY_FILE_TYPES = [".jpe",".jpg",".pdf",".jpeg",".png",".bmp",".gif",".ttf",".jar",".war",".ear",etc.]
 # TXT_FILE_TYPES = [".java",".jsp", ".txt", ".jhtml", ".html", ".xsd",".xml", ".properties", ".htm",".dtd",".tld",".css",".js",".tags",".ftl"]
-# function grep-v ()
+
+# function readline ()
 # {
 # while read LINE
 # do
-# cat $2 | grep -v "$LINE" > $2
+# cmd.
 # done < $1
 # }
-# below function is replaced by function confirm-d because it is not accurate for SVN OP project
-# 'cause SVN generate added dir for each diff, but some empty dirs have been added into SVN Repo at first, while first imported into CVS Repo, the empty dirs will NOT be added,actully, the dirs which not newly added between svn diff will not be added again in function add-d, that's why the script is not so accurate.
-# function add-d ()
-# {
-# cat $1 | sed 's/A       //g' | sort -u > $1
-# while read LINE
-# do
-# if [ ! -d $LINE/CVS ]
- # then
-	# cvs -d $bleumcvsroot add "$LINE"
-	# echo "directory '$LINE' added..."
-# else
-	# echo "go to next line..."
-# fi
-# done < $1
-# STAT=$?
-# check_status
-# }
+
 function blank
 {
 echo "" | tee -a $log_file
@@ -97,9 +81,18 @@ STAT=$?
 check_status
 }
 
+function add-d ()
+{
+while read LINE
+do
+confirm-d "$LINE"
+done < $1
+STAT=$?
+check_status
+}
+
 function add-kb ()
 {
-cat $1 | sed 's/A       //g' | sort -u > $1
 while read LINE
 do
 confirm-d "$LINE"
@@ -111,7 +104,6 @@ check_status
 
 function add-kv ()
 {
-cat $1 | sed 's/A       //g' | sort -u > $1
 while read LINE
 do
 confirm-d "$LINE"
@@ -123,7 +115,6 @@ check_status
 
 function rm-f ()
 {
-cat $1 | sed 's/D       //g' | sort -u > $1
 while read LINE
 do
 cvs -d $bleumcvsroot rm -f "$LINE"
@@ -146,9 +137,9 @@ else
 	cat $missing_file | sed 's/? /A       /g' > $missing_file
 	cat $missing_file | tee -a $log_file
 	blank
-	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' >  $temp
+	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
 	add-kb $temp
-	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' >  $temp
+	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
 	add-kv $temp
 	blank
 	comments="`svnlook log -r $PRE "$svnDir/$project"`" # the Missing files should have the previous missing comment.
@@ -242,7 +233,7 @@ check_status
 #-->
 #M       src/main/java/com/onefb/op/controllers/controllers/auth/LoginAjaxController.java
 cat $total | grep "\." | sed 's#'"$svnURL"'/##g' > $total_file
-cat $total | grep -v "\." | sed 's#'"$svnURL"'#'"$cvs_dir"'#g' > $total_dir
+cat $total | grep -v "\." | sed 's#'"$svnURL"'/##g' > $total_dir
 echo "Preparing newly added dirs..." | tee -a $log_file
 cat $total_dir | grep "A       " > $add_dir
 cat $add_dir | tee -a $log_file
@@ -274,19 +265,25 @@ find ./ -type f | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | xargs -i dos2u
 STAT=$?
 check_status
 echo "Convertion finished." | tee -a $log_file
-# echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
-# add-d $add_dir
+blank
+echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
+blank
+cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' > $add_dir
+add-d $add_dir
 blank
 echo "Add-in newly added binary files from svn2cvs..." | tee -a $log_file
 blank
+cat $add_kb_file | sed 's/A       //g' | sort -u > $add_kb_file
 add-kb $add_kb_file
 blank
 echo "Add-in newly added txt files from svn2cvs..." | tee -a $log_file
 blank
+cat $add_kv_file | sed 's/A       //g' | sort -u > $add_kv_file
 add-kv $add_kv_file
 blank
 echo "Remove deleted files from svn2cvs..." | tee -a $log_file
 blank
+cat $del_file | sed 's/D       //g' | sort -u > $del_file
 rm-f $del_file
 blank
 echo "Getting comments:" | tee -a $log_file
