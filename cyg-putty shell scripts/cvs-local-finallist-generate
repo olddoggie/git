@@ -42,16 +42,26 @@ fi
 
 function initial ()
 {
-if [ -d $dir ]
-  then
-	rm -rf $dir
-fi
-echo "Creating directory final-file-list..."
-mkdir $dir
-mkdir $result_folder
-source ~/bin/go $dir
-echo "Initializing finished..."
+echo "Initializing the working space '$dir'..."
 echo ""
+read -p "input n to Skip, if you really don't wanna reset the working space, be very careful to Skip this!...................... " sk
+echo ""
+if [ "$sk" = "n" -o "$sk" = "N" ]
+ then
+	echo "Skip."
+	echo ""
+else
+	if [ -d $dir ]
+	  then
+		rm -rf $dir
+	fi
+	echo "Creating directory final-file-list..."
+	mkdir $dir
+	mkdir $result_folder
+	source ~/bin/go $dir
+	echo "Initializing finished..."
+	echo ""
+fi
 }
 
 function check_sum ()

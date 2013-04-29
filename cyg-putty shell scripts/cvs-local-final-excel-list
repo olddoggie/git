@@ -40,7 +40,7 @@ echo "Initializing the working space '$result_folder'..."
 echo ""
 source ~/bin/go $result_folder
 echo ""	
-read -p "input n to Skip,if you really don't wanna transfer txt again, also Skip next step...................... " sk
+read -p "input n to Skip, if you really don't wanna transfer txt again, also Skip next step...................... " sk
 if [ "$sk" = "n" -o "$sk" = "N" ]
  then
 	echo "Skip."
@@ -168,7 +168,7 @@ else
 	echo "OK."
 	echo ""
 	echo "1+.Then roll back original file '$1' by deleting '$2' at front in order to make file list clear.."
-	cat "$1" | sed 's#A    '"$2"'/#A    #g ; s#AB   '"$2"'/#AB   #g ; s#M    '"$2"'/#M    #g ; s#D    '"$2"'/#D    #g' > "$1"
+	cat "$temp" | sed 's#A    '"$2"'/#A    #g ; s#AB   '"$2"'/#AB   #g ; s#M    '"$2"'/#M    #g ; s#D    '"$2"'/#D    #g' > "$temp"
 	echo ""	
 	echo "2.Using tab to seperate each keyword in the list..."
 	echo ""
