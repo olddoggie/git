@@ -25,4 +25,4 @@ if [[ -s "$temporary" ]]
 	fi
 echo "Ok."
 fi
-rm -f "$temporary"  
+rm -f "$temporary"
