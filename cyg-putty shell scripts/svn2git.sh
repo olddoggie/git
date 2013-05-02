@@ -35,12 +35,14 @@ export PATH=$PATH:/usr/local/bin
 author="$1 <$1@bleum.com>"
 comment="$2"
 BINARY_FILE_TYPES="jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o"
+svn_home=/home/svn/repos/openproperty
 svn_repo="file:///home/svn/repos/openproperty/trunk/OpenProperty"
 git_repo=/home/svn/git-svn/openproperty
 
 svn export --force -r HEAD $svn_repo $git_repo/OpenProperty
 
 source ~/bin/go $git_repo
+svnlook changed $svn_home | grep "D   " |  sed 's#D.*   trunk/##g' | xargs -i git rm -rf --ignore-unmatch {}
 find ./OpenProperty -type f | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | xargs -i dos2unix -k {}
 
-git add -A && git commit -m "$comment" --author="$author" && git push origin master
+git add -A && git commit -m "$comment" --author="$author" && git push origin master 
