@@ -137,16 +137,16 @@ else
 	cat $missing_file | sed 's/? /A       /g' > $missing_file
 	cat $missing_file | tee -a $log_file
 	blank
-	echo "..."	
+	read -p "generate missing_file----------> " -t 3
 	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
-	echo "==================================================="
+	read -p "===================================================" -t 3
 	add-kb $temp
-	echo "==================================================="
-	echo "..."
+	read -p "===================================================" -t 3
+	read -p "generate missing_file----------> " -t 3
 	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
-	echo "==================================================="
+	read -p "===================================================" -t 3
 	add-kv $temp
-	echo "==================================================="
+	read -p "===================================================" -t 3
 	blank
 	comments="`svnlook log -r $PRE "$svnDir/$project"`" # the Missing files should have the previous missing comment.
 	comments=`echo "$comments" | tr "\n" " " | tr \" \'`
@@ -269,19 +269,19 @@ source ~/bin/go "$cvs_dir"
 blank
 echo "1. Remove deleted files from svn2cvs..." | tee -a $log_file
 blank
-echo "..."
+read -p "generate del_file----------> " -t 3
 cat $del_file | sed 's/D       //g' | sort -u > $del_file
-echo "==================================================="
+read -p "===================================================" -t 3
 rm-f $del_file
-echo "==================================================="
+read -p "===================================================" -t 3
 blank
 echo "2. Add-in newly added dirs from svn2cvs..." | tee -a $log_file
 blank
-echo "..."
+read -p "generate add_dir----------> " -t 3
 cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' > $add_dir
-echo "==================================================="
+read -p "===================================================" -t 3
 add-d $add_dir
-echo "==================================================="
+read -p "===================================================" -t 3
 blank
 echo "3. Convert eof-style from CRLF to LF in case the linux server will get dos file to be checked in, which may cause wincvs wrongly check out file from CRLF to CRCRLF..." | tee -a $log_file
 blank
@@ -292,19 +292,19 @@ echo "Convertion finished." | tee -a $log_file
 blank
 echo "4.1 Add-in newly added binary files from svn2cvs..." | tee -a $log_file
 blank
-echo "..."
+read -p "generate add-kb----------> " -t 3
 cat $add_kb_file | sed 's/A       //g' | sort -u > $add_kb_file
-echo "==================================================="
+read -p "===================================================" -t 3
 add-kb $add_kb_file
-echo "==================================================="
+read -p "===================================================" -t 3
 blank
 echo "4.2 Add-in newly added txt files from svn2cvs..." | tee -a $log_file
 blank
-echo "..."
+read -p "generate add-kv----------> " -t 3
 cat $add_kv_file | sed 's/A       //g' | sort -u > $add_kv_file
-echo "==================================================="
+read -p "===================================================" -t 3
 add-kv $add_kv_file
-echo "==================================================="
+read -p "===================================================" -t 3
 blank
 echo "5. Getting comments:" | tee -a $log_file
 comments="`svnlook log "$svnDir/$project"`" # defult is the latest log of SVN HEAD
