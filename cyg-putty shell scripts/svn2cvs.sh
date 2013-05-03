@@ -138,13 +138,19 @@ else
 	cat $missing_file | tee -a $log_file
 	blank
 	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
+	echo "==================================================="
 	add-kb $temp
+	echo "==================================================="
 	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
+	echo "==================================================="
 	add-kv $temp
+	echo "==================================================="
 	blank
 	comments="`svnlook log -r $PRE "$svnDir/$project"`" # the Missing files should have the previous missing comment.
 	comments=`echo "$comments" | tr "\n" " " | tr \" \'`
+	echo "==================================================="
 	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
+	echo "==================================================="
 	blank
 	echo "Added missing files, for the details, please check $missing_file." | tee -a $log_file
 fi
@@ -259,43 +265,57 @@ blank
 echo "Go to cvs project sourcecode folder '$cvs_dir', prepare code check-in..." | tee -a $log_file
 source ~/bin/go "$cvs_dir"
 blank
-echo "Convert eof-style from CRLF to LF in case the linux server will get dos file to be checked in, which may cause wincvs wrongly check out file from CRLF to CRCRLF..." | tee -a $log_file
+echo "1. Remove deleted files from svn2cvs..." | tee -a $log_file
+blank
+echo "..."
+cat $del_file | sed 's/D       //g' | sort -u > $del_file
+echo "==================================================="
+rm-f $del_file
+echo "==================================================="
+blank
+echo "2. Add-in newly added dirs from svn2cvs..." | tee -a $log_file
+blank
+echo "..."
+cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' > $add_dir
+echo "==================================================="
+add-d $add_dir
+echo "==================================================="
+blank
+echo "3. Convert eof-style from CRLF to LF in case the linux server will get dos file to be checked in, which may cause wincvs wrongly check out file from CRLF to CRCRLF..." | tee -a $log_file
 blank
 find ./ -type f | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | xargs -i dos2unix -k {}
 STAT=$?
 check_status
 echo "Convertion finished." | tee -a $log_file
 blank
-echo "Add-in newly added dirs from svn2cvs..." | tee -a $log_file
+echo "4.1 Add-in newly added binary files from svn2cvs..." | tee -a $log_file
 blank
-cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' > $add_dir
-add-d $add_dir
-blank
-echo "Add-in newly added binary files from svn2cvs..." | tee -a $log_file
-blank
+echo "..."
 cat $add_kb_file | sed 's/A       //g' | sort -u > $add_kb_file
+echo "==================================================="
 add-kb $add_kb_file
+echo "==================================================="
 blank
-echo "Add-in newly added txt files from svn2cvs..." | tee -a $log_file
+echo "4.2 Add-in newly added txt files from svn2cvs..." | tee -a $log_file
 blank
+echo "..."
 cat $add_kv_file | sed 's/A       //g' | sort -u > $add_kv_file
+echo "==================================================="
 add-kv $add_kv_file
+echo "==================================================="
 blank
-echo "Remove deleted files from svn2cvs..." | tee -a $log_file
-blank
-cat $del_file | sed 's/D       //g' | sort -u > $del_file
-rm-f $del_file
-blank
-echo "Getting comments:" | tee -a $log_file
+echo "5. Getting comments:" | tee -a $log_file
 comments="`svnlook log "$svnDir/$project"`" # defult is the latest log of SVN HEAD
 comments=`echo "$comments" | tr "\n" " " | tr \" \'`
 echo "$comments" | tee -a $log_file
 blank
-echo "OK. Check-in codes from svn2cvs..." | tee -a $log_file
+echo "6. Check-in codes from svn2cvs..." | tee -a $log_file
 blank
+echo "==================================================="
 cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
+echo "==================================================="
 blank
-echo "Double Check whether there exist still any missing files..." | tee -a $log_file
+echo "OK. Double Check whether there exist still any missing files..." | tee -a $log_file
 double-chk
 blank
 echo "Finished svn repository back-up job, please check the latest codes in '$cvsURL' on 192.168.2.200.." | tee -a $log_file
@@ -308,4 +328,4 @@ mv $bk_dir/HEAD_VERSION $bk_dir/PRE_VERSION
 blank
 echo "Finished." | tee -a $log_file
 cp $cron_file $bk_dir/logs/cron.log.$DATE
-echo "see you tomorrow!"
+echo "see you tomorrow!" 
