@@ -137,10 +137,12 @@ else
 	cat $missing_file | sed 's/? /A       /g' > $missing_file
 	cat $missing_file | tee -a $log_file
 	blank
+	echo "..."	
 	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
 	echo "==================================================="
 	add-kb $temp
 	echo "==================================================="
+	echo "..."
 	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
 	echo "==================================================="
 	add-kv $temp
