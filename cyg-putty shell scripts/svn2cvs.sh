@@ -113,7 +113,7 @@ STAT=$?
 check_status
 }
 
-function rm-f ()
+function remove-f ()
 {
 while read LINE
 do
@@ -125,6 +125,8 @@ check_status
 
 function double-chk ()
 {
+blank
+echo "Is there any missing files which need be added but not yet..."
 source ~/bin/go $cvs_dir
 cvs st | grep "?" | grep "\." > $missing_file
 if [ ! -s $missing_file ]
@@ -139,7 +141,7 @@ else
 	blank
 	echo "generate missing_file-kb----------> "
 	read -t 3
-	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
+	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee  $temp
 	echo "==================================================="
 	read -t 3
 	add-kb $temp
@@ -147,15 +149,14 @@ else
 	read -t 3
 	echo "generate missing_file-kv----------> "
 	read -t 3
-	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u >  $temp
+	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee  $temp
 	echo "==================================================="
 	read -t 3
 	add-kv $temp
 	echo "==================================================="
 	read -t 3
 	blank
-	comments="`svnlook log -r $PRE "$svnDir/$project"`" # the Missing files should have the previous missing comment.
-	comments=`echo "$comments" | tr "\n" " " | tr \" \'`
+	echo "checking in missing_add_file----------> "
 	echo "==================================================="
 	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
 	echo "==================================================="
@@ -164,6 +165,33 @@ else
 fi
 STAT=$?
 check_status
+blank
+echo "Is there any remaining files which need be deleted but not yet..."
+blank
+while read LINE
+do
+if [ -f "$LINE" ]
+ then	
+	echo "Deleting remaining files..." | tee -a $log_file
+	echo "Deleting----------> "
+	read -t 3
+	echo "==================================================="
+	cat $del_file | xargs cvs -d $bleumcvsroot rm -f
+	echo "==================================================="
+	echo "Check-in----------> "
+	read -t 3
+	echo "==================================================="
+	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
+	echo "==================================================="
+	break
+else
+	echo "Perfect! "$LINE" has already been deleted!" | tee -a $log_file
+fi
+done < $del_file
+STAT=$?
+check_status
+blank
+echo "Wonderful!" | tee -a $log_file
 }
 
 function save-log ()
@@ -277,10 +305,10 @@ echo "1. Remove deleted files from svn2cvs..." | tee -a $log_file
 blank
 echo "generate del_file----------> "
 read -t 3
-cat $del_file | sed 's/D       //g' | sort -u > $del_file
+cat $del_file | sed 's/D       //g' | sort -u | tee $del_file
 echo "==================================================="
 read -t 3
-rm-f $del_file
+remove-f $del_file
 echo "==================================================="
 read -t 3
 blank
@@ -288,7 +316,7 @@ echo "2. Add-in newly added dirs from svn2cvs..." | tee -a $log_file
 blank
 echo "generate add_dir----------> "
 read -t 3
-cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' > $add_dir
+cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' | tee $add_dir
 echo "==================================================="
 read -t 3
 add-d $add_dir
@@ -306,7 +334,7 @@ echo "4.1 Add-in newly added binary files from svn2cvs..." | tee -a $log_file
 blank
 echo "generate add-kb----------> "
 read -t 3
-cat $add_kb_file | sed 's/A       //g' | sort -u > $add_kb_file
+cat $add_kb_file | sed 's/A       //g' | sort -u | tee $add_kb_file
 echo "==================================================="
 read -t 3
 add-kb $add_kb_file
@@ -317,7 +345,7 @@ echo "4.2 Add-in newly added txt files from svn2cvs..." | tee -a $log_file
 blank
 echo "generate add-kv----------> "
 read -t 3
-cat $add_kv_file | sed 's/A       //g' | sort -u > $add_kv_file
+cat $add_kv_file | sed 's/A       //g' | sort -u | tee $add_kv_file
 echo "==================================================="
 read -t 3
 add-kv $add_kv_file
@@ -338,7 +366,7 @@ blank
 echo "OK. Double Check whether there exist still any missing files..." | tee -a $log_file
 double-chk
 blank
-echo "Finished svn repository back-up job, please check the latest codes in '$cvsURL' on 192.168.2.200.." | tee -a $log_file
+echo "Finished svn repository back-up job, please fetch the latest codes in '$cvsURL' on 192.168.2.200.." | tee -a $log_file
 blank
 save-log
 echo "back-up logs has been recorded into $bk_dir/logs. [ALL!]" | tee -a $log_file
