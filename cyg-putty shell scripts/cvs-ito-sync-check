@@ -11,7 +11,7 @@ AF360=AFF_3_60		 				# update often
 AF360_services=AFF_3_60_CAT1		# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS816Pretag=BLEUM_CS_SYNC_05152013_1 				# update often
+CS816Pretag=BLEUM_CS_ST_05202013_1 				# update often
 AF360Pretag=BLEUM_AFFINITY_CAT3_04192013_1			# update often
 AF360_CAT1tag=BLEUM_AFFINITY_CAT1_03152013_1    	# not update often
 AF360_services_root=BLEUM_FS_SYNC_02162013_1		# not update often
