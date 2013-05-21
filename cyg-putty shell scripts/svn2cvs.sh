@@ -137,7 +137,7 @@ if [ ! -s $missing_file ]
 else
 	blank
 	echo "Adding missing files..." | tee -a $log_file
-	cat $missing_file | sed 's/? /A       /g' > $missing_file
+	cat $missing_file | sed 's/? /A       /g' | tee $missing_file
 	cat $missing_file | tee -a $log_file
 	blank
 	echo "generate missing_file-kb----------> "
