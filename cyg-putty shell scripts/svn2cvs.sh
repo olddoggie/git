@@ -30,7 +30,7 @@ add_dir=$bk_dir/add_dir.log
 add_kb_file=$bk_dir/add_kb_file.log
 add_kv_file=$bk_dir/add_kv_file.log
 del_file=$bk_dir/del_file.log
-missing_file=$bk_dir/missing.log
+missing_file=$bk_dir/missing_file.log
 cvs_repo=/home/svn/cvs
 cvs_dir=/home/svn/cvs/"$project"
 svnDir=/home/svn/repos
@@ -129,6 +129,7 @@ blank
 echo "Is there any missing files which need be added but not yet..."
 source ~/bin/go $cvs_dir
 cvs st | grep "?" | grep "\." > $missing_file
+read -t 3
 if [ ! -s $missing_file ]
  then
 	blank
@@ -161,7 +162,7 @@ else
 	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
 	echo "==================================================="
 	blank
-	echo "Added missing files, for the details, please check $missing_file." | tee -a $log_file
+	echo "Added missing files, for the details, please check $missing_file" | tee -a $log_file
 fi
 STAT=$?
 check_status
@@ -206,7 +207,7 @@ while read LINE
 do
 if [ -s $LINE ]
  then
-	mv $LINE $bk_dir/logs/$LINE.$DATE
+	cp $LINE $bk_dir/logs/$LINE.$DATE
 fi
 done < $temp
 rm -f *.log
