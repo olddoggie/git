@@ -8,7 +8,7 @@
 echo "Rationale is svn diff -c --summarize,svn export,get \$line function and cvs basic commands...."
 echo ""
 echo "first param is svn project name (e.g.openproperty ...)"
-echo "second param is the CAT name which will be used when draft commit comment (e.g. CAT1.... )"
+echo "second param is the CAT name which will be used when draft commit comments (e.g. CAT1.... )"
 echo "third param is the target path of the sourcecodes subfolder in SVN project folder (e.g. trunk,trunk/OpenProperty.... )"
 echo "forth param is the CVS HEAD/branch/tag name which you check codes into in CVS project folder (e.g. HEAD.... )"
 echo "Initializing..."
@@ -85,6 +85,7 @@ function add-d ()
 {
 while read LINE
 do
+read -t 1
 confirm-d "$LINE"
 done < $1
 STAT=$?
@@ -95,6 +96,7 @@ function add-kb ()
 {
 while read LINE
 do
+read -t 1
 confirm-d "$LINE"
 cvs -d $bleumcvsroot add -kb "$LINE"
 done < $1
@@ -106,6 +108,7 @@ function add-kv ()
 {
 while read LINE
 do
+read -t 1	
 confirm-d "$LINE"
 cvs -d $bleumcvsroot add "$LINE"
 done < $1
@@ -117,7 +120,23 @@ function remove-f ()
 {
 while read LINE
 do
+read -t 1	
 cvs -d $bleumcvsroot rm -f "$LINE"
+done < $1
+STAT=$?
+check_status
+}
+
+function commit-each ()
+{
+while read LINE
+do
+comment="`svn log "$svnURL/$LINE"`" # defult is the latest log of SVN HEAD
+comment="`echo "$comment" | tr "\n" " " | tr \" \'`"
+echo "commit for $LINE --> $comment ." | tee -a $log_file
+blank
+read -t 1
+cvs -d $bleumcvsroot commit -m "$project $CAT: daily update from svn2cvs: $comment" "$LINE"
 done < $1
 STAT=$?
 check_status
@@ -129,7 +148,6 @@ blank
 echo "Is there any missing files which need be added but not yet..."
 source ~/bin/go $cvs_dir
 cvs st | grep "?" | grep "\." > $missing_file
-read -t 3
 if [ ! -s $missing_file ]
  then
 	blank
@@ -141,25 +159,20 @@ else
 	cat $missing_file | tee -a $log_file
 	blank
 	echo "generate missing_file-kb----------> "
-	read -t 3
-	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee  $temp
+	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee $temp
 	echo "==================================================="
-	read -t 3
 	add-kb $temp
 	echo "==================================================="
-	read -t 3
 	echo "generate missing_file-kv----------> "
-	read -t 3
-	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee  $temp
+	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee $temp
 	echo "==================================================="
-	read -t 3
 	add-kv $temp
 	echo "==================================================="
-	read -t 3
 	blank
 	echo "checking in missing_add_file----------> "
 	echo "==================================================="
-	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
+	cat $missing_file | sed 's/A       //g' | sort -u | tee $temp
+	commit-each $temp
 	echo "==================================================="
 	blank
 	echo "Added missing files, for the details, please check $missing_file" | tee -a $log_file
@@ -175,12 +188,10 @@ if [ -f "$LINE" ]
  then	
 	echo "Deleting remaining files..." | tee -a $log_file
 	echo "Deleting----------> "
-	read -t 3
 	echo "==================================================="
 	cat $del_file | xargs cvs -d $bleumcvsroot rm -f
 	echo "==================================================="
 	echo "Check-in----------> "
-	read -t 3
 	echo "==================================================="
 	cvs -d $bleumcvsroot commit -R -m "$project $CAT: daily update from svn2cvs: $comments"
 	echo "==================================================="
@@ -305,24 +316,18 @@ blank
 echo "1. Remove deleted files from svn2cvs..." | tee -a $log_file
 blank
 echo "generate del_file----------> "
-read -t 3
 cat $del_file | sed 's/D       //g' | sort -u | tee $del_file
 echo "==================================================="
-read -t 3
 remove-f $del_file
 echo "==================================================="
-read -t 3
 blank
 echo "2. Add-in newly added dirs from svn2cvs..." | tee -a $log_file
 blank
 echo "generate add_dir----------> "
-read -t 3
 cat $add_dir | sed 's/A       //g' | sort -u | awk '{print $0"/"}' | tee $add_dir
 echo "==================================================="
-read -t 3
 add-d $add_dir
 echo "==================================================="
-read -t 3
 blank
 echo "3. Convert eof-style from CRLF to LF in case the linux server will get dos file to be checked in, which may cause wincvs wrongly check out file from CRLF to CRCRLF..." | tee -a $log_file
 blank
@@ -334,28 +339,22 @@ blank
 echo "4.1 Add-in newly added binary files from svn2cvs..." | tee -a $log_file
 blank
 echo "generate add-kb----------> "
-read -t 3
 cat $add_kb_file | sed 's/A       //g' | sort -u | tee $add_kb_file
 echo "==================================================="
-read -t 3
 add-kb $add_kb_file
 echo "==================================================="
-read -t 3
 blank
 echo "4.2 Add-in newly added txt files from svn2cvs..." | tee -a $log_file
 blank
 echo "generate add-kv----------> "
-read -t 3
 cat $add_kv_file | sed 's/A       //g' | sort -u | tee $add_kv_file
 echo "==================================================="
-read -t 3
 add-kv $add_kv_file
 echo "==================================================="
-read -t 3
 blank
 echo "5. Getting comments:" | tee -a $log_file
 comments="`svnlook log "$svnDir/$project"`" # defult is the latest log of SVN HEAD
-comments=`echo "$comments" | tr "\n" " " | tr \" \'`
+comments="`echo "$comments" | tr "\n" " " | tr \" \'`"
 echo "$comments" | tee -a $log_file
 blank
 echo "6. Check-in codes from svn2cvs..." | tee -a $log_file
