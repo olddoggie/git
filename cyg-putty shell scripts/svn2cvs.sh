@@ -68,15 +68,18 @@ function check_status
 function confirm-d ()
 {
 declare -i k=`echo "$1" | awk -F '/' '{print NF}'`-1
-for (( i=1; i<=k; i++ )); do
-	cvsdir="`echo "$1" | awk -F '/' '{ {for(j=1; j<='$i'; j++) printf "%s/",$j} print "CVS"}'`"
-	namedir="`echo "$cvsdir" | sed 's#/CVS$##g'`"
-	if [ ! -d "$cvsdir" ]
-	 then
-		cvs -d $bleumcvsroot add "$namedir"
-		echo "directory '$namedir' added..."
-	fi
-done
+if [[ ! k = 0 ]]
+ then
+	for (( i=1; i<=k; i++ )); do
+		cvsdir="`echo "$1" | awk -F '/' '{ {for(j=1; j<='$i'; j++) printf "%s/",$j} print "CVS"}'`"
+		namedir="`echo "$cvsdir" | sed 's#/CVS$##g'`"
+		if [ ! -d "$cvsdir" ]
+		 then
+			cvs -d $bleumcvsroot add "$namedir"
+			echo "directory '$namedir' added..."
+		fi
+	done
+fi
 STAT=$?
 check_status
 }
@@ -85,7 +88,6 @@ function add-d ()
 {
 while read LINE
 do
-read -t 1
 confirm-d "$LINE"
 done < $1
 STAT=$?
@@ -96,7 +98,6 @@ function add-kb ()
 {
 while read LINE
 do
-read -t 1
 confirm-d "$LINE"
 cvs -d $bleumcvsroot add -kb "$LINE"
 done < $1
@@ -108,7 +109,6 @@ function add-kv ()
 {
 while read LINE
 do
-read -t 1	
 confirm-d "$LINE"
 cvs -d $bleumcvsroot add "$LINE"
 done < $1
@@ -120,7 +120,6 @@ function remove-f ()
 {
 while read LINE
 do
-read -t 1	
 cvs -d $bleumcvsroot rm -f "$LINE"
 done < $1
 STAT=$?
@@ -131,11 +130,17 @@ function commit-each ()
 {
 while read LINE
 do
-comment="`svn log "$svnURL/$LINE"`" # defult is the latest log of SVN HEAD
-comment="`echo "$comment" | tr "\n" " " | tr \" \'`"
-echo "commit for $LINE --> $comment ." | tee -a $log_file
+confirm-d "$LINE"
+if [[ $2 = "kb" ]]
+ then
+	cvs -d $bleumcvsroot add -kb "$LINE"
+else
+	cvs -d $bleumcvsroot add "$LINE"	
+fi
+comment="`svn log "$svnURL/$LINE"  | head -7 | grep -v "|" | awk '/^[a-zA-Z0-9]/ {print $0}'`" # using head -7 to fetch the latest log of SVN HEAD by URL
+comment=`echo "$comment" | tr "\n" " " | tr \" \'`
+echo "commit for $LINE --> $comment" | tee -a $log_file
 blank
-read -t 1
 cvs -d $bleumcvsroot commit -m "$project $CAT: daily update from svn2cvs: $comment" "$LINE"
 done < $1
 STAT=$?
@@ -155,24 +160,17 @@ if [ ! -s $missing_file ]
 else
 	blank
 	echo "Adding missing files..." | tee -a $log_file
-	cat $missing_file | sed 's/? /A       /g' | tee $missing_file
 	cat $missing_file | tee -a $log_file
 	blank
 	echo "generate missing_file-kb----------> "
-	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee $temp
+	cat $missing_file | awk '/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/? //g' | sort -u | tee $temp
 	echo "==================================================="
-	add-kb $temp
+	commit-each $temp "kb"
 	echo "==================================================="
 	echo "generate missing_file-kv----------> "
-	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/A       //g' | sort -u | tee $temp
+	cat $missing_file | awk '!/('"$BINARY_FILE_TYPES"')$/ {print $0}' | sed 's/? //g' | sort -u | tee $temp
 	echo "==================================================="
-	add-kv $temp
-	echo "==================================================="
-	blank
-	echo "checking in missing_add_file----------> "
-	echo "==================================================="
-	cat $missing_file | sed 's/A       //g' | sort -u | tee $temp
-	commit-each $temp
+	commit-each $temp "kv"
 	echo "==================================================="
 	blank
 	echo "Added missing files, for the details, please check $missing_file" | tee -a $log_file
@@ -354,7 +352,7 @@ echo "==================================================="
 blank
 echo "5. Getting comments:" | tee -a $log_file
 comments="`svnlook log "$svnDir/$project"`" # defult is the latest log of SVN HEAD
-comments="`echo "$comments" | tr "\n" " " | tr \" \'`"
+comments=`echo "$comments" | tr "\n" " " | tr \" \'`
 echo "$comments" | tee -a $log_file
 blank
 echo "6. Check-in codes from svn2cvs..." | tee -a $log_file
