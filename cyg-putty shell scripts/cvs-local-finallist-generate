@@ -156,7 +156,7 @@ if [ "$cv" = "n" -o "$cv" = "N" ]
 else	
 	cvs -d $bleumcvsroot update -P -d -r "$deploy_tag"
 fi
-cvs -d $bleumcvsroot log -N -r"$branch_name" > "$cvs_log"
+cvs -d $bleumcvsroot log -N -r"$branch_name" > "$cvs_log" # deprecatd: cvs rlog because RCS file will include Attic for the newly added in branch situation, which causes comments cannot be matched
 echo "cvs.log has been generated as 'cvs.log_$1.txt'..."
 echo ""
 echo "======================================================================"
