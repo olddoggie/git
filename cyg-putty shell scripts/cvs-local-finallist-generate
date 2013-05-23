@@ -31,13 +31,15 @@ echo ""
 
 if [ "$deploy_tag" != "HEAD" -a "$deploy_tag" != "head" ]
   then
- 	echo "This CAT is released on branch '$deploy_tag'!"
-	echo ""
 	branch_name="$deploy_tag."
-else
-	echo "This CAT is released on HEAD trunk!"
+	bleumcvsdir="/cygdrive/d/JKCVS"
+ 	echo "This CAT is released on branch '$deploy_tag'! CVSROOT is '$bleumcvsdir'!"
 	echo ""
+else
 	branch_name=HEAD
+	bleumcvsdir="/cygdrive/d/BleumCVS"	
+	echo "This CAT is released on HEAD trunk! CVSROOT is '$bleumcvsdir'!"
+	echo ""
 fi
 
 function initial ()
@@ -144,7 +146,17 @@ echo "Getting cvs.log from '$deploy_tag' of module '$1'..."
 echo ""
 fetch-cvspath "$1"
 cvs_log=$dir/cvs.log_"$1".txt
-cvs -d $bleumcvsroot rlog -N -r"$branch_name" "$target_cvspath" > "$cvs_log"
+source ~/bin/go "$bleumcvsdir/$target_cvspath"
+echo ""
+read -p "Do you need update the '$target_cvspath' to the latest version on '$deploy_tag' in working folder? Press Enter/Input 'n' to  Skip if you are very confident say you got it! Be Careful!...................... " cv
+echo ""
+if [ "$cv" = "n" -o "$cv" = "N" ]
+ then
+	echo "Skip."
+else	
+	cvs -d $bleumcvsroot update -P -d -r "$deploy_tag"
+fi
+cvs -d $bleumcvsroot log -N -r"$branch_name" > "$cvs_log"
 echo "cvs.log has been generated as 'cvs.log_$1.txt'..."
 echo ""
 echo "======================================================================"
@@ -152,6 +164,8 @@ read -p "please double check the 'cvs.log_$1.txt', make sure it is correct...Pre
 read -p "if not correct, manually get cvs log by using 'cvs rlog -r$branch_name' like commands on local/ito cvs and overwrite previous one...Press Enter"
 read -p "finish check the 'cvs.log_$1.txt', move on...Press Enter"
 echo "======================================================================"
+echo ""
+source ~/bin/go $dir
 echo ""
 }
 
@@ -194,6 +208,57 @@ function combine-sync-file ()
 cat temp-sync-*.txt | awk '/^[A-Za-z]/ {print $0}' | cut -d '"' -f1 | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
 | sort -u   > "$1"
 echo "SYNC files combined into '$1'... "
+echo ""
+}
+
+function eliminate-duplicate-amd ()
+{
+echo "Now you are going to elimainate duplicate lines for '$1' in added/modified/deleted..."
+echo ""
+cp -f "$1" $temp
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+echo "1.Added line should be removed and Modifyied line should be kept,while the first char should be A..."
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
+echo ""
+source ~/bin/cvs-local-filelist-compare ram
+input=common-part-AM.txt
+grep-v-am
+echo "OK!"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
+echo "2.Modified line should be removed and Deleted line should be kept..."
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
+echo ""
+source ~/bin/cvs-local-filelist-compare rmd
+input=common-part-MD.txt
+grep-v-md
+echo "OK!!"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
+echo "3.Added line should be removed and Deleted line also should be removed..."
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
+echo ""
+source ~/bin/cvs-local-filelist-compare rad
+input=common-part-AD.txt
+grep-v-ad
+echo "OK!!!"
+echo "Appending comments..."
+echo ""
+cat "$temp" | cut -d '"' -f1 | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort -u > "$1"
+while read LINE
+do
+cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
+| tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"$/ \"/g'
+done < $input | paste -d " " "$1" - > "$2"
+# sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
+echo ""
+echo "Now checking whether there is any duplicate comments in file list..."
+source ~/bin/clean-ruby-cvslog "$2"
+cat "$2" | sed '/^A/ s/  ##"/ "added by Bleum: /g; /^M/ s/  ##"/ "modified by Bleum: /g; /^D/ s/  ##"/ "deleted by Bleum: /g' | tee "$2"
+echo ""
+echo "====== final file list '$2' num is ========"
+cat $2 | wc -l
+echo "Updating '$target_module.txt'..."
+cat "$2" | cut -d '"' -f1 > "$target_module".txt
+echo "OK!!"
 echo ""
 }
 
@@ -262,86 +327,15 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 	# so that when read Line below, the Line can be read as com\/onefbusa\/afcollagent\/web\/action\/search\/COLLSearchAction.java
 	# so that the sed can recongnize it as com/onefbusa/afcollagent/web/action/search/COLLSearchAction.java
 	# fyi, eliminate \n, can use tr "\n" " " , also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
-	while read LINE
-	do
-	cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
-	| tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"$/ \"/g'
-	done < $input | paste -d " " "$1".txt - > "$2"	
-	# sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
-	echo ""
-	echo "Now checking whether there is any duplicate comments in file list..."
-	source ~/bin/clean-ruby-cvslog "$2"
-	cat "$2" | sed '/^A/ s/  ##"/ "added by Bleum: /g; /^M/ s/  ##"/ "modified by Bleum: /g; /^D/ s/  ##"/ "deleted by Bleum: /g' > "$2"
-	echo ""
-	echo "====== file list '$2' generated initially, file num is ========"
-	cat "$2" | wc -l
+	cat "$1".txt | awk '{print $0" \""}' > before-erase-duplicate-amd.txt
+	echo "====== file list generated initially before eliminate-duplicate-amd, file num is ========"
+	cat before-erase-duplicate-amd.txt | wc -l
 	fi
 	echo ""
+	eliminate-duplicate-amd before-erase-duplicate-amd.txt "$2"
 break
 else
 	read -p "Confirm whether you really wanna combine all file list to make a final one for '$1' CAT release? input n to Skip/input y or blank to do it again...................... " sk
-	if [ "$sk" = "n" -o "$sk" = "N" ]
-	 then
-		echo "Skip."
-	else
-		sk=y # continue loop.
-	fi
-fi
-done
-}
-
-function eliminate-duplicate-amd ()
-{
-sk=y
-while [ "$sk" == "y" -o "$sk" == "Y"  ] 
-do
-echo ""
-read -p "Do you need elimintate potential duplicate lines for '$1' in added/modified/deleted? input n to Skip/input y to do it...................... " sk
-echo ""
-if [ "$sk" = "n" -o "$sk" = "N" ]
- then
-	echo "Skip."
-	break
-fi
-if [ "$sk" = "y" -o "$sk" = "Y" ]
- then
-	echo "Now you are going to elimainate duplicate lines for '$1' in added/modified/deleted..."
-	echo ""
-	cp -f "$1" $temp
-	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-	echo "1.Added line should be removed and Modifyied line should be kept,while the first char should be A..."
-	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
-	echo ""
-	source ~/bin/cvs-local-filelist-compare ram
-	input=common-part-AM.txt
-	grep-v-am
-	echo "OK!"
-	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
-	echo "2.Modified line should be removed and Deleted line should be kept..."
-	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
-	echo ""
-	source ~/bin/cvs-local-filelist-compare rmd
-	input=common-part-MD.txt
-	grep-v-md
-	echo "OK!!"
-	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
-	echo "3.Added line should be removed and Deleted line also should be removed..."
-	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
-	echo ""
-	source ~/bin/cvs-local-filelist-compare rad
-	input=common-part-AD.txt
-	grep-v-ad
-	echo "OK!!!"
-	cat $temp | sort -u | tee "$1"
-	echo "====== final file list '$1' num is ========"
-	cat $1 | wc -l
-	echo "Updating '$target_module.txt'..."
-	cat "$1" | cut -d '"' -f1 > "$target_module".txt
-	echo "OK!!"
-	echo ""
-break
-else
-	read -p "Confirm whether you really wanna elimintate potential duplicate lines for '$1' in added/modified/deleted? input n to Skip/input y or blank to do it again...................... " sk
 	if [ "$sk" = "n" -o "$sk" = "N" ]
 	 then
 		echo "Skip."
@@ -540,7 +534,6 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-			eliminate-duplicate-amd $result
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -552,7 +545,6 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-			eliminate-duplicate-amd $result
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -564,7 +556,6 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-			eliminate-duplicate-amd $result
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -576,7 +567,6 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-			eliminate-duplicate-amd $result
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -588,7 +578,6 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-			eliminate-duplicate-amd $result
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
@@ -600,7 +589,6 @@ case $module in
 		do
 			result=result-"$target_module".txt
 			final-list-gen $target_module $result
-			eliminate-duplicate-amd $result
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""

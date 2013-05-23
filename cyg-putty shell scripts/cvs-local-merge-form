@@ -143,7 +143,7 @@ case "$2" in
 			cvs -d $bleumcvsroot update -A -P -d
 			;;
   *)
-			cvs -d $bleumcvsroot update -A -P -d -r $2
+			cvs -d $bleumcvsroot update -P -d -r $2
 			;;
 esac
 			if [ $? -eq 1 ]
