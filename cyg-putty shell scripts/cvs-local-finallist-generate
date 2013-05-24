@@ -18,7 +18,7 @@ target_folder="$2"
 dir=~/final-file-list
 temp=temp.txt
 copy=temp-copy.txt
-input=temp-input.txt
+input_match=temp-input.txt
 result_folder=$dir/result
 sync_folder=$dir/sync
 sync_file=sync-list.txt
@@ -148,7 +148,7 @@ fetch-cvspath "$1"
 cvs_log=$dir/cvs.log_"$1".txt
 source ~/bin/go "$bleumcvsdir/$target_cvspath"
 echo ""
-read -p "Do you need update the '$target_cvspath' to the latest version on '$deploy_tag' in working folder? Press Enter/Input 'n' to  Skip if you are very confident say you got it! Be Careful!...................... " cv
+read -p "Do you really need to update '$bleumcvsdir/$target_cvspath' to the latest version on '$deploy_tag' in working folder?...................... Press Enter/Input 'n' to Skip if you are very Confident say you got it! Be Careful!......................  " cv
 echo ""
 if [ "$cv" = "n" -o "$cv" = "N" ]
  then
@@ -242,18 +242,24 @@ grep-v-ad
 echo "OK!!!"
 echo "Appending comments..."
 echo ""
-cat "$temp" | cut -d '"' -f1 | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' | sort -u > "$1"
+cat "$temp"  | cut -d '"' -f1 | sort -u > "$1"
+cat "$1" | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
+| awk -F '/' '{ {for(j = 1; j<NF; j++) printf "%s\\\\/",$j} printf "%s\n",$j}' > $input_match
+# do NOT use sort -u above, which may casue the comments order wrong
+# need use \\\\ in awk because $input should be like:com\\/onefbusa\\/afcollagent\\/web\\/action\\/search\\/COLLSearchAction.java
+# so that when read Line below, the Line can be read as com\/onefbusa\/afcollagent\/web\/action\/search\/COLLSearchAction.java
+# so that the sed can recongnize it as com/onefbusa/afcollagent/web/action/search/COLLSearchAction.java
+# fyi, eliminate \n, can use tr "\n" " " , also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
 while read LINE
 do
 cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
 | tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"$/ \"/g'
-done < $input | paste -d " " "$1" - > "$2"
+done < $input_match | paste -d " " "$1" - > "$2"
 # sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
 echo ""
 echo "Now checking whether there is any duplicate comments in file list..."
 source ~/bin/clean-ruby-cvslog "$2"
 cat "$2" | sed '/^A/ s/  ##"/ "added by Bleum: /g; /^M/ s/  ##"/ "modified by Bleum: /g; /^D/ s/  ##"/ "deleted by Bleum: /g' | tee "$2"
-echo ""
 echo "====== final file list '$2' num is ========"
 cat $2 | wc -l
 echo "Updating '$target_module.txt'..."
@@ -321,19 +327,13 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 		echo "No code update in module: '$1', just Skip to generate '$2'..."
 		cp -f "$1".txt "$2"
 	else
-	cat "$1".txt | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
-	| awk -F '/' '{ {for(j = 1; j<NF; j++) printf "%s\\\\/",$j} printf "%s\n",$j}' > $input
-	# need use \\\\ in awk because $input should be like:com\\/onefbusa\\/afcollagent\\/web\\/action\\/search\\/COLLSearchAction.java
-	# so that when read Line below, the Line can be read as com\/onefbusa\/afcollagent\/web\/action\/search\/COLLSearchAction.java
-	# so that the sed can recongnize it as com/onefbusa/afcollagent/web/action/search/COLLSearchAction.java
-	# fyi, eliminate \n, can use tr "\n" " " , also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
-	cat "$1".txt | awk '{print $0" \""}' > before-erase-duplicate-amd.txt
-	echo "====== file list generated initially before eliminate-duplicate-amd, file num is ========"
-	cat before-erase-duplicate-amd.txt | wc -l
+		cat "$1".txt | awk '{print $0" \""}' > before-erase-duplicate-amd.txt
+		echo "====== file list generated initially before eliminate-duplicate-amd, file num is ========"
+		cat before-erase-duplicate-amd.txt | wc -l
 	fi
 	echo ""
 	eliminate-duplicate-amd before-erase-duplicate-amd.txt "$2"
-break
+	break
 else
 	read -p "Confirm whether you really wanna combine all file list to make a final one for '$1' CAT release? input n to Skip/input y or blank to do it again...................... " sk
 	if [ "$sk" = "n" -o "$sk" = "N" ]
@@ -518,8 +518,8 @@ read -p "Are you 100% sure that no Out-Of-Scope files existing in result list? O
 echo ""
 read -p "Just FYI,as above mentioned,the generated total sync list in eliminate-duplicate-sync step may not be 100% correct,'cause there might be tiny possibility that SYA and SYD are duplicated....Press Enter" -t 5
 echo ""
-echo "cvs log files for each tartget_module have been copied to '$result_folder/cvs.log_$module.txt', take reference if needed."
-cat cvs.log_* >> $result_folder/cvs.log_"$module".txt
+echo "cvs log files for each target_module have been copied to '$result_folder, take reference if needed."
+cp cvs.log_* $result_folder
 echo ""
 echo "Good job! Final update file list done. Check detail in '$result_folder/result-*.txt' kept them in CM log."
 cp result-*.txt $result_folder
