@@ -27,30 +27,30 @@ if [ ! -d $brchCVS ]
 	mkdir $brchCVS
 	source ~/bin/go $brchCVS
 #	cvs -d $itocvsroot co -P -r AFF_3_60 afcollagent afcsragent afshared
-	cvs -d $itocvsroot co -P -r CS_8_15 cs
-	cvs -d $itocvsroot co -P -r AFF_3_60_CAT1 services fsshared
-	cvs -d $itocvsroot co -P -r FS_7_50 fscm fssplashcontent
-	mkdir fs_fsshared && fs_services
-	cvs -d $itocvsroot co -P -d fs_fsshared -r FS_7_50 fsshared
-	cvs -d $itocvsroot co -P -d fs_services -r FS_7_50 services
+	cvs -d $itocvsroot co -P -r CS_8_16 cs
+	# cvs -d $itocvsroot co -P -r AFF_3_60_CAT1 services fsshared
+	# cvs -d $itocvsroot co -P -r FS_7_50 fscm fssplashcontent
+	# mkdir fs_fsshared && fs_services
+	# cvs -d $itocvsroot co -P -d fs_fsshared -r FS_7_50 fsshared
+	# cvs -d $itocvsroot co -P -d fs_services -r FS_7_50 services
 else
 	source ~/bin/go $brchCVS
-	if [ ! -d fs_fsshared ]
-	  then
-	  	mkdir fs_fsshared
-		cvs -d $itocvsroot co -P -d fs_fsshared -r FS_7_50 fsshared
-	else
-		source ~/bin/go fs_fsshared && cvs -d $itocvsroot up -d -P -r FS_7_50  && source ~/bin/go $brchCVS
-	fi
-	if [ ! -d fs_services ]
-	  then
-	  	mkdir fs_services
-		cvs -d $itocvsroot co -P -d fs_services -r FS_7_50 services
-	else
-		source ~/bin/go fs_services && cvs -d $itocvsroot up -d -P -r FS_7_50  && source ~/bin/go $brchCVS		
-	fi
+	# if [ ! -d fs_fsshared ]
+	  # then
+	  	# mkdir fs_fsshared
+		# cvs -d $itocvsroot co -P -d fs_fsshared -r FS_7_50 fsshared
+	# else
+		# source ~/bin/go fs_fsshared && cvs -d $itocvsroot up -d -P -r FS_7_50  && source ~/bin/go $brchCVS
+	# fi
+	# if [ ! -d fs_services ]
+	  # then
+	  	# mkdir fs_services
+		# cvs -d $itocvsroot co -P -d fs_services -r FS_7_50 services
+	# else
+		# source ~/bin/go fs_services && cvs -d $itocvsroot up -d -P -r FS_7_50  && source ~/bin/go $brchCVS		
+	# fi
 #	cvs -d $itocvsroot up -d -P -r AFF_3_60 afcollagent afcsragent afshared
-	cvs -d $itocvsroot up -d -P -r CS_8_15 cs
-	cvs -d $itocvsroot up -d -P -r AFF_3_60_CAT1 services fsshared
-	cvs -d $itocvsroot up -d -P -r FS_7_50 fscm fssplashcontent
+	cvs -d $itocvsroot up -d -P -r CS_8_16 cs
+#	cvs -d $itocvsroot up -d -P -r AFF_3_60_CAT1 services fsshared
+#	cvs -d $itocvsroot up -d -P -r FS_7_50 fscm fssplashcontent
 fi

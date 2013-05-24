@@ -34,7 +34,7 @@
 export PATH=$PATH:/usr/local/bin
 author="$1 <$1@bleum.com>"
 comment="$2"
-BINARY_FILE_TYPES="jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o"
+BINARY_FILE_TYPES="jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o|zip"
 svn_home=/home/svn/repos/openproperty
 svn_repo="file:///home/svn/repos/openproperty/trunk/OpenProperty"
 git_repo=/home/svn/git-svn/openproperty
