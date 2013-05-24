@@ -5,25 +5,40 @@ echo "second param is the range of modified time usually 1 day"
 
 path=$1
 range=$2
-git_dir="/home/jack.wang/git"
-git_remote="git@github.com:olddoggie/git.git"
+local=$3
+comment="update from 197/152"
 
 function git-pull-push ()
 { 
-git pull && git add -A && git commit -m 'update from 197/152' && git push 
+git pull && git add -A && git commit -m "$comment" && git push 
 }
 
-case $1 in
-  "bin")
-		cp -u "/home/jack.wang/.bashrc" "/home/jack.wang/bin"
-	  	find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
-		source /home/jack.wang/bin/go "${git_dir}"
-		git-pull-push
-		find "${git_dir}/cyg-putty shell scripts" -type f -mtime -$2 | xargs -i cp {} /home/jack.wang/bin
-		cp -u "/home/jack.wang/bin/.bashrc" "/home/jack.wang"
+if [[ $local = local ]] 
+ then
+	git_dir="/home/jack.wang/gitlab/cmscript"
+	git_remote="git@192.168.2.86:cmscript.git"
+	find /home/jack.wang/bin/ -type f -mtime -$2 | grep -v "bashrc" | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
+	source /home/jack.wang/bin/go "${git_dir}"
+	echo ""
+	read -p "Please input your comment here: " -t 30 comment
+	comment="${comment:-update from 197/152}"
+	echo ""
+	git-pull-push
+else
+	git_dir="/home/jack.wang/git"
+	git_remote="git@github.com:olddoggie/git.git"
+	case $1 in
+	  "bin")
+			cp -u "/home/jack.wang/.bashrc" "/home/jack.wang/bin"
+			find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
+			source /home/jack.wang/bin/go "${git_dir}"
+			git-pull-push
+			find "${git_dir}/cyg-putty shell scripts" -type f -mtime -$2 | xargs -i cp {} /home/jack.wang/bin
+			cp -u "/home/jack.wang/bin/.bashrc" "/home/jack.wang"
 			;;
-	*)
+		*)
 			echo "No such kind of ant scirpt .."
 			exit 1
 			;;
-esac
+	esac
+fi
