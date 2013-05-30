@@ -23,7 +23,7 @@ if [ ! -d $jkcvs ]
 	mkdir $jkcvs
 	source ~/bin/go $jkcvs
 #	cvs -d $cvsroot co -P -r AFF_3_60 affinity/sourcecode/afcollagent affinity/sourcecode/afcsragent affinity/sourcecode/afshared
-	cvs -d $cvsroot co -P -r CS_8_16 csmaintenance/3.50/SourceCodeUBS
+#	cvs -d $cvsroot co -P -r CS_8_16 csmaintenance/3.50/SourceCodeUBS
 #	cvs -d $cvsroot co -P -r AFF_3_60_CAT1 services/Sourcecode fs/Sourcecode/fsshared/src
 #	cvs -d $cvsroot co -P -r FS_7_50 fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war
 #	mkdir fs_fsshared && fs_services
@@ -32,7 +32,7 @@ if [ ! -d $jkcvs ]
 else
 	source ~/bin/go $jkcvs
 #	cvs -d $cvsroot up -d -P -r AFF_3_60 affinity/sourcecode/afcollagent affinity/sourcecode/afcsragent affinity/sourcecode/afshared 
-	cvs -d $cvsroot up -d -P -r CS_8_16 csmaintenance/3.50/SourceCodeUBS
+#	cvs -d $cvsroot up -d -P -r CS_8_16 csmaintenance/3.50/SourceCodeUBS
 #	cvs -d $cvsroot up -d -P -r AFF_3_60_CAT1 services/Sourcecode fs/Sourcecode/fsshared/src
 #   cvs -d $cvsroot up -d -P -r FS_7_50 fs/Sourcecode/fscm/src fs/Sourcecode/fscm/war fs/Sourcecode/fssplashcontent/src fs/Sourcecode/fssplashcontent/war
 	# if [ ! -d fs_fsshared ]
