@@ -123,6 +123,68 @@ function fyi-notice ()
 {
 echo "just Attention for affinity............"
 echo "You have to create branch on 'Afshared/doc' manually for the sake of UBS running."
+echo "............"
+fyi=y
+while [ "$fyi" == "y" -o "$fyi" == "Y"  ] 
+do
+echo ""
+read -p "If needed, besides 'src' and 'war' module, create the branch based on 'whole folder',ok? y.Yes n.No :" fyi
+echo ""
+if [ "$fyi" = "n" -o "$fyi" = "N" ]
+ then
+	echo "If needed, you still can create the branch based on 'whole folder'."
+	break
+fi
+if [ "$fyi" = "y" -o "$fyi" = "Y" ]
+ then
+	echo "creating branch on whole project folder..." 
+	# Rational is local only file always keep latest version on branch, so based on HEAD, create branch on these files, and the specific files will not be overwritten, since they've already been branched before.
+	echo ""
+	case "$1" in
+  		"cs")
+			folder_path=cs
+			create-branch "$folder_path" HEAD $branchname
+		;;
+  		"services")
+			folder_path=services
+			create-branch "$folder_path" HEAD $branchname
+		;;		
+		"af")
+			for folder_path in afcollagent afcsragent afshared
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;	
+		"fs")
+			for folder_path in fsagent fscm fsshared
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;
+		"fs750")
+			for folder_path in fscm fssplashcontent fsshared services
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;			
+		"af360")
+			for folder_path in afcollagent afcsragent afshared fsshared services
+			do
+				create-branch "$folder_path" HEAD $branchname
+			done
+		;;
+		*)
+			echo "Not implemented yet..."
+		;;		
+	esac
+	break
+else
+	echo "I don't know your choice, yes or no?...."
+	fyi=y
+	continue
+fi
+done
+echo ""
 echo "OK....................................."
 }
 case $module in
@@ -143,7 +205,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice af
 			;;
   "cs")
   			module="cs/src,cs/war"
@@ -162,7 +224,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice cs
 			;;
   "services")
   			module="services/src,services/mapping"
@@ -181,7 +243,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice services
 			;;
   "fs750")
   			module="fscm/src,fscm/war,fsshared/src,fssplashcontent/src,fssplashcontent/war,services/src,services/mapping"
@@ -200,7 +262,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice fs750
 			;;
   "fs")
    			module="fsagent/src,fsagent/war,fscm/src,fscm/war,fsshared/src"
@@ -219,7 +281,7 @@ case $module in
 			echo ""
 			fi
 			done
-			fyi-notice
+			fyi-notice fs
 			;;			
 	*)
 			read -p "you are NOT Creating a branch according to any Original Planned Module(s), please be careful.. Press Enter"

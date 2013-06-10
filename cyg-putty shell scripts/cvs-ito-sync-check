@@ -6,12 +6,12 @@ echo "Currently the main source code are checked on 6 P.M.;Other config/service 
 file=~/itosync-daily-check-log.txt
 result=~/itosync-daily-check.txt
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
-CS816=CS_8_16						# update often
+CS_brch=CS_8_30						# update often
 AF360=AFF_3_60		 				# update often
 AF360_services=AFF_3_60_CAT1		# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS816Pretag=BLEUM_CS_CAT1_05232013_1 				# update often
+CS_brch_Pretag=BLEUM_CS_SYNC_06102013_1 			# update often
 AF360Pretag=BLEUM_AFFINITY_CAT3_04192013_1			# update often
 AF360_CAT1tag=BLEUM_AFFINITY_CAT1_03152013_1    	# not update often
 AF360_services_root=BLEUM_FS_SYNC_02162013_1		# not update often
@@ -81,7 +81,7 @@ done
 
 for module5 in cs/src cs/war
 do
-cvs-rdiff-by-tag $CS816Pretag $CS816 $module5
+cvs-rdiff-by-tag $CS_brch_Pretag $CS_brch $module5
 done
 
 # for module6 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
