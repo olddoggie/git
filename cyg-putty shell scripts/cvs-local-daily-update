@@ -14,7 +14,11 @@ if [ ! -d $bcvs ]
 	source ~/bin/go $bcvs
 	cvs -d $cvsroot co -P 1fbodc OpenProperty affinity csmaintenance fs services
 else
-	source ~/bin/go $bcvs
+	source ~/bin/go $bcvs	
+	# if [ -d openproperty/PropertyCredit ]
+	  # then
+		# rm -rf openproperty/PropertyCredit
+	# fi
 	cvs -d $cvsroot up -A -d -P 1fbodc OpenProperty affinity csmaintenance fs services
 fi
 
