@@ -52,8 +52,8 @@ case "$module" in
     cat $file \
     |awk '/^\-/ {print $0} /^[A-Za-z0-9]/ {print "M    "$0} END{ while (getline < "/home/jack.wang/update_filelist_ito.txt" > 0) lc++; print "----the total filelist number:"lc-3}'
     ;;
-  "af360")
-    echo "Current AF3.60 project, fsshared and services coding on branch:'AFF_3_60_CAT1'..."
+  "af365")
+    echo "Current AF3.65 project, fsshared and services coding on branch:'AFF_3_65'..."
     echo "Start diff from $2 ..."
     cvs -d $itocvsroot \
     rdiff -s -r $previoustag -r $currenttag \
@@ -73,14 +73,14 @@ case "$module" in
     |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \
     'BEGIN{ "date" | getline d; print "--itoAFShared src/war--",d,"----------"}{{for(k = 3; k<NF; k++) printf "%s/",$k} printf "%s\n",$k}' \
     | tee -a $file | wc -l|awk '{print $0-1}'
-    if [ $previoustag = "HEAD" ]
-	 then
-      previoustag="AFF_3_60_CAT1"
-    fi
-	if [ $currenttag = "HEAD" ]
-	 then
-      currenttag="AFF_3_60_CAT1"
-    fi
+    # if [ $previoustag = "HEAD" ]
+	 # then
+      # previoustag="AFF_3_65"
+    # fi
+	# if [ $currenttag = "HEAD" ]
+	 # then
+      # currenttag="AFF_3_65"
+    # fi
 	cvs -d $itocvsroot \
     rdiff -s -r $previoustag -r $currenttag fsshared/src | grep File \
     |awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j} '|awk -F '/' \

@@ -137,40 +137,40 @@ if [ "$fyi" = "n" -o "$fyi" = "N" ]
 fi
 if [ "$fyi" = "y" -o "$fyi" = "Y" ]
  then
-	echo "creating branch on whole project folder..." 
+	echo "creating branch: 'branchname' based on '$previoustag' of whole project folder..." 
 	# Rational is local only file always keep latest version on branch, so based on HEAD, create branch on these files, and the specific files will not be overwritten, since they've already been branched before.
 	echo ""
 	case "$1" in
   		"cs")
 			folder_path=cs
-			create-branch "$folder_path" HEAD $branchname
+			create-branch "$folder_path" $previoustag $branchname
 		;;
   		"services")
 			folder_path=services
-			create-branch "$folder_path" HEAD $branchname
+			create-branch "$folder_path" $previoustag $branchname
 		;;		
 		"af")
 			for folder_path in afcollagent afcsragent afshared
 			do
-				create-branch "$folder_path" HEAD $branchname
+				create-branch "$folder_path" $previoustag $branchname
 			done
 		;;	
 		"fs")
 			for folder_path in fsagent fscm fsshared
 			do
-				create-branch "$folder_path" HEAD $branchname
+				create-branch "$folder_path" $previoustag $branchname
 			done
 		;;
 		"fs750")
 			for folder_path in fscm fssplashcontent fsshared services
 			do
-				create-branch "$folder_path" HEAD $branchname
+				create-branch "$folder_path" $previoustag $branchname
 			done
 		;;			
 		"af360")
 			for folder_path in afcollagent afcsragent afshared fsshared services
 			do
-				create-branch "$folder_path" HEAD $branchname
+				create-branch "$folder_path" $previoustag $branchname
 			done
 		;;
 		*)

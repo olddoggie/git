@@ -65,6 +65,7 @@ do_svndump()
                 then
                 YOUNGEST=`svnlook youngest $project`
                 svnadmin dump $project > $BACKUPDIR/$project.dump
+		cp $BACKUPDIR/$project.dump $BACKUPDIR/incremental-dump/$project-inital.$DATE.dump
                 echo "OK,dump file successfully!!" | tee -a $LogFile
                 echo "$YOUNGEST" > $BACKUPDIR/$project.youngest
                 else
@@ -81,7 +82,8 @@ do_svndump()
                                 else
                                         LASTYOUNGEST=`expr $PREVYOUNGEST + 1`
                                         echo "last youngest is $LASTYOUNGEST" | tee -a $LogFile
-                                        svnadmin dump $project --revision $LASTYOUNGEST:$NEWYOUNGEST --incremental > $BACKUPDIR/$project-$LASTYOUNGET-$NEWYOUNGEST.$DATE.dump
+					svnadmin dump $project > $BACKUPDIR/$project.dump
+                                        svnadmin dump $project --revision $LASTYOUNGEST:$NEWYOUNGEST --incremental > $BACKUPDIR/incremental-dump/$project-$LASTYOUNGEST-$NEWYOUNGEST.$DATE.dump
                                         echo "$NEWYOUNGEST" > $BACKUPDIR/$project.youngest
                                 fi
                         fi

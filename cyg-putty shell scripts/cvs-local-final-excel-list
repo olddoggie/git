@@ -193,7 +193,7 @@ case $module in
 	 done
 	 target-gen $module
 		;;
-	"af360")
+	"af365")
 	 initial
 	 for target in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war fsshared-src services-src services-mapping
 	 do

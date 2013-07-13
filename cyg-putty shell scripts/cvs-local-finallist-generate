@@ -104,15 +104,15 @@ case $module in
 	 "af")
 	 target_cvspath="affinity/sourcecode/$target1/$target2"
 	 ;;
-	 "af360")
+	 "af365")
 		case $target1 in
 		fsshared)	
 				target_cvspath="fs/Sourcecode/$target1/$target2"
-				branch_name="AFF_3_60_CAT1."				
+				branch_name="AFF_3_65."				
 				;;
 		services)	
 				target_cvspath="$target1/Sourcecode/$target2"
-				branch_name="AFF_3_60_CAT1."
+				branch_name="AFF_3_65."
 				;;
 			*)
 				target_cvspath="affinity/sourcecode/$target1/$target2"
@@ -550,7 +550,7 @@ case $module in
 		echo ""		
 		announce-finish affinity
 		;;
-  "af360")
+  "af365")
 		initial
 		for target_module in afcollagent-src afcollagent-war afcsragent-src afcsragent-war afshared-src afshared-war fsshared-src services-src services-mapping
 		do
@@ -559,7 +559,7 @@ case $module in
 			eliminate-duplicate-sync "$target_module".txt
 		done
 		echo ""		
-		announce-finish af360
+		announce-finish af365
 		;;		
   "fs750")
 		initial

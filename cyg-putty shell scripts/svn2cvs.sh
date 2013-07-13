@@ -9,7 +9,7 @@ echo "Rationale is svn diff -c --summarize,svn export,get \$line function and cv
 echo ""
 echo "first param is svn project name (e.g.openproperty ...)"
 echo "second param is the CAT name which will be used when draft commit comments (e.g. CAT1.... )"
-echo "third param is the target path of the sourcecodes subfolder in SVN project folder (e.g. trunk,trunk/OpenProperty.... )"
+echo "third param is the target path of the sourcecodes subfolder in SVN project folder (e.g. trunk,trunk/OP.... )"
 echo "forth param is the CVS HEAD/branch/tag name which you check codes into in CVS project folder (e.g. HEAD.... )"
 echo "Initializing..."
 echo ""
@@ -35,7 +35,7 @@ cvs_repo=/home/svn/cvs
 cvs_dir=/home/svn/cvs/"$project"
 svnDir=/home/svn/repos
 svnURL="file://$svnDir/$project"/"$svn_path"
-cvsURL="$project"/Sourcecode
+cvsURL="$project"/Sourcecode/openproperty
 bleumcvsroot=":pserver:jenkins:cvs,123456@192.168.2.200:/1fb"
 BINARY_FILE_TYPES="jpe|jpg|pdf|jpeg|png|bmp|gif|ttf|jar|war|ear|avi|mp3|mpg|doc|docx|xls|xlsx|mpp|ppt|pptx|dot|tif|swf|bmp|exe|tgz|gz|o"
 # grep-v cat $2 | grep -v "$LINE" > $2 has no use on RedHat Linux bash shell,change to use awk '/[]$/ {print $0}' to filter the txt/binary files
@@ -281,7 +281,7 @@ check_status
 svn diff -r $PRE:HEAD --summarize "$svnURL" | sed 's#%20# #g' > $total # replace %20 with space, because svn always display %20 to represent a space.
 STAT=$?
 check_status
-#M       file:///home/svn/repos/openproperty/trunk/OpenProperty/src/main/java/com/onefb/op/controllers/controllers/auth/LoginAjaxController.java
+#M       file:///home/svn/repos/openproperty/trunk/OP/src/main/java/com/onefb/op/controllers/controllers/auth/LoginAjaxController.java
 #-->
 #M       src/main/java/com/onefb/op/controllers/controllers/auth/LoginAjaxController.java
 cat $total | grep "\." | sed 's#'"$svnURL"'/##g' > $total_file

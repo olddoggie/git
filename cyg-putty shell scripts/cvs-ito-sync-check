@@ -7,15 +7,15 @@ file=~/itosync-daily-check-log.txt
 result=~/itosync-daily-check.txt
 itocvsroot=":ext:bbu@ito-as1.1fb.net:/vb/cvs"
 CS_brch=CS_8_30						# update often
-AF360=AFF_3_60		 				# update often
+AF_brch=AFF_3_65		 			# update often
 AF360_services=AFF_3_60_CAT1		# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS_brch_Pretag=BLEUM_CS_SYNC_06102013_1 			# update often
-AF360Pretag=BLEUM_AFFINITY_CAT3_04192013_1			# update often
-AF360_CAT1tag=BLEUM_AFFINITY_CAT1_03152013_1    	# not update often
+CS_brch_Pretag=BLEUM_CS_CAT1_07022013_1	 			# update often
+AF_brch_Pretag=BLEUM_AFFINITY_IT_07112013_1			# update often
+AF360Pretag=BLEUM_AFFINITY_CAT3_04192013_1    		# not update often
 AF360_services_root=BLEUM_FS_SYNC_02162013_1		# not update often
-FS750Pretag=BLEUM_FS_ST_03252013_1				# not update often
+FS750Pretag=BLEUM_FS_ST_03252013_1					# not update often
 # Define the check period set zone CCT +0800 by manually run on putty env, cron job cannot recognize CCT...
 # In putty cvs -D 18:00 CCT equals to cvs -D 10:00 UTC and cvs -D 11:00  (while in win/dos, cvs -D 18:00 CCT == cvs -D 18:00)
 # On ito-cvs,there is a zone gap between the moment of real check in, whihc will trigger notification mail and the timestamp recorded in ito-cvs repositoy, the gap is almost 2 hours and a quarter.
@@ -47,7 +47,7 @@ cvs -d $itocvsroot rdiff -s -r "$1" -r "$2" "$3" |grep File \
 }
 
 rm -rf $file
-for module1 in cs afcollagent afcsragent afshared fsagent fscm fsshared services
+for module1 in cs afcollagent afcsragent afshared fsagent fscm fsshared services propertycreditservice
 do
 cvs-rdiff-by-date "$time1" "HEAD" $module1
 done
@@ -64,9 +64,9 @@ do
 cvs-rdiff-by-tag $FS750Pretag $FS750 $module3
 done
 
-for module4 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
+for module4 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war services/src services/mapping fsshared/src
 do
-cvs-rdiff-by-tag $AF360_CAT1tag $AF360 $module4
+cvs-rdiff-by-tag $AF_brch_Pretag $AF_brch $module4
 done
 
 for module5 in services/src services/mapping
@@ -86,7 +86,7 @@ done
 
 # for module6 in afcollagent/src afcollagent/war afcsragent/src afcsragent/war afshared/src afshared/war
 # do
-# cvs-rdiff-by-tag $AF360Pretag $AF360 $module6
+# cvs-rdiff-by-tag $AF360Pretag $AF_brch $module6
 # done
 
 # Generate simple result, alias as "sync"

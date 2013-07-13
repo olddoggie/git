@@ -24,6 +24,8 @@ if [[ $local = local ]]
 	comment="${comment:-update from 197/152}"
 	echo ""
 	git-pull-push
+	find "${git_dir}/cyg-putty shell scripts" -type f -mtime -$2 | xargs -i cp {} /home/jack.wang/bin
+	cp -u "/home/jack.wang/bin/.bashrc" "/home/jack.wang"
 else
 	git_dir="/home/jack.wang/git"
 	git_remote="git@github.com:olddoggie/git.git"

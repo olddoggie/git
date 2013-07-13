@@ -122,19 +122,19 @@ case $module in
 			check_status
 			done
 			;;
-  "af360")
+  "af365")
 			for target_module in "affinity/sourcecode/afcollagent/src" "affinity/sourcecode/afcollagent/war" "affinity/sourcecode/afcsragent/src" "affinity/sourcecode/afcsragent/war" "affinity/sourcecode/afshared/src" "affinity/sourcecode/afshared/war"
 			do
 			input-command
 			echo ""
 			check_status
 			done
-		    echo "Current AF3.60 project, fsshared and services coding on branch:'AFF_3_60_CAT1'..."
+		    echo "Current AF3.65 project, fsshared and services coding on branch:'AFF_3_65'..."
    			echo ""
-   			if [ $tagroot = "HEAD" ]
-			 then
-				tagroot="AFF_3_60_CAT1"
-		    fi
+   			# if [ $tagroot = "HEAD" ]
+			 # then
+				# tagroot="AFF_3_65"
+		    # fi
    			for target_module in "fs/Sourcecode/fsshared/src" "services/Sourcecode/src" "services/Sourcecode/mapping"
 			do
 			input-command
