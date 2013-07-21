@@ -133,9 +133,11 @@
                 <version>1.7</version>
                 <executions>
                   <execution>
-                    <phase>generate-sources</phase>
+                    <phase>test-compile</phase>
                     <configuration>
-                      <tasks>run</tasks>
+                      <tasks>
+                        <ant antfile="preSettings.xml" target="antrun" inheritRefs="true" />
+                      </tasks>
                     </configuration>
                     <goals>
                       <goal>run</goal>

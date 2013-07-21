@@ -62,5 +62,6 @@
         <copy file="webDriverServer/IEDriverServer-32bit.exe" tofile="webDriverServer/IEDriverServer.exe" overwrite="true" />
     </target>
 
+    <target name="antrun" depends="checkOSBit,set_ie_driver32" />
     <target name="run" depends="checkOSBit,copy_mvn_settings,set_ie_driver32" />
 </project>
