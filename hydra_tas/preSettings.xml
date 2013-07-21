@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="project" default="run" basedir="." >
+    <target name="checkOS">
+        <condition property="os.linux">
+            <os family="unix" />
+        </condition>
+        <condition property="os.windows">
+            <os family="windows" />
+        </condition>
+    </target>
+
+    <target name="getLinuxBit" depends="checkOS" if="os.linux">
+        <exec executable="/bin/bash" outputproperty="linux-bit">
+            <arg value="-c" />
+            <arg value="getconf LONG_BIT" />
+        </exec>
+    </target>
+
+    <target name="checkOSBit" depends="getLinuxBit">
+        <property environment="env" />
+        <condition property="linux.32">
+            <and>
+                <equals arg1="os.linux" arg2="true" />   
+                <equals arg1="${linux-bit}" arg2="32" />
+            </and>
+        </condition>
+        <condition property="linux.64">
+            <and>
+                <equals arg1="os.linux" arg2="true" />
+                <equals arg1="${linux-bit}" arg2="64" />
+            </and>
+        </condition>
+        <condition property="win.32">
+            <and>
+                <equals arg1="os.windows" arg2="true" />
+                <not>
+                    <contains string="${env.ProgramFiles(x86)}" substring="Program Files (x86)" />
+                </not>
+            </and>
+        </condition>
+        <condition property="win.64">
+            <and>
+                <equals arg1="os.windows" arg2="true" />
+                <contains string="${env.ProgramFiles(x86)}" substring="Program Files (x86)" />
+            </and>
+        </condition>
+    </target>
+
+    <available file="${user.home}/.m2/settings.xml" property="has.mvn_settings" />   
+
+    <target name="update_mvn_settings" if="has.mvn_settings" >
+        <copy file="${user.home}/.m2/settings.xml" tofile="${user.home}/.m2/settings.xml.old" overwrite="true" />        
+    </target>
+
+    <target name="copy_mvn_settings" depends="update_mvn_settings" >
+        <copy file="settings.xml" toDir="${user.home}/.m2" overwrite="true" />
+    </target>
+
+    <target name="set_ie_driver32" unless="win.64">
+        <copy file="webDriverServer/IEDriverServer.exe" tofile="webDriverServer/IEDriverServer-64bit.exe" overwrite="true" />
+        <copy file="webDriverServer/IEDriverServer-32bit.exe" tofile="webDriverServer/IEDriverServer.exe" overwrite="true" />
+    </target>
+
+    <target name="run" depends="checkOSBit,copy_mvn_settings,set_ie_driver32" />
+</project>
