@@ -47,21 +47,62 @@
         </condition>
     </target>
 
-    <available file="${user.home}/.m2/settings.xml" property="has.mvn_settings" />   
-
-    <target name="update_mvn_settings" if="has.mvn_settings" >
-        <copy file="${user.home}/.m2/settings.xml" tofile="${user.home}/.m2/settings.xml.old" overwrite="true" />        
+    <target name="checkMVNSettings" >
+        <condition property="mvn_duplicated">
+            <or>
+                <and>
+                    <available file="${user.home}/.m2/settings.xml.old" /> 
+                    <not>  
+                        <available file="${user.home}/.m2/settings.xml" />   
+                    </not>
+                </and>                
+                <not>    
+                    <and>
+                        <available file="${user.home}/.m2/settings.xml" />   
+                        <available file="${user.home}/.m2/settings.xml.old" />   
+                    </and>
+                </not>    
+            </or>    
+        </condition>
+        <condition property="mvn_settings_only">
+            <and>
+                <available file="${user.home}/.m2/settings.xml" /> 
+                <not>  
+                    <available file="${user.home}/.m2/settings.xml.old" />   
+                </not>
+            </and>
+        </condition>
     </target>
 
-    <target name="copy_mvn_settings" depends="update_mvn_settings" >
+    <target name="init_mvn_settings" depends="checkMVNSettings" if="mvn_duplicated" >
         <copy file="settings.xml" toDir="${user.home}/.m2" overwrite="true" />
     </target>
 
-    <target name="set_ie_driver32" unless="win.64">
-        <copy file="webDriverServer/IEDriverServer.exe" tofile="webDriverServer/IEDriverServer-64bit.exe" overwrite="true" />
-        <copy file="webDriverServer/IEDriverServer-32bit.exe" tofile="webDriverServer/IEDriverServer.exe" overwrite="true" />
+    <target name="update_mvn_settings" depends="checkMVNSettings" if="mvn_settings_only" >
+        <copy file="${user.home}/.m2/settings.xml" tofile="${user.home}/.m2/settings.xml.old" overwrite="true" />      
+        <copy file="settings.xml" toDir="${user.home}/.m2" overwrite="true" />  
     </target>
 
-    <target name="antrun" depends="checkOSBit,set_ie_driver32" />
-    <target name="run" depends="checkOSBit,copy_mvn_settings,set_ie_driver32" />
+    <target name="copy_mvn_settings" depends="init_mvn_settings,update_mvn_settings" />
+
+    <target name="checkieDriver" >
+        <available file="webDriverServer/IEDriverServer-32bit.exe" property="ieDriver_NotSet"/>
+    </target>
+
+    <target name="set_ie_driver64" if="win.64">
+        <delete file="webDriverServer/IEDriverServer-32bit.exe" />
+    </target>   
+
+    <target name="set_ie_driver32" unless="win.64">
+        <move file="webDriverServer/IEDriverServer-32bit.exe" tofile="webDriverServer/IEDriverServer.exe" overwrite="true" />
+    </target>
+
+    <target name="set_ie_driver_32or64" depends="set_ie_driver64,set_ie_driver32" />
+
+    <target name="set_ie_driver" depends="checkieDriver" if="ieDriver_NotSet" >
+        <antcall target="set_ie_driver_32or64" />
+    </target>
+
+    <target name="antrun" depends="checkOSBit,set_ie_driver" />
+    <target name="run" depends="checkOSBit,copy_mvn_settings,set_ie_driver" />
 </project>

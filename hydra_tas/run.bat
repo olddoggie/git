@@ -1,4 +1,5 @@
 @echo off
-ant -buildfile preSettings.xml copy_mvn_settings
-java -version | findstr "1.6" && mvn clean test -Djdk=6
-java -version | findstr "1.7" && mvn clean test
+call ant -buildfile preSettings.xml copy_mvn_settings
+kill /F /im IEDriverServer.exe
+echo %JAVA_HOME% | findstr "1.6" && mvn clean test -Djdk=6
+echo %JAVA_HOME% | findstr "1.7" && mvn clean test
