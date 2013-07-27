@@ -17,6 +17,7 @@
         </exec>
     </target>
 
+    <!-- main job 1, check user's system OS and judge whether it is a 32 bit or 64 bit PC -->
     <target name="checkOSBit" depends="getLinuxBit">
         <property environment="env" />
         <condition property="linux.32">
@@ -48,42 +49,25 @@
     </target>
 
     <target name="checkMVNSettings" >
-        <condition property="mvn_duplicated">
-            <or>
-                <and>
-                    <available file="${user.home}/.m2/settings.xml.old" /> 
-                    <not>  
-                        <available file="${user.home}/.m2/settings.xml" />   
-                    </not>
-                </and>                
-                <not>    
-                    <and>
-                        <available file="${user.home}/.m2/settings.xml" />   
-                        <available file="${user.home}/.m2/settings.xml.old" />   
-                    </and>
-                </not>    
-            </or>    
-        </condition>
-        <condition property="mvn_settings_only">
-            <and>
-                <available file="${user.home}/.m2/settings.xml" /> 
-                <not>  
-                    <available file="${user.home}/.m2/settings.xml.old" />   
-                </not>
-            </and>
-        </condition>
+            <available file="${user.home}/.m2/settings.xml" property="has.mvn.settings"/>   
+            <available file="${user.home}/.m2/settings.xml.old" property="has.mvn.settings.old"/>   
     </target>
 
-    <target name="init_mvn_settings" depends="checkMVNSettings" if="mvn_duplicated" >
+    <target name="copy-settings-old" if="has.mvn.settings" >
+        <copy file="${user.home}/.m2/settings.xml" tofile="${user.home}/.m2/settings.xml.old" overwrite="true" />      
         <copy file="settings.xml" toDir="${user.home}/.m2" overwrite="true" />
     </target>
 
-    <target name="update_mvn_settings" depends="checkMVNSettings" if="mvn_settings_only" >
-        <copy file="${user.home}/.m2/settings.xml" tofile="${user.home}/.m2/settings.xml.old" overwrite="true" />      
-        <copy file="settings.xml" toDir="${user.home}/.m2" overwrite="true" />  
+    <target name="copy-settings" unless="has.mvn.settings" >
+        <copy file="settings.xml" toDir="${user.home}/.m2" overwrite="true" />
     </target>
 
-    <target name="copy_mvn_settings" depends="init_mvn_settings,update_mvn_settings" />
+    <target name="copy_settings" depends="copy-settings-old,copy-settings" />
+
+    <!-- main job 2, if first time run bat, then initial the .m2/settings.xml and back up user's old settings.xml to settings.xml.old -->
+    <target name="copy_mvn_settings" depends="checkMVNSettings" unless="has.mvn.settings.old" >
+        <antcall target="copy_settings" />
+    </target>        
 
     <target name="checkieDriver" >
         <available file="webDriverServer/IEDriverServer-32bit.exe" property="ieDriver_NotSet"/>
@@ -98,11 +82,13 @@
     </target>
 
     <target name="set_ie_driver_32or64" depends="set_ie_driver64,set_ie_driver32" />
-
+    
+    <!-- main job 3, if first time run bat, then substtitute the ieDriver depends on your system bits -->
     <target name="set_ie_driver" depends="checkieDriver" if="ieDriver_NotSet" >
         <antcall target="set_ie_driver_32or64" />
     </target>
 
+    <!-- summerize tasks here -->
     <target name="antrun" depends="checkOSBit,set_ie_driver" />
     <target name="run" depends="checkOSBit,copy_mvn_settings,set_ie_driver" />
 </project>

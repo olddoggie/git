@@ -252,7 +252,7 @@ cat "$1" | awk '{ {for(j = 2; j<NF; j++) printf "%s ",$j} printf "%s\n",$j}' \
 # fyi, eliminate \n, can use tr "\n" " " , also can use sed -e :a -e '$!N; s/\n/ /; ta' to replace \n, same as tr "\n" " "
 while read LINE
 do
-cat "$cvs_log" | awk '/'"$LINE"'/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
+cat "$cvs_log" | awk '/'"$LINE"'$/,/=====/ {print $0}'| sed -e '/'"$LINE"'/,/^date:/d' -e '$d' \
 | tr "\n" " " | tr \" \' | awk '{printf "##\"%s \"\n",$0}' |  sed 's/ \{2,\}\"$/ \"/g'
 done < $input_match | paste -d " " "$1" - > "$2"
 # sed 's/ \{2,\}\"/ \"/g' is used to make sure the comments end up with one space and double qoute: ' "'
@@ -330,9 +330,9 @@ if [ "$sk" = "y" -o "$sk" = "Y" ]
 		cat "$1".txt | awk '{print $0" \""}' > before-erase-duplicate-amd.txt
 		echo "====== file list generated initially before eliminate-duplicate-amd, file num is ========"
 		cat before-erase-duplicate-amd.txt | wc -l
-	fi
+		eliminate-duplicate-amd before-erase-duplicate-amd.txt "$2"
+		fi
 	echo ""
-	eliminate-duplicate-amd before-erase-duplicate-amd.txt "$2"
 	break
 else
 	read -p "Confirm whether you really wanna combine all file list to make a final one for '$1' CAT release? input n to Skip/input y or blank to do it again...................... " sk

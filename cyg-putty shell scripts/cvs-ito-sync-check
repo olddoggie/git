@@ -11,8 +11,8 @@ AF_brch=AFF_3_65		 			# update often
 AF360_services=AFF_3_60_CAT1		# update often
 FS750=FS_7_50 						# update often
 # Define the previous tag on branch
-CS_brch_Pretag=BLEUM_CS_CAT1_07022013_1	 			# update often
-AF_brch_Pretag=BLEUM_AFFINITY_IT_07112013_1			# update often
+CS_brch_Pretag=BLEUM_CS_CAT1_07262013_1	 			# update often
+AF_brch_Pretag=BLEUM_AFFINITY_RT_07232013_1			# update often
 AF360Pretag=BLEUM_AFFINITY_CAT3_04192013_1    		# not update often
 AF360_services_root=BLEUM_FS_SYNC_02162013_1		# not update often
 FS750Pretag=BLEUM_FS_ST_03252013_1					# not update often

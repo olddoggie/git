@@ -104,7 +104,7 @@ else
 	| awk -F '/' '{ {for(j = 1; j<NF; j++) printf "%s\\\\/",$j} printf "%s\n",$j}' > $input
 	while read LINE
 	do
-	cat "$cvs_log" | awk '/'"$LINE"'/,/^date:/ {print $0}' | grep "date:" | awk -F "author: " '{print $2}' \
+	cat "$cvs_log" | awk '/'"$LINE"'$/,/^date:/ {print $0}' | grep "date:" | awk -F "author: " '{print $2}' \
 	| awk -F ";" '/^[A-Za-z0-9]/ {print $1}' 
 	done < $input | paste "$1" - > $temp
 	echo "OK."

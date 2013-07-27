@@ -11,14 +11,15 @@ import java.io.*;
  */
 public class DoExcel {
 
-    static int rowIndex = 0, columnIndex = 0;
-    static Workbook wb;
-    static Sheet ws;
-    static Row wr;
-    static int row_num;
-    static int col_num;
-    static String fileName;
-    static String[][] testData;
+    public static int rowIndex = 0, columnIndex = 0;
+    public static Workbook wb;
+    public static Sheet ws;
+    public static Row wr;
+    public static int row_num;
+    public static int col_num;
+    public static String fileName;
+    public static String[][] testData;
+    public static String whichWeek;
 
     public DoExcel (String fileName){
         this.fileName = fileName;
@@ -35,11 +36,13 @@ public class DoExcel {
             // initial testData
             row_num = ws.getPhysicalNumberOfRows();
             col_num = wr.getPhysicalNumberOfCells();
-            testData = new String[row_num-1][col_num];
+            whichWeek = ws.getRow(0).getCell(2).getStringCellValue();  // the 1st row 3rd col has 3 options: This Week; Next Week; Last Week
+            testData = new String[row_num-2][col_num]; // the first 2 rows are not valid datas
             //这个必须用接口
-            for(int i = 0 ; i < row_num-1; i++) {
+            for(int i = 0 ; i < row_num-2; i++) { // the first 2 rows are not valid datas
                 for(int j = 0 ; j < col_num; j++){
-                    Cell cell = ws.getRow(i+1).getCell(j);
+                    Cell cell = ws.getRow(i+2).getCell(j); // start reading from 3rd row
+                    // System.out.print("#"+cell+"&");   Don't leave your cell empty, or cell will be set null
                     switch(cell.getCellType()) {
                     case Cell.CELL_TYPE_BOOLEAN:
                     //得到Boolean对象的方法

@@ -17,7 +17,8 @@ if [[ $local = local ]]
  then
 	git_dir="/home/jack.wang/gitlab/cmscript"
 	git_remote="git@192.168.2.86:cmscript.git"
-	find /home/jack.wang/bin/ -type f -mtime -$2 | grep -v "bashrc" | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
+	cp -u "/home/jack.wang/.bashrc" "/home/jack.wang/bin"
+	find /home/jack.wang/bin/ -type f -mtime -$2 | xargs -i cp {} "${git_dir}/cyg-putty shell scripts"
 	source /home/jack.wang/bin/go "${git_dir}"
 	echo ""
 	read -p "Please input your comment here: " -t 30 comment
