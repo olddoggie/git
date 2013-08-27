@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/qaframework"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/otherLibs"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/webdriver"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_25"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/webServiceLibs"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/qacommon"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

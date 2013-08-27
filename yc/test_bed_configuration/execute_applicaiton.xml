@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!-- example of ant parament: application= affinity; environment=qa; testng_xml=aff_bat.xml ;test=any testng test-->
+	<!-- if test is not provided, all tests in testng_xml will be executed-->
+<project basedir="." default="execution" name="execute_application">
+
+	<import file="properties.xml" />
+	<target name="build">
+		<ant antfile="build_application.xml" inheritAll="true" />
+	</target>
+
+	<taskdef name="testng" classpath="${testng_jar}" classname="org.testng.TestNGAntTask" />
+	<target depends="build" name="execution">
+		<mkdir dir="test-output" />
+		<testng testnames="${test}" classpathref="test_bed_configuration.classpath" outputdir="test-output" >
+			<xmlfileset dir="./testng_xmls/${application}" includes="${testng_xml}" />
+		</testng>
+	</target>
+	
+	<target depends="execution" name="failed-tests" > 
+		<mkdir dir="test-output-failed" />
+	    <testng testnames="test(failed)" classpathref="test_bed_configuration.classpath" outputDir="test-output-failed" > 	     
+	        <xmlfileset dir="./test-output" includes="testng-failed.xml"/> 
+	    </testng> 
+	</target>
+	
+</project>

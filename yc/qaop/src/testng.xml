@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite_OP">
+    <listeners>
+        <listener class-name="frameLib.listener.MyTestCaseStatusListener" />
+        <listener class-name="frameLib.listener.MyTestVerifyAssertListener" />
+        <listener class-name="frameLib.listener.MyGroupListener" />
+    </listeners>
+
+    <parameter name="browser" value="@browser@" />
+
+    <test name="Test_CAT1" preserve-order="true">
+
+        <groups>
+            <run>
+                <include name="BAT" />
+                <include name="CAT1" />
+            </run>
+        </groups>
+
+        <classes>
+            <class name="com.onefbusa.op.test.ShowOpenPropertyLandingPage" />
+            <class name="com.onefbusa.op.test.UserLogin" />
+            <class name="com.onefbusa.op.test.AuthenticationAndAuthorization" />
+            <class name="com.onefbusa.op.test.UserSignOut" />
+            <class name="com.onefbusa.op.test.ManagingAgentAccountSignUp" />
+            <class name="com.onefbusa.op.test.ShowPendingAccount" />
+            <class name="com.onefbusa.op.test.ShowManagingAgentLandingDashboard" />
+            <class name="com.onefbusa.op.test.ShowTop5EndingSoonLeases" />
+            <class name="com.onefbusa.op.test.ShowTop5Properties" />
+            <class name="com.onefbusa.op.test.ShowAllYourLease" />
+            <class name="com.onefbusa.op.test.ViewLeaseDetail" />
+            <class name="com.onefbusa.op.test.ViewUnitLeaseInfo" />
+            <class name="com.onefbusa.op.test.EditUnitLeaseInfo" />
+            <class name="com.onefbusa.op.test.ViewTenantInfo" />
+            <class name="com.onefbusa.op.test.ViewPropertyInfo" />
+            <class name="com.onefbusa.op.test.AddAnotherTenant" />
+            <class name="com.onefbusa.op.test.EditTenantInfo" />
+            <class name="com.onefbusa.op.test.RemoveTenant" />
+            <class name="com.onefbusa.op.test.UpdateTerms" />
+            <class name="com.onefbusa.op.test.RefundSecurityDepositInfo" />
+            <class name="com.onefbusa.op.test.ConcludeLease" />
+            <class name="com.onefbusa.op.test.SetMonthToMonth" />
+            <class name="com.onefbusa.op.test.RenewLease" />
+            <class name="com.onefbusa.op.test.ShowYourProperties" />
+            <class name="com.onefbusa.op.test.CreateProperty" />
+            <class name="com.onefbusa.op.test.AddBuildings_PropertyCreatePage" />
+            <class name="com.onefbusa.op.test.AddFloorsUnitsForBuildings_PropertyCreatePage" />
+            <class name="com.onefbusa.op.test.ShowPropertyDetail" />
+            <class name="com.onefbusa.op.test.DeleteUnits_PropertyDetailPage" />
+            <class name="com.onefbusa.op.test.DeleteFloors_PropertyDetailPage" />
+            <class name="com.onefbusa.op.test.DeleteBuildings_PropertyDetailPage" />
+            <class name="com.onefbusa.op.test.AddBuildings_PropertyDetailPage" />
+            <class name="com.onefbusa.op.test.EditPropertyInfo" />
+            <class name="com.onefbusa.op.test.ViewDepositInfoDropdownTable" />
+            <class name="com.onefbusa.op.test.EditDepositInfo" />
+            <class name="com.onefbusa.op.test.AddFloorsUnitsForBuildings_PropertyDetailPage" />
+            <class name="com.onefbusa.op.test.ListViewBuilding" />
+            <class name="com.onefbusa.op.test.AddLease" />
+            <class name="com.onefbusa.op.test.InputLeaseInfo" />
+            <class name="com.onefbusa.op.test.AddTenantForNewLease" />
+            <class name="com.onefbusa.op.test.SaveLease" />
+            <class name="com.onefbusa.op.test.SaveAndAddAnotherLease" />
+            <class name="com.onefbusa.op.test.ShowOPAdminLandingDashboard" />
+            <class name="com.onefbusa.op.test.ShowBriefAccountSignUpInfo" />
+            <class name="com.onefbusa.op.test.ShowDetailAccountSignUpInformation" />
+            <class name="com.onefbusa.op.test.ApproveDismissAgentAccountSignup" />
+        </classes>
+    </test>
+
+</suite>

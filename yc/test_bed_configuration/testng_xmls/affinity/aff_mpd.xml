@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="My suite" parallel="classes">
+	<listeners>
+		<listener class-name="frameLib.listener.MyTestCaseStatusListener" />
+		<listener class-name="frameLib.listener.MyGroupListener" />
+		<listener class-name="frameLib.listener.MyTestVerifyAssertListener" />
+	</listeners>
+	<parameter name="browserType" value="ie" />
+	<parameter name="executeRow" value="1" />
+	<test name="mpd_senarios">
+		<classes>
+			<class name="aff.test.mpd.MinPayDueTest"/>		
+		</classes>
+	</test>
+</suite> 

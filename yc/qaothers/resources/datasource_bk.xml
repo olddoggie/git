@@ -1,0 +1,92 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="general.properties"/>
+	</bean>
+
+	<bean id="autopayDs"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
+		<property name="url" value="jdbc:jtds:sqlserver://q1rpdb01.ad.1fbusa.com;DatabaseName=autopay" />
+		<property name="username" value="TestUserQA" />
+		<property name="password" value="Insp3ct10n@" />
+	</bean>
+	<bean id="autopayJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref local="autopayDs" />
+		</property>
+	</bean>
+
+	<bean id="affinityNotesDs"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
+		<property name="url" value="jdbc:jtds:sqlserver://q1rpdb01.ad.1fbusa.com;DatabaseName=affinitynotes" />
+		<property name="username" value="TestUserQA" />
+		<property name="password" value="Insp3ct10n@" />
+	</bean>
+	<bean id="affinityNotesJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref local="affinityNotesDs" />
+		</property>
+	</bean>
+
+	<bean id="programBuddyDs"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
+		<property name="url" value="jdbc:jtds:sqlserver://q1rpdb01.ad.1fbusa.com;DatabaseName=programbuddy" />
+		<property name="username" value="TestUserQA" />
+		<property name="password" value="Insp3ct10n@" />
+	</bean>
+	<bean id="programBuddyJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref local="programBuddyDs" />
+		</property>
+	</bean>
+
+
+	<bean id="codDs"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@qsfodb01v.1fbusa.com:1521:qsfocod" />
+		<property name="username" value="codadmin" />
+		<property name="password" value="cod2q_2$22" />
+	</bean>
+	<bean id="codJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref local="codDs" />
+		</property>
+	</bean>
+	
+		<bean id="csDs"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@qsfodb01v.1fbusa.com:1521:qsfocod" />
+		<property name="username" value="qa1" />
+		<property name="password" value="qa1" />
+	</bean>
+	<bean id="csJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref local="csDs" />
+		</property>
+	</bean>
+	
+	
+		<bean id="odsDs"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="com.sybase.jdbc3.jdbc.SybDriver" />
+		<property name="url" value="jdbc:sybase:Tds:167.16.46.113:41303" />
+  		<property name="username" value="${ods_user_name}" /> 
+		<property name="password" value="${ods_password}" />  
+	<!--	<property name="username" value="yu" />
+		<property name="password" value="claire5" /> 	-->	
+	</bean>
+	<bean id="odsJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref local="odsDs" />
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+
+<project name="qaop" default="testng" basedir=".">
+
+<!-- ===================================== time setting  -->
+	<tstamp>
+		<format property="start.time" pattern="MM/dd/yyyy hh:mm aa" />
+	</tstamp>
+    <path id="screenshot.ref.time">
+    	<fileset dir="test-output/screenshot">
+				<include name="**/*" />
+			<and>
+				<date datetime="${start.time}" when="after" />
+			</and>	
+    	</fileset>
+    </path>
+	
+<!-- ====================================== set ./qaop.properties by default  -->
+	<property name="qaop.properties" value="qaop.properties"/>
+	<property file="${qaop.properties}"/>
+	
+<!-- ===================================== properties setting  -->
+	<property name="src.dir" value="src" />
+	<property name="bin.dir" value="bin" />
+	<property name="dist.dir" value="build" />
+	<property name="dist.classes.dir" value="${dist.dir}/classes" />
+
+    <property name="qaframework.location" value="../qaframework"/>
+    <property name="qaframework.src.dir" value="${qaframework.location}/src" />
+    <property name="qaframework.dist.dir" value="${qaframework.location}/build" />
+    <property name="qaframework.dist.classes.dir" value="${qaframework.dist.dir}/classes" />
+	<property name="qacommon.location" value="../qacommon"/>	
+    <property name="debuglevel" value="source,lines,vars"/>
+	
+<!-- ================================== path id setting  -->
+    <path id="webdriver.userclasspath">
+    	<fileset dir="../qalib/Bleumlib/webdriverLibs">
+    			<include name="**/*.jar" />
+    	</fileset>
+    </path>
+    <path id="otherLibs.userclasspath">
+    	<fileset dir="../qalib/Bleumlib/otherLibs">
+    			<include name="**/*.jar" />
+    	</fileset>
+    </path>
+    <path id="webServiceLibs.userclasspath">
+    	<fileset dir="../qalib/Bleumlib/webServiceLibs">
+    			<include name="**/*.jar" />
+    	</fileset>
+    </path>
+    <path id="htmlUnitlib.userclasspath">
+        <fileset dir="../qalib/htmlUnitlib">
+            <include name="**/*.jar" />
+        </fileset>
+    </path>
+<!-- ================================== refpath id setting  -->
+    <path id="qaframework.classpath">
+        <pathelement location="${qaframework.location}/bin"/> 
+		<!-- define bin folder above as to invoke the compiled files in eclipes, just a workaround, will be replaced by real compiled files when integrated with qaframework  -->
+        <pathelement location="${qaframework.dist.classes.dir}"/> <!-- compiled by ant buid.xml -->
+        <path refid="webdriver.userclasspath"/>
+        <path refid="otherLibs.userclasspath"/>
+        <path refid="webServiceLibs.userclasspath"/>
+        <path refid="htmlUnitlib.userclasspath"/>
+    </path>
+    <path id="qacommon.classpath">
+        <pathelement location="${qacommon.location}/bin"/> <!-- same as qaframework's workaround -->
+        <path refid="qaframework.classpath"/>
+    </path>
+    <path id="qaop.classpath">
+        <pathelement location="${dist.classes.dir}"/> <!-- test classes build result  -->		
+        <path refid="qaframework.classpath"/>
+        <path refid="qacommon.classpath"/>
+    </path>
+	
+<!-- ================================================== target tasks  -->		
+	<target name="init" >
+		<echo message="Ant build.xml starts on: ${start.time}" />
+	    <delete dir="${dist.dir}" />
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${dist.classes.dir}"/>
+	</target>
+
+    <target name="compile-qaframework">
+        <echo message="compile qaframework first..."/>
+        <delete dir="${qaframework.dist.dir}" />
+        <mkdir dir="${qaframework.dist.dir}"/> 
+        <mkdir dir="${qaframework.dist.classes.dir}"/> 
+        <javac debug="true" debuglevel="${debuglevel}" destdir="${qaframework.dist.classes.dir}" includeantruntime="false" source="${java.source}" target="${java.target}" encoding="UTF-8" >
+            <src path="${qaframework.src.dir}" />
+                <include name="**/*.java" />
+            <classpath refid="qaop.classpath"/>
+        </javac>
+    </target>
+
+    <target name="compile" depends="compile-qaframework">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+    	<echo message="Using Java version ${ant.java.version}." />
+        <echo message="JDK source: ${java.source}, target : ${java.target}"/>   	
+        <javac debug="true" debuglevel="${debuglevel}" destdir="${dist.classes.dir}" includeantruntime="false" source="${java.source}" target="${java.target}" encoding="UTF-8" >
+        	<src path="${src.dir}" />
+				<include name="**/*.java" />
+        	<classpath refid="qaop.classpath"/>
+        </javac>
+    </target>
+	
+<!-- ====================================== copy/replace properties  -->
+	<target name="copy">
+		<echo message="Setting Browser to ${browser}..."/>
+		<filterset id="ReplaceTestNG">
+			<filtersfile file="${qaop.properties}"/>
+		</filterset>
+	
+		<copy file="${src.dir}/${testng_xml}" toFile="${dist.dir}/${testng_xml}" overwrite="true" >
+		  <filterset refid="ReplaceTestNG"/>
+		</copy>
+		
+        <copy todir="${dist.classes.dir}" overwrite="true" includeemptydirs="false" failonerror="false" >
+            <fileset dir="${src.dir}">
+                <exclude name="**/*.java"/>
+                <exclude name="**/${testng_xml}"/>				
+            </fileset>
+        </copy>
+	</target>
+	
+<!-- ================================================== testng  -->		
+	<taskdef name="testng" classpathref="qaop.classpath" classname="org.testng.TestNGAntTask" />
+	
+	<target name="test" depends="copy" >
+		<delete dir="${test.output.dir}" />		
+		<mkdir dir="${test.output.dir}" />
+        <echo message="Running TestNG... Current xml file is: ${testng_xml}, Check output in ${test.output.dir}..."/>
+		<testng classpathref="qaop.classpath" outputdir="${test.output.dir}" haltonfailure="no" failureproperty="hasTestError" >
+			<xmlfileset dir="${dist.dir}" includes="${testng_xml}" />
+		</testng>
+		<zip destfile="${test.output.dir}/${test.output.dir}.zip" basedir="${test.output.dir}" update="true"/>		
+	</target>
+	
+	<target name="copy-screenshot" if="hasTestError">
+		<copy todir="${test.output.dir}/screenshot" failonerror="false" >
+        	<path refid="screenshot.ref.time" />
+   		</copy>
+	</target>
+<!-- ================================================== total tasks  -->		
+	<target name="testng" depends="init,compile,test,copy-screenshot" />
+</project>

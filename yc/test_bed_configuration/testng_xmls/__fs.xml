@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite">
+	<listeners>
+		<listener class-name="frameLib.listener.MyTestCaseStatusListener" />
+		<!--<listener class-name="frameLib.listener.MyGroupListener" />-->
+		<listener class-name="frameLib.listener.MyTestVerifyAssertListener" />
+	</listeners>
+	<parameter name="browserType" value="ie" />
+	<parameter name="executeRow" value="0" />
+	<!--<test name="accountSetup"> <classes> <class name="fs.bat.FsBATAccountSetup"/> 
+		</classes> </test>  -->
+
+	<test name="Test1">
+		<classes>
+			<class name="fs.bat.FsBAT">
+ 				<methods>
+<include name="tc_dda_login" />
+				</methods>	<!----><!--<include name="tc_enroll_dda" 	/>  <exclude name="deleteAutopay" />
+<exclude name="tc_register" />
+<include name="tc_update_personal_info" /> -->
+				<!-- <methods> <exclude name=".*" /> <exclude name=".*" /> <include name="tc_register" /> <include name="tc_cca_login" /> <include name="tc_dda_login" /> 
+				<include name="tc_forgot_password" /> <include name="tc_mail" /> <include name="tc_enroll_dda" 
+					/> <include name="tc_update_payment_info" /> <include name="tc_update_personal_info" 
+					/> <include name="tc_make_payment" /> <include name="tc_text_banking" /> <include name="tc_legal_disclosures" /> 
+					</methods> -->
+			</class>
+		</classes>
+	</test>
+</suite> 

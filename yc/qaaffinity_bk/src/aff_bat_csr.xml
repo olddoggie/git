@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite">
+  <listeners>
+    <listener class-name="frameLib.listener.MyTestCaseStatusListener" />
+    <listener class-name="frameLib.listener.MyTestVerifyAssertListener" />
+    <listener class-name="frameLib.listener.MyGroupListener" />    
+  </listeners>
+
+  <test name="Test1">
+    <classes>
+      <class name="aff.bat.CSRTest"> 
+<!--       <methods>
+         <include name="loginTest" />  
+         <include name="searchTest" />  
+         <include name="resultCallTest" />           
+          <include name="csrVdpTest" />
+       <include name="nonMonCardActivatationTest" />      <include name="csrVdpTest" />         
+         <include name="nonMonAccountSecurityTest" />  
+      </methods>-->
+      </class>
+    </classes>
+  </test>
+</suite> 
