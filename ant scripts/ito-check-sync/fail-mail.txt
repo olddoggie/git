@@ -1,7 +1,0 @@
-ito CVS Daily SYNC is failed.
--------------------------------------------------------------------------------------------------------------------------------------------------
-Woops ...The itosync-daily-check cron task failed.
-
-For more information, please check the ${cygwin.home}/cron.log
-
-Have a good day!

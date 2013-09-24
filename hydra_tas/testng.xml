@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<suite name="SuiteHydra">
-    <test name="TimeSheet">
-        <classes>
-            <class name="tas.TimeSheetTest" />
-        </classes>
-    </test>
-</suite>
